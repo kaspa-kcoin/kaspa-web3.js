@@ -1,0 +1,85 @@
+[
+  {
+    "id": "2cb1836edf11cac1400d1adca6c53d678eaab218f75257c722b70f2ce3e93f59",
+    "paymentAmount": "1000000000n",
+    "changeAmount": "9997997964n",
+    "feeAmount": "2002036n",
+    "mass": "2036n",
+    "minimumSignatures": 1,
+    "aggregateInputAmount": "11000000000n",
+    "aggregateOutputAmount": "10997997964n",
+    "type": "final",
+    "transaction": {
+      "id": "2cb1836edf11cac1400d1adca6c53d678eaab218f75257c722b70f2ce3e93f59",
+      "inputs": [
+        {
+          "previousOutpoint": {
+            "transactionId": "cf123968f3a93c8ba328c81a25ac6ec3d20101d2f5a2f2db7e472d5cc95747b6",
+            "index": 6
+          },
+          "signatureScript": "",
+          "sequence": "0n",
+          "sigOpCount": 1,
+          "utxo": {
+            "entry": {
+              "address": {
+                "version": "PubKey",
+                "prefix": "kaspatest",
+                "payload": "qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz"
+              },
+              "outpoint": {
+                "transactionId": "cf123968f3a93c8ba328c81a25ac6ec3d20101d2f5a2f2db7e472d5cc95747b6",
+                "index": 6
+              },
+              "amount": "11000000000n",
+              "scriptPublicKey": {
+                "version": 0,
+                "script": "208426329e968fbc322383543cc2f75b2a3c3aa6c1e13be66155aaee57f17c9323ac"
+              },
+              "blockDaaScore": "80027923n",
+              "isCoinbase": true
+            },
+            "outpoint": {
+              "transactionId": "cf123968f3a93c8ba328c81a25ac6ec3d20101d2f5a2f2db7e472d5cc95747b6",
+              "index": 6
+            },
+            "address": {
+              "version": "PubKey",
+              "prefix": "kaspatest",
+              "payload": "qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz"
+            },
+            "amount": "11000000000n",
+            "isCoinbase": true,
+            "blockDaaScore": "80027923n",
+            "scriptPublicKey": {
+              "version": 0,
+              "script": "208426329e968fbc322383543cc2f75b2a3c3aa6c1e13be66155aaee57f17c9323ac"
+            }
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "value": "1000000000n",
+          "scriptPublicKey": {
+            "version": 0,
+            "script": "20e5847af044ba1e6c333e504e6a95a804d0415f843b0acd2ecbbf4a7e7998e812ac"
+          }
+        },
+        {
+          "value": "9997997964n",
+          "scriptPublicKey": {
+            "version": 0,
+            "script": "208426329e968fbc322383543cc2f75b2a3c3aa6c1e13be66155aaee57f17c9323ac"
+          }
+        }
+      ],
+      "version": 0,
+      "lockTime": "0n",
+      "gas": "0n",
+      "subnetworkId": "0000000000000000000000000000000000000000",
+      "payload": "",
+      "mass": "2036n"
+    }
+  }
+]

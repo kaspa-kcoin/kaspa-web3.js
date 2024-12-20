@@ -1,0 +1,48 @@
+import { TransactionId } from './index';
+import { validateU32 } from '../../validator';
+
+/**
+ * Represents a transaction outpoint, which is a reference to a specific output in a transaction.
+ */
+class TransactionOutpoint {
+  /**
+   * The ID of the transaction.
+   */
+  transactionId: TransactionId;
+
+  /**
+   * The index of the output in the transaction.
+   * @remarks This is a u32.
+   */
+  index: number;
+
+  /**
+   * Creates a new TransactionOutpoint.
+   * @param transactionId - The ID of the transaction.
+   * @param index - The index of the output in the transaction.
+   */
+  constructor(transactionId: TransactionId, index: number) {
+    validateU32(index, 'index');
+    this.transactionId = transactionId;
+    this.index = index;
+  }
+
+  /**
+   * Checks if this transaction outpoint is equal to another transaction outpoint.
+   * @param other - The other transaction outpoint to compare with.
+   * @returns True if the transaction IDs and indices are equal, false otherwise.
+   */
+  equals(other: TransactionOutpoint): boolean {
+    return this.transactionId.equals(other.transactionId) && this.index === other.index;
+  }
+
+  /**
+   * Returns a string representation of the transaction outpoint.
+   * @returns A string in the format (transactionId, index).
+   */
+  toString(): string {
+    return `(${this.transactionId.toHex()}, ${this.index})`;
+  }
+}
+
+export { TransactionOutpoint };

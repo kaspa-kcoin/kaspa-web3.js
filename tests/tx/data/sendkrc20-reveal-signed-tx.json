@@ -1,0 +1,78 @@
+[
+  {
+    "id": "b79c20749967fab0138cb5224281d7e5d7b2123b02f1004bac705c0da4c8f6ca",
+    "paymentAmount": "0n",
+    "changeAmount": "27997619n",
+    "feeAmount": "2002381n",
+    "mass": "2384n",
+    "minimumSignatures": 1,
+    "aggregateInputAmount": "30000000n",
+    "aggregateOutputAmount": "27997619n",
+    "type": "final",
+    "transaction": {
+      "id": "b79c20749967fab0138cb5224281d7e5d7b2123b02f1004bac705c0da4c8f6ca",
+      "inputs": [
+        {
+          "previousOutpoint": {
+            "transactionId": "5c1ddb4494ac8eb6488808c8be89f91e76402da497182a271eaec9227a10a1ea",
+            "index": 0
+          },
+          "signatureScript": "4141329a9ea0105f92c64fe777fa065dc4a2ee3f3a111f0def4fefcefa53e5e7e797363bee641f3ac752d4d7ddfd4972ff73df52b7b8054db5cc14c0f8f85d178e014cbf208426329e968fbc322383543cc2f75b2a3c3aa6c1e13be66155aaee57f17c9323ac0063076b6173706c6578004c8f7b2270223a226b72632d3230222c226f70223a227472616e73666572222c227469636b223a224b415354222c22616d74223a223130313030303030303030222c22746f223a226b61737061746573743a71726a6367376873676a6170756d706e386567797536353434717a647173326c73736173346e667765776c35356c6e656e723570797a6437636d797836227d68",
+          "sequence": "0n",
+          "sigOpCount": 1,
+          "utxo": {
+            "entry": {
+              "address": {
+                "version": "ScriptHash",
+                "prefix": "kaspatest",
+                "payload": "pz6gd03xxw0hy6aj4mrnqq8pcrwgxafc986fh2ky030csevvvaeeuysw0srlr"
+              },
+              "outpoint": {
+                "transactionId": "5c1ddb4494ac8eb6488808c8be89f91e76402da497182a271eaec9227a10a1ea",
+                "index": 0
+              },
+              "amount": "30000000n",
+              "scriptPublicKey": {
+                "version": 0,
+                "script": "aa20b486be26339f726bb2aec73000e1c0dc83753829f49baac47c5f88658c67739e87"
+              },
+              "blockDaaScore": "0n",
+              "isCoinbase": false
+            },
+            "outpoint": {
+              "transactionId": "5c1ddb4494ac8eb6488808c8be89f91e76402da497182a271eaec9227a10a1ea",
+              "index": 0
+            },
+            "address": {
+              "version": "ScriptHash",
+              "prefix": "kaspatest",
+              "payload": "pz6gd03xxw0hy6aj4mrnqq8pcrwgxafc986fh2ky030csevvvaeeuysw0srlr"
+            },
+            "amount": "30000000n",
+            "isCoinbase": false,
+            "blockDaaScore": "0n",
+            "scriptPublicKey": {
+              "version": 0,
+              "script": "aa20b486be26339f726bb2aec73000e1c0dc83753829f49baac47c5f88658c67739e87"
+            }
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "value": "27997619n",
+          "scriptPublicKey": {
+            "version": 0,
+            "script": "208426329e968fbc322383543cc2f75b2a3c3aa6c1e13be66155aaee57f17c9323ac"
+          }
+        }
+      ],
+      "version": 0,
+      "lockTime": "0n",
+      "gas": "0n",
+      "subnetworkId": "0000000000000000000000000000000000000000",
+      "payload": "",
+      "mass": "2384n"
+    }
+  }
+]

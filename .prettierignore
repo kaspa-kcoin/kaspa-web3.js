@@ -1,0 +1,2 @@
+tests/tx/data/*.json
+tsconfig.json
