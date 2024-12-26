@@ -71,7 +71,10 @@ export class KaspadWrpcClient {
 
     if (endpoint === undefined) {
       try {
-        endpoint = await this.resolver!.getJsonUrl(this.network);
+        if (!this.resolver) {
+          throw new Error('No valid resolver or endpoint provided. Cannot establish connection.');
+        }
+        endpoint = await this.resolver.getJsonUrl(this.network);
       } catch {
         if (this.fallbackEndpoint === undefined) {
           throw new Error('No endpoint provided');
