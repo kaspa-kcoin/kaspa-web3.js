@@ -12,11 +12,13 @@ import {
 } from './compiled_proto/rpc';
 import { WrpcJsonRequest, WrpcJsonResponse } from './types';
 import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
-import { Encoding, NetworkId, Resolver } from '../';
+import { JsonResolver, NetworkId } from '../';
 
 class BridgePromise<T> {
-  public resolve: (value: T) => void = () => {};
-  public reject: (reason?: any) => void = () => {};
+  public resolve: (value: T) => void = () => {
+  };
+  public reject: (reason?: any) => void = () => {
+  };
   public promise: Promise<T>;
 
   constructor() {
@@ -29,17 +31,16 @@ class BridgePromise<T> {
 
 export class KaspadWrpcClient {
   public readonly network: NetworkId;
-  public readonly encoding: Encoding;
 
   private client?: WebsocketHeartbeatJs;
-  private readonly resolver?: Resolver;
+  private readonly resolver?: JsonResolver;
   private readonly endpoint?: string;
   private readonly fallbackEndpoint?: string;
   private connectedPromise: BridgePromise<boolean>;
   private idAutoIncrement = 1;
   private requestPromiseMap: Map<number, BridgePromise<any>> = new Map();
 
-  constructor(network: NetworkId, encoding: Encoding, endpointOrResolver: string | Resolver) {
+  constructor(network: NetworkId, endpointOrResolver: string | JsonResolver) {
     console.debug('network', network.toString());
     switch (network.toString()) {
       case 'mainnet':
@@ -54,8 +55,13 @@ export class KaspadWrpcClient {
     }
 
     this.endpoint = typeof endpointOrResolver === 'string' ? endpointOrResolver : undefined;
-    this.resolver = endpointOrResolver instanceof Resolver ? endpointOrResolver : undefined;
-    this.encoding = encoding;
+    if (typeof endpointOrResolver === 'string') {
+      this.endpoint = endpointOrResolver;
+    } else if (endpointOrResolver instanceof JsonResolver) {
+      this.resolver = endpointOrResolver;
+    } else {
+      throw new Error('Invalid endpointOrResolver: must be a string or JsonResolver');
+    }
     this.network = network;
     this.connectedPromise = new BridgePromise<boolean>();
   }
@@ -65,7 +71,10 @@ export class KaspadWrpcClient {
 
     if (endpoint === undefined) {
       try {
-        endpoint = await this.resolver!.getUrl(this.encoding, this.network);
+        if (!this.resolver) {
+          throw new Error('No valid resolver or endpoint provided. Cannot establish connection.');
+        }
+        endpoint = await this.resolver.getJsonUrl(this.network);
       } catch {
         if (this.fallbackEndpoint === undefined) {
           throw new Error('No endpoint provided');
