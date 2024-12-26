@@ -55,7 +55,13 @@ export class KaspadWrpcClient {
     }
 
     this.endpoint = typeof endpointOrResolver === 'string' ? endpointOrResolver : undefined;
-    this.resolver = endpointOrResolver instanceof JsonResolver ? endpointOrResolver : undefined;
+    if (typeof endpointOrResolver === 'string') {
+      this.endpoint = endpointOrResolver;
+    } else if (endpointOrResolver instanceof JsonResolver) {
+      this.resolver = endpointOrResolver;
+    } else {
+      throw new Error('Invalid endpointOrResolver: must be a string or JsonResolver');
+    }
     this.network = network;
     this.connectedPromise = new BridgePromise<boolean>();
   }
