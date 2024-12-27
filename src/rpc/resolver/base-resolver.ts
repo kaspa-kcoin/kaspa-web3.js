@@ -8,12 +8,12 @@ const CURRENT_VERSION = 2;
 /**
  * Abstract class representing a base resolver for network nodes.
  */
-abstract class Base {
+abstract class BaseResolver {
   protected readonly seedAddresses: string[];
   protected readonly tls: boolean;
 
   /**
-   * Constructs a new Base instance.
+   * Constructs.
    * @param {string[] | null} seeds - An array of seed addresses or null.
    * @param {boolean} tls - Indicates if TLS should be used.
    * @throws {Error} If an empty seeds list is supplied.
@@ -146,4 +146,4 @@ abstract class Base {
   }
 }
 
-export { Base };
+export { BaseResolver };

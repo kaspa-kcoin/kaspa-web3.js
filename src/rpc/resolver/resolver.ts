@@ -1,11 +1,11 @@
 import { NetworkId } from '../../consensus';
-import { Base } from './base';
+import { BaseResolver } from './base-resolver.ts';
 
 /**
- * Resolver class that extends the Base class.
+ * Resolver class that extends the BaseResolver class.
  * This resolver only supports JSON WebSocket endpoints.
  */
-class Resolver extends Base {
+class Resolver extends BaseResolver {
   constructor(seedAddresses: string[] | null = null, tls: boolean = true) {
     super(seedAddresses, tls);
   }
