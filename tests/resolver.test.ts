@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { JsonResolver, BorshResolver, tryParseResolvers } from '../src/rpc/resolver/index';
+import { Resolver, tryParseResolvers } from '../src/rpc/resolver';
 import { NetworkId, NetworkType } from '../src/consensus/network';
 
 const TESTNET_10 = new NetworkId(NetworkType.Testnet, 10);
@@ -23,23 +23,23 @@ describe('Resolver', () => {
 
   it('should return seeds', () => {
     const seeds = tryParseResolvers(mockToml);
-    const resolver = new BorshResolver(seeds);
+    const resolver = new Resolver(seeds);
     expect(resolver.getSeeds()).equals(seeds);
   });
 
   it('should return URLs for custom configuration', () => {
     const customSeeds = ['http://custom-url.com'];
-    const resolver = new BorshResolver(customSeeds, true);
+    const resolver = new Resolver(customSeeds, true);
     expect(resolver.getSeeds()).toEqual(customSeeds);
   });
 
   it('should return the correct TLS flag', () => {
-    const resolver = new BorshResolver(null, true);
+    const resolver = new Resolver(null, true);
     expect(resolver.getTls()).toBe(true);
   });
 
   it('should make the correct URL', () => {
-    const resolver = new BorshResolver(['http://example.com'], true);
+    const resolver = new Resolver(['http://example.com'], true);
     const url = resolver['makeUrl']('http://example.com', new NetworkId(NetworkType.Mainnet));
     expect(url).toBe(`http://example.com/v2/kaspa/mainnet/tls/wrpc/borsh`);
   });
@@ -52,7 +52,7 @@ describe('Resolver', () => {
       })
     ) as unknown as typeof fetch;
 
-    const resolver = new BorshResolver(['http://example.com'], true);
+    const resolver = new Resolver(['http://example.com'], true);
     const nodeInfo = await resolver['fetchNodeInfo']('http://example.com', TESTNET_10);
     expect(nodeInfo).toEqual({ uid: '123', url: 'http://node-url.com' });
   });
@@ -60,7 +60,7 @@ describe('Resolver', () => {
   it('should throw an error if fetch fails', async () => {
     global.fetch = vi.fn(() => Promise.reject('Network error')) as unknown as typeof fetch;
 
-    const resolver = new BorshResolver(['http://example.com'], true);
+    const resolver = new Resolver(['http://example.com'], true);
     await expect(resolver['fetchNodeInfo']('http://example.com', TESTNET_10)).rejects.toThrow(
       /Network error/
     );
@@ -77,7 +77,7 @@ describe('Resolver', () => {
       });
     }) as unknown as typeof fetch;
 
-    const resolver = new BorshResolver(['http://example1.com', 'http://example2.com'], true);
+    const resolver = new Resolver(['http://example1.com', 'http://example2.com'], true);
     const nodeInfo = await resolver['fetch'](TESTNET_10);
     expect(nodeInfo).toEqual({ uid: '123', url: 'http://node-url.com' });
   });
@@ -85,14 +85,16 @@ describe('Resolver', () => {
   it('should throw an error if all fetch attempts fail', async () => {
     global.fetch = vi.fn(() => Promise.reject('Network error')) as unknown as typeof fetch;
 
-    const resolver = new BorshResolver(['http://example1.com', 'http://example2.com'], true);
+    const resolver = new Resolver(['http://example1.com', 'http://example2.com'], true);
     await expect(resolver['fetch'](TESTNET_10)).rejects.toThrowError(/Network error/);
   });
 
   // it('json resolver real', async () => {
-  //   const resolver = new BorshResolver(null, true);
-  //   const jsonResolver = new JsonResolver(resolver);
-  //   const url = await jsonResolver.getJsonUrl(TESTNET_10);
-  //   expect(url).length.greaterThan(0);
+  //   console.time('getEndpoint');
+  //   const resolver = new Resolver(null, true);
+  //   const endpoints = await resolver.getNodeEndpoint(TESTNET_10);
+  //   console.log(endpoints);
+  //   console.timeEnd('getEndpoint');
+  //   expect(endpoints).length.greaterThan(0);
   // }, 1000000);
 });

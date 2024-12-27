@@ -1,6 +1,12 @@
 import * as toml from 'toml';
 import { IResolverConfig } from './types';
 
+/**
+ * Parses the given TOML configuration string and extracts resolver addresses.
+ *
+ * @param {string} tomlConfig - The TOML configuration string.
+ * @returns {string[]} An array of resolver addresses.
+ */
 function tryParseResolvers(tomlConfig: string): string[] {
   const config: IResolverConfig = toml.parse(tomlConfig);
 
@@ -18,6 +24,5 @@ function tryParseResolvers(tomlConfig: string): string[] {
   return resolvers;
 }
 
-export * from './borsh-resolver';
-export * from './json-resolver';
+export { Resolver } from './resolver';
 export { tryParseResolvers };

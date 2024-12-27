@@ -12,7 +12,7 @@ import {
 } from './compiled_proto/rpc';
 import { WrpcJsonRequest, WrpcJsonResponse } from './types';
 import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
-import { JsonResolver, NetworkId } from '../';
+import { Resolver, NetworkId } from '../';
 
 class BridgePromise<T> {
   public resolve: (value: T) => void = () => {
@@ -33,14 +33,14 @@ export class KaspadWrpcClient {
   public readonly network: NetworkId;
 
   private client?: WebsocketHeartbeatJs;
-  private readonly resolver?: JsonResolver;
+  private readonly resolver?: Resolver;
   private readonly endpoint?: string;
   private readonly fallbackEndpoint?: string;
   private connectedPromise: BridgePromise<boolean>;
   private idAutoIncrement = 1;
   private requestPromiseMap: Map<number, BridgePromise<any>> = new Map();
 
-  constructor(network: NetworkId, endpointOrResolver: string | JsonResolver) {
+  constructor(network: NetworkId, endpointOrResolver: string | Resolver) {
     console.debug('network', network.toString());
     switch (network.toString()) {
       case 'mainnet':
@@ -57,10 +57,10 @@ export class KaspadWrpcClient {
     this.endpoint = typeof endpointOrResolver === 'string' ? endpointOrResolver : undefined;
     if (typeof endpointOrResolver === 'string') {
       this.endpoint = endpointOrResolver;
-    } else if (endpointOrResolver instanceof JsonResolver) {
+    } else if (endpointOrResolver instanceof Resolver) {
       this.resolver = endpointOrResolver;
     } else {
-      throw new Error('Invalid endpointOrResolver: must be a string or JsonResolver');
+      throw new Error('Invalid endpointOrResolver: must be a string or Resolver');
     }
     this.network = network;
     this.connectedPromise = new BridgePromise<boolean>();
@@ -74,7 +74,7 @@ export class KaspadWrpcClient {
         if (!this.resolver) {
           throw new Error('No valid resolver or endpoint provided. Cannot establish connection.');
         }
-        endpoint = await this.resolver.getJsonUrl(this.network);
+        endpoint = await this.resolver.getNodeEndpoint(this.network);
       } catch {
         if (this.fallbackEndpoint === undefined) {
           throw new Error('No endpoint provided');
