@@ -10,8 +10,7 @@ export class HttpRequest {
       const res = await fetch(`${this.baseUrl ?? ''}${url}`, {
         method: 'GET'
       });
-      const resJson = (await res.json()) as TRes;
-      return resJson;
+      return (await res.json()) as TRes;
     } catch (e) {
       console.error(e);
       throw e;

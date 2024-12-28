@@ -17,6 +17,10 @@ class NetworkId {
   public readonly networkType: NetworkType;
   public readonly suffix?: number;
 
+  public static Mainnet = NetworkId.from(NetworkType.Mainnet);
+  public static Testnet10 = NetworkId.withSuffix(NetworkType.Testnet, 10);
+  public static Testnet11 = NetworkId.withSuffix(NetworkType.Testnet, 11);
+
   /**
    * Creates an instance of NetworkId.
    * @param {NetworkType} networkType - The type of the network.
