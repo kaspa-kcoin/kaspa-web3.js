@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Fees, Generator, SignableTransaction } from '../../src/tx';
 import { kaspaToSompi, NetworkId, NetworkType, SendKasParams } from '../../src';
 import { parseTxsFromFile, parseUtxosFromFile } from './test-helper';
+import path from 'path';
 
 const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
 const RECEIVER_ADDR = 'kaspatest:qrjcg7hsgjapumpn8egyu6544qzdqs2lssas4nfwewl55lnenr5pyzd7cmyx6';
@@ -18,11 +19,11 @@ describe('Generator kas tx', () => {
     { name: '1M KAS', params: sendKas1M }
   ];
 
-  const resultSendKas10 = parseTxsFromFile('tests/tx/data/send10kas.json');
-  const resultSendKas10K = parseTxsFromFile('tests/tx/data/sendkas10k.json');
-  const resultSendKas1M = parseTxsFromFile('tests/tx/data/sendkas1m.json');
+  const resultSendKas10 = parseTxsFromFile(path.resolve(__dirname, './data/send10kas.json'));
+  const resultSendKas10K = parseTxsFromFile(path.resolve(__dirname, './data/send10kkas.json'));
+  const resultSendKas1M = parseTxsFromFile(path.resolve(__dirname, './data/send1mkas.json'));
 
-  const utxos = parseUtxosFromFile('tests/tx/data/utxos.json');
+  const utxos = parseUtxosFromFile(path.resolve(__dirname, './data/utxos.json'));
   const testReuslts = [resultSendKas10, resultSendKas10K, resultSendKas1M];
 
   for (let i = 0; i < testCases.length; i++) {

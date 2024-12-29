@@ -15,7 +15,7 @@ function parseTxsFromFile(file: string): SignableTransaction[] {
   const fileContent = fs.readFileSync(file, 'utf8');
   const txs = parseWithBigInt(fileContent);
 
-  const result = [];
+  const result = new Array<SignableTransaction>();
   const lastSecondIndex = txs.length - 2;
   for (let i = 0; i < txs.length; i++) {
     const tx = txs[i];
