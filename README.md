@@ -8,11 +8,23 @@ The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with th
 
 ## Installation
 
-To install the SDK, use npm:
+<details>
+  <summary>npm</summary>
 
-```sh
-npm install @kcoin/kaspa-web3.js
-```
+  ```sh
+  npm install @kcoin/kaspa-web3.js
+  ```
+
+</details>
+
+<details>
+  <summary>Yarn</summary>
+
+  ```sh
+  yarn add @kcoin/kaspa-web3.js
+  ```
+
+</details>
 
 ## Scripts
 
@@ -190,7 +202,7 @@ npm run format
 - `@noble/curves`: ^1.7.0
 - `@noble/hashes`: ^1.6.1
 - `@noble/secp256k1`: ^2.1.0
-- `buffer`: ^6.0.3
+- `buffer`: ^6.0.3rea
 - `toml`: ^3.0.0
 - `websocket-heartbeat-js`: ^1.1.3
 
