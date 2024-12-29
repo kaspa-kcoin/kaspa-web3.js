@@ -11,12 +11,17 @@ import {
 import { RpcClient } from './rpc-client.ts';
 
 /**
- * RPC subscription topics.
+ * RPC notification events.
+ *
+ * @see {RpcClient.addEventListener}, {RpcClient.removeEventListener}
  */
-export enum RpcTopic {
+export enum RpcEventType {
+  Connect = 'Connect',
+  Disconnect = 'Disconnect',
   BlockAdded = 'BlockAdded',
   VirtualChainChanged = 'VirtualChainChanged',
   FinalityConflict = 'FinalityConflict',
+  FinalityConflictResolved = 'FinalityConflictResolved',
   UtxosChanged = 'UtxosChanged',
   SinkBlueScoreChanged = 'SinkBlueScoreChanged',
   VirtualDaaScoreChanged = 'VirtualDaaScoreChanged',
@@ -24,37 +29,18 @@ export enum RpcTopic {
   NewBlockTemplate = 'NewBlockTemplate'
 }
 
-/**
- * RPC notification events.
- *
- * @see {RpcClient.addEventListener}, {RpcClient.removeEventListener}
- */
-export enum RpcEventType {
-  Connect = 'connect',
-  Disconnect = 'disconnect',
-  BlockAdded = 'block-added',
-  VirtualChainChanged = 'virtual-chain-changed',
-  FinalityConflict = 'finality-conflict',
-  FinalityConflictResolved = 'finality-conflict-resolved',
-  UtxosChanged = 'utxos-changed',
-  SinkBlueScoreChanged = 'sink-blue-score-changed',
-  VirtualDaaScoreChanged = 'virtual-daa-score-changed',
-  PruningPointUtxoSetOverride = 'pruning-point-utxo-set-override',
-  NewBlockTemplate = 'new-block-template'
-}
-
 export type RpcEventMap = {
   connect: undefined;
   disconnect: undefined;
-  'block-added': BlockAddedNotificationMessage;
-  'virtual-chain-changed': VirtualChainChangedNotificationMessage;
-  'finality-conflict': FinalityConflictNotificationMessage;
-  'finality-conflict-resolved': FinalityConflictNotificationMessage;
-  'utxos-changed': UtxosChangedNotificationMessage;
-  'sink-blue-score-changed': SinkBlueScoreChangedNotificationMessage;
-  'virtual-daa-score-changed': VirtualDaaScoreChangedNotificationMessage;
-  'pruning-point-utxo-set-override': PruningPointUtxoSetOverrideNotificationMessage;
-  'new-block-template': NewBlockTemplateNotificationMessage;
+  'BlockAdded': BlockAddedNotificationMessage;
+  'VirtualChainChanged': VirtualChainChangedNotificationMessage;
+  'FinalityConflict': FinalityConflictNotificationMessage;
+  'FinalityConflictResolved': FinalityConflictNotificationMessage;
+  'UtxosChanged': UtxosChangedNotificationMessage;
+  'SinkBlueScoreChanged': SinkBlueScoreChangedNotificationMessage;
+  'VirtualDaaScoreChanged': VirtualDaaScoreChangedNotificationMessage;
+  'PruningPointUtxoSetOverride': PruningPointUtxoSetOverrideNotificationMessage;
+  'NewBlockTemplate': NewBlockTemplateNotificationMessage;
 };
 
 /**

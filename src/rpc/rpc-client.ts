@@ -104,7 +104,7 @@ import {
 } from './types';
 import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 import { NetworkId, Resolver } from '../';
-import { RpcEventCallback, RpcEventMap, RpcEventObservable, RpcEventType, RpcTopic } from './events.ts';
+import { RpcEventCallback, RpcEventMap, RpcEventObservable, RpcEventType } from './events.ts';
 
 /**
  * A utility class that creates a promise and exposes its resolve and reject methods.
@@ -302,7 +302,7 @@ export class RpcClient implements RpcEventObservable {
    */
   subscribeBlockAdded = async (): Promise<void> => {
     const res = await this.sendSubscribeRequest<NotifyBlockAddedRequestMessage, NotifyBlockAddedResponseMessage>(
-      RpcTopic.BlockAdded,
+      RpcEventType.BlockAdded,
       {}
     );
     this.ensureResponse(res);
@@ -318,7 +318,7 @@ export class RpcClient implements RpcEventObservable {
    */
   unsubscribeBlockAdded = async (): Promise<void> => {
     const res = await this.sendUnsubscribeRequest<NotifyBlockAddedRequestMessage, NotifyBlockAddedResponseMessage>(
-      RpcTopic.BlockAdded,
+      RpcEventType.BlockAdded,
       {}
     );
     this.ensureResponse(res);
@@ -419,7 +419,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendSubscribeRequest<
       NotifyVirtualChainChangedRequestMessage,
       NotifyVirtualChainChangedResponseMessage
-    >(RpcTopic.VirtualChainChanged, req);
+    >(RpcEventType.VirtualChainChanged, req);
 
     this.ensureResponse(res);
   };
@@ -440,7 +440,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendUnsubscribeRequest<
       NotifyVirtualChainChangedRequestMessage,
       NotifyVirtualChainChangedResponseMessage
-    >(RpcTopic.VirtualChainChanged, req);
+    >(RpcEventType.VirtualChainChanged, req);
     this.ensureResponse(res);
   };
 
@@ -534,7 +534,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendSubscribeRequest<
       NotifyFinalityConflictRequestMessage,
       NotifyFinalityConflictResponseMessage
-    >(RpcTopic.FinalityConflict, req);
+    >(RpcEventType.FinalityConflict, req);
     this.ensureResponse(res);
   };
 
@@ -550,7 +550,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendUnsubscribeRequest<
       NotifyFinalityConflictRequestMessage,
       NotifyFinalityConflictResponseMessage
-    >(RpcTopic.FinalityConflict, req);
+    >(RpcEventType.FinalityConflict, req);
     this.ensureResponse(res);
   };
 
@@ -597,7 +597,7 @@ export class RpcClient implements RpcEventObservable {
   subscribeUtxosChanged = async (addresses: string[]): Promise<void> => {
     const req: NotifyUtxosChangedRequestMessage = { addresses };
     const res = await this.sendSubscribeRequest<NotifyUtxosChangedRequestMessage, NotifyUtxosChangedResponseMessage>(
-      RpcTopic.UtxosChanged,
+      RpcEventType.UtxosChanged,
       req
     );
     this.ensureResponse(res);
@@ -614,7 +614,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendUnsubscribeRequest<
       StopNotifyingUtxosChangedRequestMessage,
       StopNotifyingUtxosChangedResponseMessage
-    >(RpcTopic.UtxosChanged, req);
+    >(RpcEventType.UtxosChanged, req);
     this.ensureResponse(res);
   };
 
@@ -660,7 +660,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendSubscribeRequest<
       NotifySinkBlueScoreChangedRequestMessage,
       NotifySinkBlueScoreChangedResponseMessage
-    >(RpcTopic.SinkBlueScoreChanged, req);
+    >(RpcEventType.SinkBlueScoreChanged, req);
     this.ensureResponse(res);
   };
 
@@ -674,7 +674,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendUnsubscribeRequest<
       NotifySinkBlueScoreChangedRequestMessage,
       NotifySinkBlueScoreChangedResponseMessage
-    >(RpcTopic.SinkBlueScoreChanged, req);
+    >(RpcEventType.SinkBlueScoreChanged, req);
     this.ensureResponse(res);
   };
 
@@ -719,7 +719,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendSubscribeRequest<
       NotifyPruningPointUtxoSetOverrideRequestMessage,
       NotifyPruningPointUtxoSetOverrideResponseMessage
-    >(RpcTopic.PruningPointUtxoSetOverride, req);
+    >(RpcEventType.PruningPointUtxoSetOverride, req);
     this.ensureResponse(res);
   };
 
@@ -733,7 +733,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendUnsubscribeRequest<
       NotifyPruningPointUtxoSetOverrideRequestMessage,
       NotifyPruningPointUtxoSetOverrideResponseMessage
-    >(RpcTopic.PruningPointUtxoSetOverride, req);
+    >(RpcEventType.PruningPointUtxoSetOverride, req);
     this.ensureResponse(res);
   };
 
@@ -767,7 +767,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendSubscribeRequest<
       NotifyVirtualDaaScoreChangedRequestMessage,
       NotifyVirtualDaaScoreChangedResponseMessage
-    >(RpcTopic.VirtualDaaScoreChanged, req);
+    >(RpcEventType.VirtualDaaScoreChanged, req);
     this.ensureResponse(res);
   };
 
@@ -781,7 +781,7 @@ export class RpcClient implements RpcEventObservable {
     const res = await this.sendUnsubscribeRequest<
       NotifyVirtualDaaScoreChangedRequestMessage,
       NotifyVirtualDaaScoreChangedResponseMessage
-    >(RpcTopic.VirtualDaaScoreChanged, req);
+    >(RpcEventType.VirtualDaaScoreChanged, req);
     this.ensureResponse(res);
   };
 
@@ -824,11 +824,11 @@ export class RpcClient implements RpcEventObservable {
    * @returns {Promise<void>} A promise that resolves when the subscription is successfully initiated.
    */
   subscribeNewBlockTemplate = async (): Promise<void> => {
-    const req: NotifyNewBlockTemplateRequestMessage = { };
-    const res = await this.sendSubscribeRequest<NotifyNewBlockTemplateRequestMessage, NotifyNewBlockTemplateResponseMessage>(
-      RpcTopic.NewBlockTemplate,
-      req
-    );
+    const req: NotifyNewBlockTemplateRequestMessage = {};
+    const res = await this.sendSubscribeRequest<
+      NotifyNewBlockTemplateRequestMessage,
+      NotifyNewBlockTemplateResponseMessage
+    >(RpcEventType.NewBlockTemplate, req);
     this.ensureResponse(res);
   };
 
@@ -838,11 +838,11 @@ export class RpcClient implements RpcEventObservable {
    * @returns {Promise<void>} A promise that resolves when the unsubscribe operation is successfully completed.
    */
   unsubscribeNewBlockTemplate = async (): Promise<void> => {
-    const req: NotifyNewBlockTemplateRequestMessage = {  };
-    const res = await this.sendUnsubscribeRequest<NotifyNewBlockTemplateRequestMessage, NotifyNewBlockTemplateResponseMessage>(
-      RpcTopic.NewBlockTemplate,
-      req
-    );
+    const req: NotifyNewBlockTemplateRequestMessage = {};
+    const res = await this.sendUnsubscribeRequest<
+      NotifyNewBlockTemplateRequestMessage,
+      NotifyNewBlockTemplateResponseMessage
+    >(RpcEventType.NewBlockTemplate, req);
     this.ensureResponse(res);
   };
 
@@ -1098,37 +1098,37 @@ export class RpcClient implements RpcEventObservable {
     return bridgePromise.promise;
   }
 
-  private buildSubscribeRequest = <T>(topic: RpcTopic, params: T): JsonRpcRequest<T> => {
+  private buildSubscribeRequest = <T>(event: RpcEventType, params: T): JsonRpcRequest<T> => {
     let req: any = {
       id: this.generateRandomId(),
       method: 'subscribe'
     };
-    req[topic] = params;
+    req[event] = params;
     return req;
   };
 
-  private buildUnsubscribeRequest = <T>(topic: RpcTopic, params: T): JsonRpcRequest<T> => {
+  private buildUnsubscribeRequest = <T>(event: RpcEventType, params: T): JsonRpcRequest<T> => {
     let req: any = {
       id: this.generateRandomId(),
       method: 'unsubscribe'
     };
-    req[topic] = params;
+    req[event] = params;
     return req;
   };
 
   /**
    * Sends a JSON-RPC subscription request to the server.
    *
-   * @param {RpcTopic} topic - The RPC topic to subscribe to.
+   * @param {RpcEventType} event - The RPC event to subscribe to.
    * @param {TParam} params - The parameters for the RPC method.
    */
-  private async sendSubscribeRequest<TParam, TRes>(topic: RpcTopic, params: TParam): Promise<TRes> {
+  private async sendSubscribeRequest<TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> {
     if (this.client === undefined) {
       await this.connect();
     }
 
     await this.connectedPromise.promise;
-    const request = this.buildSubscribeRequest(topic, params);
+    const request = this.buildSubscribeRequest(event, params);
     const bridgePromise = new BridgePromise<TRes>();
     this.requestPromiseMap.set(request.id ?? 0, bridgePromise);
     this.client!.send(JSON.stringify(request));
@@ -1138,16 +1138,16 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Sends a JSON-RPC unsubscribe request to the server.
    *
-   * @param {RpcTopic} topic - The RPC topic to unsubscribe from.
+   * @param {RpcEventType} event - The RPC event to unsubscribe from.
    * @param {TParam} params - The parameters for the RPC method.
    */
-  private async sendUnsubscribeRequest<TParam, TRes>(topic: RpcTopic, params: TParam): Promise<TRes> {
+  private async sendUnsubscribeRequest<TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> {
     if (this.client === undefined) {
       await this.connect();
     }
 
     await this.connectedPromise.promise;
-    const request = this.buildUnsubscribeRequest(topic, params);
+    const request = this.buildUnsubscribeRequest(event, params);
     const bridgePromise = new BridgePromise<TRes>();
     this.requestPromiseMap.set(request.id ?? 0, bridgePromise);
     this.client!.send(JSON.stringify(request));
@@ -1177,8 +1177,10 @@ export class RpcClient implements RpcEventObservable {
    * @param {JsonRpcResponse<any>} res - The event notification from the server.
    */
   private handleEvent(res: JsonRpcResponse<any>) {
+    if (!res.method.endsWith('Notification')) throw new Error(`Invalid event name: ${res.method}`);
+
     for (const listener of this.eventListeners) {
-      if (listener.event === null || listener.event === res.method) {
+      if (listener.event === null || res.params[listener.event]) {
         listener.callback(res.params);
       }
     }
