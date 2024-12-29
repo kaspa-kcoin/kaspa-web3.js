@@ -1,23 +1,23 @@
 {
-  "name": "@kcoin/kaspa-js-sdk",
+  "name": "@kcoin/kaspa-web3.js",
   "private": false,
   "version": "0.1.0",
   "type": "module",
   "files": [
     "dist"
   ],
-  "main": "./dist/kaspa-js-sdk.umd.cjs",
-  "module": "./dist/kaspa-js-sdk.js",
+  "main": "./dist/kaspa-web3.umd.cjs",
+  "module": "./dist/kaspa-web3.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/kaspa-js-sdk.js"
+        "default": "./dist/kaspa-web3.js"
       },
       "require": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/kaspa-js-sdk.umd.cjs"
+        "default": "./dist/kaspa-web3.umd.cjs"
       }
     }
   },
@@ -34,8 +34,6 @@
     "@noble/hashes": "^1.6.1",
     "@noble/secp256k1": "^2.1.0",
     "buffer": "^6.0.3",
-    "long": "^5.2.3",
-    "nice-grpc-web": "^3.3.5",
     "toml": "^3.0.0",
     "websocket-heartbeat-js": "^1.1.3"
   },
