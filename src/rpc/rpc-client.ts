@@ -1063,7 +1063,10 @@ export class RpcClient implements RpcEventObservable {
    * Disposes the RPC client by closing the WebSocket connection.
    */
   dispose = () => {
+    this.removeAllEventListeners();
+    this.requestPromiseMap.clear();
     this.client?.close();
+    this.client = undefined;
   };
 
   /**
