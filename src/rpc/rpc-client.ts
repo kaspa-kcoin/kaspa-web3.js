@@ -171,7 +171,10 @@ export class RpcClient implements RpcEventObservable {
   private readonly endpoint?: string;
   private connectedPromise: BridgePromise<boolean>;
   private requestPromiseMap: Map<number, BridgePromise<any>> = new Map();
-  private eventListeners: { event: keyof RpcEventMap | null; callback: Function }[] = [];
+  private eventListeners: {
+    event: keyof RpcEventMap | null;
+    callback: (data: unknown) => void;
+  }[] = [];
 
   constructor(rpcOptions: RpcOptions) {
     const { endpoint, resolver, networkId } = rpcOptions;
