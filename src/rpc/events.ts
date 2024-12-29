@@ -30,8 +30,8 @@ export enum RpcEventType {
 }
 
 export type RpcEventMap = {
-  connect: undefined;
-  disconnect: undefined;
+  Connect: undefined;
+  Disconnect: undefined;
   'BlockAdded': BlockAddedNotificationMessage;
   'VirtualChainChanged': VirtualChainChangedNotificationMessage;
   'FinalityConflict': FinalityConflictNotificationMessage;
