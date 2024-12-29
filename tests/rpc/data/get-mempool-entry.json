@@ -1,0 +1,20 @@
+{
+  "request": {
+    "id": 7,
+    "method": "getMempoolEntry",
+    "params": {
+      "filterTransactionPool": false,
+      "includeOrphanPool": false,
+      "transactionId": "4ce03d42b07141c0847ee1ef56f4dcff472cb359d9c52bdbcfeb1a67dac38b2f"
+    }
+  },
+  "response": {
+    "id": 7,
+    "method": "getMempoolEntry",
+    "error": {
+      "code": 0,
+      "message": "Transaction 4ce03d42b07141c0847ee1ef56f4dcff472cb359d9c52bdbcfeb1a67dac38b2f not found",
+      "data": null
+    }
+  }
+}

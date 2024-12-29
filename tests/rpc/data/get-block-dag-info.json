@@ -1,0 +1,36 @@
+{
+  "request": {
+    "id": 1,
+    "method": "getBlockDagInfo",
+    "params": {}
+  },
+  "response": {
+    "id": 4,
+    "method": "getBlockDagInfo",
+    "params": {
+      "blockCount": 425580,
+      "difficulty": 986172.7643184133,
+      "headerCount": 1535045,
+      "network": "testnet-11",
+      "pastMedianTime": 1735322473667,
+      "pruningPointHash": "89a99b891241fecaa6e10f1fe59cfcee2eb03a09ea6030e287e8c363b6adbbc8",
+      "sink": "9b2fc1217ecfc5fa4c8c982967bd94779580db6c990420c66731495976761692",
+      "tipHashes": [
+        "3e32e03c49b0b952d9edcd1e90d27bef1d10540cae86927a18d51ff59df87c89",
+        "735c82bf32b0eedb5eb6dbbd6999f80f8c348dce429fe86168690c65f1ed66b1",
+        "3f2b16a2b3388e8aee843e7f14cade25616082321b708b4deacb5a99088d9bad",
+        "43412199ed7afe08fd53597d03845b037404e760ae90eba6eac03cc1e7f6f776",
+        "4ac062d5255f70b49b9e185ca46f6bb7d49fdc33272e22c18c87b3a3c0e4282a",
+        "b4a2b5e8b0d9c7ce5255569e25b061a0965a73facf6e3f09c8b590b3c3b1c6ce",
+        "9b2fc1217ecfc5fa4c8c982967bd94779580db6c990420c66731495976761692"
+      ],
+      "virtualDaaScore": 308011661,
+      "virtualParentHashes": [
+        "735c82bf32b0eedb5eb6dbbd6999f80f8c348dce429fe86168690c65f1ed66b1",
+        "7100ad589c07721babd0ffbaf3f25bd94fcff572f0d4b3efb7eac7820f947e7d",
+        "4ac062d5255f70b49b9e185ca46f6bb7d49fdc33272e22c18c87b3a3c0e4282a",
+        "9b2fc1217ecfc5fa4c8c982967bd94779580db6c990420c66731495976761692"
+      ]
+    }
+  }
+}

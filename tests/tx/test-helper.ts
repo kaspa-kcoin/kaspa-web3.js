@@ -34,7 +34,10 @@ function parseTxsFromFile(file: string): SignableTransaction[] {
         (output: any) =>
           new TransactionOutput(
             BigInt(output.value),
-            new ScriptPublicKey(output.scriptPublicKey.version, new Uint8Array(Buffer.from(output.scriptPublicKey.script, 'hex')))
+            new ScriptPublicKey(
+              output.scriptPublicKey.version,
+              new Uint8Array(Buffer.from(output.scriptPublicKey.script, 'hex'))
+            )
           )
       ),
       BigInt(tx.transaction.lockTime),
@@ -52,7 +55,10 @@ function parseTxsFromFile(file: string): SignableTransaction[] {
         Address.fromString(utxo.address.prefix + ':' + utxo.address.payload),
         new TransactionOutpoint(Hash.fromHex(utxo.outpoint.transactionId), utxo.outpoint.index),
         BigInt(utxo.amount),
-        new ScriptPublicKey(utxo.scriptPublicKey.version, new Uint8Array( Buffer.from(utxo.scriptPublicKey.script, 'hex'))),
+        new ScriptPublicKey(
+          utxo.scriptPublicKey.version,
+          new Uint8Array(Buffer.from(utxo.scriptPublicKey.script, 'hex'))
+        ),
         BigInt(utxo.blockDaaScore),
         utxo.isCoinbase
       );
@@ -85,7 +91,10 @@ function parseUtxosFromFile(file: string): UtxoEntryReference[] {
       Address.fromString(utxo.address.prefix + ':' + utxo.address.payload),
       new TransactionOutpoint(Hash.fromHex(utxo.outpoint.transactionId), utxo.outpoint.index),
       BigInt(utxo.amount),
-      new ScriptPublicKey(utxo.scriptPublicKey.version , new Uint8Array(Buffer.from(utxo.scriptPublicKey.script, 'hex'))),
+      new ScriptPublicKey(
+        utxo.scriptPublicKey.version,
+        new Uint8Array(Buffer.from(utxo.scriptPublicKey.script, 'hex'))
+      ),
       BigInt(utxo.blockDaaScore),
       utxo.isCoinbase
     );

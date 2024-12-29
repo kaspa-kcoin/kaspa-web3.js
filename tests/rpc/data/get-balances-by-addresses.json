@@ -1,0 +1,22 @@
+{
+  "request": {
+    "id": 25,
+    "method": "getBalancesByAddresses",
+    "params": {
+      "addresses": ["kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls"]
+    }
+  },
+  "response": {
+    "id": 25,
+    "method": "getBalancesByAddresses",
+    "result": {
+      "entries": [
+        {
+          "address": "kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls",
+          "balance": 12300000000
+        }
+      ]
+    },
+    "error": null
+  }
+}

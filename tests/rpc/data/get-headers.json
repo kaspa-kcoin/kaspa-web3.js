@@ -1,0 +1,20 @@
+{
+  "request": {
+    "id": 18,
+    "method": "getHeaders",
+    "params": {
+      "startHash": "7e74aab3049b8b3a133bcbaf93d45f70585753799061c300705f85eed99da9b6",
+      "limit": 100,
+      "isAscending": true
+    }
+  },
+  "response": {
+    "id": 18,
+    "method": "getHeaders",
+    "error": {
+      "code": 0,
+      "message": "Not implemented",
+      "data": null
+    }
+  }
+}

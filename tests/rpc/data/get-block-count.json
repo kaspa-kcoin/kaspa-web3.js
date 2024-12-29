@@ -1,0 +1,15 @@
+{
+  "request": {
+    "id": 15,
+    "method": "getBlockCount",
+    "params": {}
+  },
+  "response": {
+    "id": 15,
+    "method": "getBlockCount",
+    "params": {
+      "blockCount": 1173592,
+      "headerCount": 1695484
+    }
+  }
+}

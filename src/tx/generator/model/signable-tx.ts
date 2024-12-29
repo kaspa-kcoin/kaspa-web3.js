@@ -135,19 +135,19 @@ class SignableTransaction {
         },
         sequence: Number(input.sequence),
         sigOpCount: input.sigOpCount,
-        signatureScript:  Buffer.from(input.signatureScript).toString('hex')
+        signatureScript: Buffer.from(input.signatureScript).toString('hex')
       })),
       outputs: this.tx.outputs.map((output) => ({
         value: Number(output.value),
         scriptPublicKey: {
           version: output.scriptPublicKey.version,
-          script:  Buffer.from(output.scriptPublicKey.script).toString('hex')
+          script: Buffer.from(output.scriptPublicKey.script).toString('hex')
         }
       })),
       lockTime: Number(this.tx.lockTime),
       gas: Number(this.tx.gas),
       subnetworkId: this.tx.subnetworkId.toString(),
-      payload:  Buffer.from(this.tx.payload).toString('hex'),
+      payload: Buffer.from(this.tx.payload).toString('hex'),
       mass: Number(this.tx.mass)
     };
   }
@@ -188,7 +188,7 @@ class SignableTransaction {
       gas: this.tx.gas.toString(),
       mass: this.mass.toString(),
       subnetworkId: this.tx.subnetworkId.toString(),
-      payload:  Buffer.from(this.tx.payload).toString('hex'),
+      payload: Buffer.from(this.tx.payload).toString('hex')
     };
   }
 }

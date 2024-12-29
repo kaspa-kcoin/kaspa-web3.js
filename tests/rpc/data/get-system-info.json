@@ -1,0 +1,24 @@
+{
+  "request": {
+    "id": 34,
+    "method": "getSystemInfo",
+    "params": {}
+  },
+  "response": {
+    "id": 34,
+    "method": "getSystemInfo",
+    "result": {
+      "cpuPhysicalCores": 18,
+      "fdLimit": 8192,
+      "gitHash": [43, 63, 85, 244],
+      "proxySocketLimitPerCpuCore": 768,
+      "systemId": [
+        166, 117, 200, 130, 8, 137, 24, 167, 118, 205, 72, 197, 151, 43, 147, 254, 67, 183, 116, 117, 180, 154, 151,
+        255, 5, 26, 8, 91, 19, 63, 62, 29
+      ],
+      "totalMemory": 67303952384,
+      "version": "v0.15.4-2b3f55f4"
+    },
+    "error": null
+  }
+}

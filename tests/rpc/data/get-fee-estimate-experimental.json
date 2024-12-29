@@ -1,0 +1,46 @@
+{
+  "request": {
+    "id": 36,
+    "method": "getFeeEstimateExperimental",
+    "params": {
+      "verbose": true
+    }
+  },
+  "response": {
+    "id": 36,
+    "method": "getFeeEstimateExperimental",
+    "result": {
+      "estimate": {
+        "lowBuckets": [
+          {
+            "estimatedSeconds": 0.006350448181624036,
+            "feerate": 1
+          }
+        ],
+        "normalBuckets": [
+          {
+            "estimatedSeconds": 0.006350448181624036,
+            "feerate": 1
+          },
+          {
+            "estimatedSeconds": 0.006350448181624036,
+            "feerate": 1
+          }
+        ],
+        "priorityBucket": {
+          "estimatedSeconds": 0.006350448181624036,
+          "feerate": 1
+        }
+      },
+      "verbose": {
+        "mempoolReadyTransactionsCount": 0,
+        "mempoolReadyTransactionsTotalMass": 0,
+        "networkMassPerSecond": 500000,
+        "nextBlockTemplateFeerateMax": -1,
+        "nextBlockTemplateFeerateMedian": -1,
+        "nextBlockTemplateFeerateMin": -1
+      }
+    },
+    "error": null
+  }
+}

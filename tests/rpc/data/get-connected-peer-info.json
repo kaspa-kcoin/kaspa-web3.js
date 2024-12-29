@@ -1,0 +1,127 @@
+{
+  "request": {
+    "id": 8,
+    "method": "getConnectedPeerInfo",
+    "params": {}
+  },
+  "response": {
+    "id": 8,
+    "method": "getConnectedPeerInfo",
+    "params": {
+      "peerInfo": [
+        {
+          "address": {
+            "ip": "79.160.218.211",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "1001fba0-5015-442d-82a9-beda6475ff20",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 471,
+          "time_connected": 9123235,
+          "time_offset": 572,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        },
+        {
+          "address": {
+            "ip": "193.159.169.252",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "f47875ed-6236-4056-bf35-5ccb55ab4e93",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 264,
+          "time_connected": 8643655,
+          "time_offset": 284,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4(In_Memory_of_JimmY)/"
+        },
+        {
+          "address": {
+            "ip": "78.47.96.208",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "3739424d-fcbc-40e8-870f-d0070910b400",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 830,
+          "time_connected": 9332692,
+          "time_offset": 939,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        },
+        {
+          "address": {
+            "ip": "185.199.53.250",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "6e8d2aba-4c3a-4a12-a35a-7fed5f211192",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 667,
+          "time_connected": 10142442,
+          "time_offset": 578,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        },
+        {
+          "address": {
+            "ip": "136.243.93.17",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "542c2b22-b211-4ff0-9ee6-7dfb3d9b7520",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 662,
+          "time_connected": 9753454,
+          "time_offset": 1177,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        },
+        {
+          "address": {
+            "ip": "185.69.54.99",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "be491b7d-56f9-45ff-99a3-a0259ef6c040",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 321,
+          "time_connected": 10382668,
+          "time_offset": 1767,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        },
+        {
+          "address": {
+            "ip": "62.84.189.5",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "6f6027b2-1f86-4831-bf60-4a90dfaf0983",
+          "is_ibd_peer": false,
+          "is_outbound": true,
+          "last_ping_duration": 292,
+          "time_connected": 19414508,
+          "time_offset": 358,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        },
+        {
+          "address": {
+            "ip": "89.58.41.46",
+            "port": 16311
+          },
+          "advertised_protocol_version": 6,
+          "id": "3cf6ed04-b053-418a-b9fc-070035359659",
+          "is_ibd_peer": true,
+          "is_outbound": true,
+          "last_ping_duration": 233,
+          "time_connected": 8701610,
+          "time_offset": 282,
+          "user_agent": "/kaspad:0.15.4/kaspad:0.15.4/"
+        }
+      ]
+    }
+  }
+}

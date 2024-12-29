@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 37,
+    "method": "getCurrentBlockColor",
+    "params": {
+      "hash": "e5ba10649ed03b5038461e1f781a4af22f6ea9afb55aa28a17b56e8c6ee0bc99"
+    }
+  },
+  "response": {
+    "id": 37,
+    "method": "getCurrentBlockColor",
+    "result": {
+      "blue": true
+    },
+    "error": null
+  }
+}

@@ -66,7 +66,6 @@ for (const tx of txs) {
     allowOrphan: false
   });
 }
-
 ```
 
 ### Building

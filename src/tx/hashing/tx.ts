@@ -2,7 +2,7 @@ import { Transaction, TransactionId } from '../index';
 import { Blake2bHashKey, Hash } from './index';
 import { TransactionSerializer } from './tx-serializer';
 import { TX_ENCODING_EXCLUDE_SIGNATURE_SCRIPT, TX_ENCODING_FULL } from './data-writer';
-import {blake2b} from "@noble/hashes/blake2b";
+import { blake2b } from '@noble/hashes/blake2b';
 
 /**
  * Class providing hashing utilities for transactions.
@@ -29,7 +29,7 @@ class TransactionHashing {
   static id(tx: Transaction): TransactionId {
     const encodingFlags = tx.isCoinbase() ? TX_ENCODING_FULL : TX_ENCODING_EXCLUDE_SIGNATURE_SCRIPT;
     const txBytes = TransactionSerializer.serialize(tx, encodingFlags, false).buffer;
-    const hash= blake2b(txBytes, { dkLen: 32, key: Blake2bHashKey.TransactionID });
+    const hash = blake2b(txBytes, { dkLen: 32, key: Blake2bHashKey.TransactionID });
     return new Hash(hash);
   }
 }

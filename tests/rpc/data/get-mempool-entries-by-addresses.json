@@ -1,0 +1,25 @@
+{
+  "request": {
+    "id": 26,
+    "method": "getMempoolEntriesByAddresses",
+    "params": {
+      "addresses": ["kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls"],
+      "includeOrphanPool": false,
+      "filterTransactionPool": false
+    }
+  },
+  "response": {
+    "id": 26,
+    "method": "getMempoolEntriesByAddresses",
+    "result": {
+      "entries": [
+        {
+          "address": "kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls",
+          "receiving": [],
+          "sending": []
+        }
+      ]
+    },
+    "error": null
+  }
+}

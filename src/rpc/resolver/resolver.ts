@@ -15,7 +15,9 @@ class Resolver extends BaseResolver {
     const jsonEndpoints = endpoints.map((url) => url.replace('borsh', 'json'));
 
     const promises = jsonEndpoints.map(async (endpoint) => {
-      return this.testConnection(endpoint).then((reachableEndpoint) => reachableEndpoint).catch(() => null);
+      return this.testConnection(endpoint)
+        .then((reachableEndpoint) => reachableEndpoint)
+        .catch(() => null);
     });
 
     const result = await Promise.any(promises);
@@ -32,7 +34,9 @@ class Resolver extends BaseResolver {
     const reachableEndpoints: string[] = [];
 
     const promises = jsonEndpoints.map((endpoint) =>
-      this.testConnection(endpoint).then((reachableEndpoint) => reachableEndpoints.push(reachableEndpoint)).catch(() => null)
+      this.testConnection(endpoint)
+        .then((reachableEndpoint) => reachableEndpoints.push(reachableEndpoint))
+        .catch(() => null)
     );
 
     await Promise.allSettled(promises);

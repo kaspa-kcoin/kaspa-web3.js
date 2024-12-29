@@ -44,4 +44,3 @@ export type Krc20TokenBalanceInfo = {
 export type GetKrc20AddressTokenListResponse = Krc20TokenBalanceInfo[];
 
 export type GetKrc20BalanceResponse = GetKrc20AddressTokenListResponse;
-

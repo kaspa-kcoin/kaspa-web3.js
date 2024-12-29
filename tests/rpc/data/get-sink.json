@@ -1,0 +1,14 @@
+{
+  "request": {
+    "id": 6,
+    "method": "getSink",
+    "params": {}
+  },
+  "response": {
+    "id": 6,
+    "method": "getSink",
+    "params": {
+      "sink": "58e24e2f7fb50cd83273d16a273e9d6cf55cae6f2e4c3277432c6db957603ff3"
+    }
+  }
+}

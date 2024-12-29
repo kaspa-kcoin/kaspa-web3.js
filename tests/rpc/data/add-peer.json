@@ -1,0 +1,22 @@
+{
+  "request": {
+    "id": 10,
+    "method": "addPeer",
+    "params": {
+      "peerAddress": {
+        "ip": "89.58.41.46",
+        "port": 16311
+      },
+      "isPermanent": false
+    }
+  },
+  "response": {
+    "id": 10,
+    "method": "addPeer",
+    "error": {
+      "code": 0,
+      "message": "Method unavailable in safe mode. Run the node with --unsaferpc argument.",
+      "data": null
+    }
+  }
+}

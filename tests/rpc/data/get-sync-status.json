@@ -1,0 +1,15 @@
+{
+  "request": {
+    "id": 30,
+    "method": "getSyncStatus",
+    "params": {}
+  },
+  "response": {
+    "id": 30,
+    "method": "getSyncStatus",
+    "result": {
+      "isSynced": true
+    },
+    "error": null
+  }
+}
