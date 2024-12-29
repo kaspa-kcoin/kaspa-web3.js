@@ -45,19 +45,3 @@ export type GetKrc20AddressTokenListResponse = Krc20TokenBalanceInfo[];
 
 export type GetKrc20BalanceResponse = GetKrc20AddressTokenListResponse;
 
-export type WrpcJsonRequest<T> = {
-  id?: number;
-  method: string;
-  params: T;
-};
-
-export type WrpcJsonResponse<T> = {
-  id?: number;
-  method: string;
-  params: T;
-  error?: {
-    code: number;
-    message: string;
-    data: any;
-  };
-};

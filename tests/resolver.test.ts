@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { Resolver, tryParseResolvers } from '../src/rpc/resolver';
 import { NetworkId, NetworkType } from '../src/consensus/network';
 
-const TESTNET_10 = new NetworkId(NetworkType.Testnet, 10);
-
 describe('Resolver', () => {
   const mockToml = `
     [[group]]
@@ -53,7 +51,7 @@ describe('Resolver', () => {
     ) as unknown as typeof fetch;
 
     const resolver = new Resolver(['http://example.com'], true);
-    const nodeInfo = await resolver['fetchNodeInfo']('http://example.com', TESTNET_10);
+    const nodeInfo = await resolver['fetchNodeInfo']('http://example.com', NetworkId.Testnet10);
     expect(nodeInfo).toEqual({ uid: '123', url: 'http://node-url.com' });
   });
 
@@ -61,9 +59,7 @@ describe('Resolver', () => {
     global.fetch = vi.fn(() => Promise.reject('Network error')) as unknown as typeof fetch;
 
     const resolver = new Resolver(['http://example.com'], true);
-    await expect(resolver['fetchNodeInfo']('http://example.com', TESTNET_10)).rejects.toThrow(
-      /Network error/
-    );
+    await expect(resolver['fetchNodeInfo']('http://example.com', NetworkId.Testnet10)).rejects.toThrow(/Network error/);
   });
 
   it('should fetch node successfully from multiple URLs', async () => {
@@ -78,7 +74,7 @@ describe('Resolver', () => {
     }) as unknown as typeof fetch;
 
     const resolver = new Resolver(['http://example1.com', 'http://example2.com'], true);
-    const nodeInfo = await resolver['fetch'](TESTNET_10);
+    const nodeInfo = await resolver['fetch'](NetworkId.Testnet10);
     expect(nodeInfo).toEqual({ uid: '123', url: 'http://node-url.com' });
   });
 
@@ -86,13 +82,13 @@ describe('Resolver', () => {
     global.fetch = vi.fn(() => Promise.reject('Network error')) as unknown as typeof fetch;
 
     const resolver = new Resolver(['http://example1.com', 'http://example2.com'], true);
-    await expect(resolver['fetch'](TESTNET_10)).rejects.toThrowError(/Network error/);
+    await expect(resolver['fetch'](NetworkId.Testnet10)).rejects.toThrowError(/Network error/);
   });
 
   // it('json resolver real', async () => {
   //   console.time('getEndpoint');
   //   const resolver = new Resolver(null, true);
-  //   const endpoints = await resolver.getNodeEndpoint(TESTNET_10);
+  //   const endpoints = await resolver.getAllNodeEndpoints(NetworkId.Testnet11);
   //   console.log(endpoints);
   //   console.timeEnd('getEndpoint');
   //   expect(endpoints).length.greaterThan(0);
