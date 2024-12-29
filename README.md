@@ -1,15 +1,17 @@
-# Kaspa JS SDK
+# Kaspa Web3.js SDK
 
 ## Overview
 
-The Kaspa JS SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides various utilities and functions to facilitate blockchain operations.
+The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides various utilities and functions to facilitate blockchain operations, including sending KAS and KRC20 tokens.
+
+**Note:** The `RpcClient` in this SDK only supports WebSocket JSON-RPC requests.
 
 ## Installation
 
-To install the dependencies, use the following command:
+To install the SDK, use npm:
 
 ```sh
-yarn install
+npm install @kcoin/kaspa-web3.js
 ```
 
 ## Scripts
@@ -19,69 +21,166 @@ yarn install
 - `build`: Build the project using Vite.
 - `lint`: Lint the codebase using ESLint.
 - `preview`: Preview the production build using Vite.
-- `proto-gen`: Generate protobuf files.
 - `format`: Format the codebase using Prettier.
 
 Run any script using:
 
 ```sh
-yarn <script-name>
+npm run <script-name>
 ```
 
 ## Usage
 
-### Development
+### Creating an RpcClient
 
-To start the development server:
+You can create an instance of `RpcClient` using either an endpoint or a resolver with a network ID.
+
+#### Using an Endpoint
 
 ```typescript
-import { Generator, SignableTransaction, Encoding, NetworkId, Resolver } from 'your-sdk-path';
+import { RpcClient } from '@kcoin/kaspa-web3.js';
+
+const client = new RpcClient({
+  endpoint: 'ws://localhost:18210',
+});
+
+await client.connect();
+```
+
+#### Using a Resolver
+
+```typescript
+import { RpcClient, NetworkId, Resolver } from '@kcoin/kaspa-web3.js';
+
+const client = new RpcClient({
+  resolver: new Resolver(),
+  networkId: NetworkId.Mainnet,
+});
+
+await client.connect();
+```
+
+### Sending KAS
+
+To send KAS, you need to create and submit a transaction using the `Generator`:
+
+```typescript
+import { Generator, SignableTransaction, NetworkId } from '@kcoin/kaspa-web3.js';
 
 const SENDER_ADDR = 'sender-address';
 const RECEIVER_ADDR = 'receiver-address';
-const TESTNET_10 = new NetworkId(NetworkType.Testnet, 10);
-const PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
+const networkId = NetworkId.Testnet10;
+const rpcClient = new RpcClient({ endpoint: 'ws://localhost:18210' });
 
-const networkId = new NetworkId(NetworkType.Testnet, 10);
-const encoding = Encoding.JSON;
-const sentKas10 = new SendKasParams(SENDER_ADDR, kaspaToSompi(10), RECEIVER_ADDR, TESTNET_10, PRIORITY_FEES);
-const rpcClient = new KaspadWrpcClient(networkId, encoding);
+await rpcClient.connect();
 const utxos = await rpcClient.getUtxosByAddress(SENDER_ADDR);
-const generator = new Generator(sentKas10.toGeneratorSettings(utxos));
-const txs = new Array<SignableTransaction>();
+const generator = new Generator({
+  senderAddress: SENDER_ADDR,
+  amount: 1000000, // Amount in sompi
+  receiverAddress: RECEIVER_ADDR,
+  networkId,
+});
 
-while (true) {
-  const transaction = generator.generateTransaction();
-  if (transaction === undefined) {
-    break;
-  }
-  txs.push(transaction);
-}
+const transactions = generator.generateTransactions(utxos);
 
-// sign & submit
-for (const tx of txs) {
-  tx.sign([your - privateKey]);
-  await rpcClient.submitTransaction({
+for (const tx of transactions) {
+  tx.sign([yourPrivateKey]);
+  const response = await rpcClient.submitTransaction({
     transaction: tx.toSubmitable(),
-    allowOrphan: false
+    allowOrphan: false,
   });
+  console.log('Transaction submitted:', response);
 }
 ```
 
-### Building
+### Sending KRC20 Tokens
 
-To build the project:
+To send KRC20 tokens, you need to interact with the smart contract using the `Generator`:
 
-```sh
-yarn build
+```typescript
+import { Generator, SignableTransaction, NetworkId } from '@kcoin/kaspa-web3.js';
+
+const SENDER_ADDR = 'sender-address';
+const RECEIVER_ADDR = 'receiver-address';
+const TOKEN_CONTRACT_ADDR = 'token-contract-address';
+const networkId = NetworkId.Testnet10;
+const rpcClient = new RpcClient({ endpoint: 'ws://localhost:18210' });
+
+await rpcClient.connect();
+const utxos = await rpcClient.getUtxosByAddress(SENDER_ADDR);
+const generator = new Generator({
+  senderAddress: SENDER_ADDR,
+  amount: 1000, // Token amount
+  receiverAddress: RECEIVER_ADDR,
+  contractAddress: TOKEN_CONTRACT_ADDR,
+  networkId,
+});
+
+const transactions = generator.generateTransactions(utxos);
+
+for (const tx of transactions) {
+  tx.sign([yourPrivateKey]);
+  const response = await rpcClient.submitTransaction({
+    transaction: tx.toSubmitable(),
+    allowOrphan: false,
+  });
+  console.log('KRC20 Transaction submitted:', response);
+}
 ```
 
-### Testing
+### Event Subscriptions
 
-To run tests:
+You can subscribe to various events using the `RpcClient`.
+
+#### Subscribe to Block Added Notifications
+
+```typescript
+await client.subscribeBlockAdded();
+```
+
+#### Unsubscribe from Block Added Notifications
+
+```typescript
+await client.unsubscribeBlockAdded();
+```
+
+### Error Handling
+
+The `RpcClient` provides error handling for RPC requests. Ensure to catch errors when making requests:
+
+```typescript
+try {
+  const response = await client.getCurrentNetwork();
+  console.log(response);
+} catch (error) {
+  console.error('Error fetching network info:', error);
+}
+```
+
+## Development
+
+### Building the SDK
+
+To build the SDK, run:
 
 ```sh
-yarn test
+npm run build
+```
+
+### Running Tests
+
+To run the test suite, use:
+
+```sh
+npm run test
+```
+
+### Formatting Code
+
+To format the code using Prettier, run:
+
+```sh
+npm run format
 ```
 
 ## Dependencies
@@ -114,3 +213,11 @@ yarn test
 - `typescript-eslint`
 - `vite`
 - `vitest`
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.
