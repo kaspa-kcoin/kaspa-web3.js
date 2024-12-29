@@ -1,5 +1,5 @@
 {
-  "resquest": {
+  "request": {
     "id": 7,
     "method": "getMempoolEntry",
     "params": {
