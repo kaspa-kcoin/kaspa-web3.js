@@ -20,8 +20,8 @@ describe('Generator kas tx', () => {
   ];
 
   const resultSendKas10 = parseTxsFromFile(path.resolve(__dirname, './data/send10kas.json'));
-  const resultSendKas10K = parseTxsFromFile(path.resolve(__dirname, './data/send10kkas.json'));
-  const resultSendKas1M = parseTxsFromFile(path.resolve(__dirname, './data/send1mkas.json'));
+  const resultSendKas10K = parseTxsFromFile(path.resolve(__dirname, './data/sendkas10k.json'));
+  const resultSendKas1M = parseTxsFromFile(path.resolve(__dirname, './data/sendkas1m.json'));
 
   const utxos = parseUtxosFromFile(path.resolve(__dirname, './data/utxos.json'));
   const testReuslts = [resultSendKas10, resultSendKas10K, resultSendKas1M];

@@ -1,2 +1,3 @@
-tests/*/*.json
+tests/tx/data/*.json
+tests/rpc/data/*.json
 tsconfig.json
