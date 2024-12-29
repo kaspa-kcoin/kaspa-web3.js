@@ -1018,13 +1018,22 @@ export class RpcClient implements RpcEventObservable {
    * @param {(eventData: RpcEventMap[M]) => void} callback - The callback function to be invoked when the event occurs.
    */
   addEventListener<M extends keyof RpcEventMap>(event: M, callback: (eventData: RpcEventMap[M]) => void): void;
-  addEventListener(eventOrCallback: any, callback?: any): void {
+  addEventListener(
+    eventOrCallback: keyof RpcEventMap | RpcEventCallback,
+    callback?: (eventData: unknown) => void
+  ): void {
     if (typeof eventOrCallback === 'function') {
       // Handle the case where only a callback is provided
       this.eventListeners.push({ event: null, callback: eventOrCallback });
     } else {
       // Handle the case where an event and a callback are provided
-      this.eventListeners.push({ event: eventOrCallback, callback });
+      if (!callback) {
+        throw new Error('Callback must be provided when specifying an event');
+      }
+      this.eventListeners.push({
+        event: eventOrCallback,
+        callback: callback as (data: unknown) => void
+      });
     }
   }
 
