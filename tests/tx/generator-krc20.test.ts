@@ -25,7 +25,7 @@ describe('Generator kas tx', () => {
   const resultSendKrc20CommitTx = parseTxsFromFile(path.resolve(__dirname, './data/sendkrc20-commit-tx.json'));
   const resultSendKrc20RevealTx = parseTxsFromFile(path.resolve(__dirname, './data/sendkrc20-reveal-tx.json'));
   const resultSendKrc20RevealTxSigned = parseTxsFromFile(
-    path.resolve(__dirname, './data/sendkrc20-reveal-tx-signed.json')
+    path.resolve(__dirname, './data/sendkrc20-reveal-signed-tx.json')
   );
   const utxos = parseUtxosFromFile(path.resolve(__dirname, './data/utxos.json'));
 
