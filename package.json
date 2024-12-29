@@ -34,8 +34,6 @@
     "@noble/hashes": "^1.6.1",
     "@noble/secp256k1": "^2.1.0",
     "buffer": "^6.0.3",
-    "long": "^5.2.3",
-    "nice-grpc-web": "^3.3.5",
     "toml": "^3.0.0",
     "websocket-heartbeat-js": "^1.1.3"
   },
