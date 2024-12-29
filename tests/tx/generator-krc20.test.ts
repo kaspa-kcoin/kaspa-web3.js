@@ -3,6 +3,7 @@ import { Fees, Generator, SignableTransaction } from '../../src/tx';
 import { kaspaToSompi, NetworkId, NetworkType, SendKrc20Params } from '../../src';
 import { parseTxsFromFile, parseUtxosFromFile } from './test-helper';
 import { SignedType } from '../../src/tx/generator/model/signed-tx';
+import path from 'path';
 
 const SENDDER_PK = '5cd51b74226a845b8c757494136659997db1aaedf34c528e297f849f0fe87faf';
 const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
@@ -21,10 +22,12 @@ describe('Generator kas tx', () => {
     OUTPUT_AMOUNT,
     PRIORITY_FEES
   );
-  const resultSendKrc20CommitTx = parseTxsFromFile('tests/tx/data/sendkrc20-commit-tx.json');
-  const resultSendKrc20RevealTx = parseTxsFromFile('tests/tx/data/sendkrc20-reveal-tx.json');
-  const resultSendKrc20RevealTxSigned = parseTxsFromFile('tests/tx/data/sendkrc20-reveal-signed-tx.json');
-  const utxos = parseUtxosFromFile('tests/tx/data/utxos.json');
+  const resultSendKrc20CommitTx = parseTxsFromFile(path.resolve(__dirname, './data/sendkrc20-commit-tx.json'));
+  const resultSendKrc20RevealTx = parseTxsFromFile(path.resolve(__dirname, './data/sendkrc20-reveal-tx.json'));
+  const resultSendKrc20RevealTxSigned = parseTxsFromFile(
+    path.resolve(__dirname, './data/sendkrc20-reveal-tx-signed.json')
+  );
+  const utxos = parseUtxosFromFile(path.resolve(__dirname, './data/utxos.json'));
 
   it(`should generate send krc20 transactions should success`, () => {
     const generatorCommit = new Generator(sentKrc20CommitTx.toCommitTxGeneratorSettings(utxos));
