@@ -1,0 +1,27 @@
+{
+  "request": {
+    "block": {
+      "header": {
+        "version": 1,
+        "parents": [],
+        "hashMerkleRoot": "",
+        "acceptedIdMerkleRoot": "",
+        "utxoCommitment": "",
+        "timestamp": 0,
+        "bits": 0,
+        "nonce": 0,
+        "daaScore": 0,
+        "blueWork": "",
+        "pruningPoint": "",
+        "blueScore": 0
+      },
+      "transactions": [],
+      "verboseData": null
+    },
+    "allowNonDAABlocks": false
+  },
+  "response": {
+    "rejectReason": "NONE",
+    "error": null
+  }
+}

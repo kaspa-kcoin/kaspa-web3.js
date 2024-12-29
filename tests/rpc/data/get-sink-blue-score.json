@@ -1,0 +1,15 @@
+{
+  "request": {
+    "id": 20,
+    "method": "getSinkBlueScore",
+    "params": {}
+  },
+  "response": {
+    "id": 20,
+    "method": "getSinkBlueScore",
+    "result": {
+      "blueScore": 81805954
+    },
+    "error": null
+  }
+}

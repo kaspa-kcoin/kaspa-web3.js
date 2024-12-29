@@ -1,0 +1,16 @@
+{
+  "request": {
+    "id": 27,
+    "method": "getCoinSupply",
+    "params": {}
+  },
+  "response": {
+    "id": 27,
+    "method": "getCoinSupply",
+    "result": {
+      "circulatingSompi": 2376093218150137300,
+      "maxSompi": 2900000000000000000
+    },
+    "error": null
+  }
+}

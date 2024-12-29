@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 24,
+    "method": "getBalanceByAddress",
+    "params": {
+      "address": "kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls"
+    }
+  },
+  "response": {
+    "id": 24,
+    "method": "getBalanceByAddress",
+    "result": {
+      "balance": 12300000000
+    },
+    "error": null
+  }
+}

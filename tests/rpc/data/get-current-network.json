@@ -1,0 +1,14 @@
+{
+  "request": {
+    "id": 1,
+    "method": "getCurrentNetwork",
+    "params": {}
+  },
+  "response": {
+    "id": 1,
+    "method": "getCurrentNetwork",
+    "params": {
+      "network": "testnet"
+    }
+  }
+}

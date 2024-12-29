@@ -1,0 +1,36 @@
+{
+  "request": {
+    "id": 35,
+    "method": "getFeeEstimate",
+    "params": {}
+  },
+  "response": {
+    "id": 35,
+    "method": "getFeeEstimate",
+    "result": {
+      "estimate": {
+        "lowBuckets": [
+          {
+            "estimatedSeconds": 0.006350448181624036,
+            "feerate": 1
+          }
+        ],
+        "normalBuckets": [
+          {
+            "estimatedSeconds": 0.006350448181624036,
+            "feerate": 1
+          },
+          {
+            "estimatedSeconds": 0.006350448181624036,
+            "feerate": 1
+          }
+        ],
+        "priorityBucket": {
+          "estimatedSeconds": 0.006350448181624036,
+          "feerate": 1
+        }
+      }
+    },
+    "error": null
+  }
+}

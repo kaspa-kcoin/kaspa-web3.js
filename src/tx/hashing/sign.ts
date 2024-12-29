@@ -39,7 +39,7 @@ function signWithMultipleV2(signableTx: SignableTransaction, privHexKeys: string
   for (const privkey of privHexKeys) {
     const keypair = Keypair.fromPrivateKeyHex(privkey);
     // same as payToPubKey(base.fromHex(keypair.xOnlyPublicKey!))
-    const scriptPubKeyScript = new Uint8Array([0x20, ...Buffer.from(keypair.xOnlyPublicKey!,"hex"), 0xac]);
+    const scriptPubKeyScript = new Uint8Array([0x20, ...Buffer.from(keypair.xOnlyPublicKey!, 'hex'), 0xac]);
     map.set(scriptPubKeyScript.toString(), keypair);
   }
 

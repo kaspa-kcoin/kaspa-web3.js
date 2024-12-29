@@ -1,0 +1,18 @@
+{
+  "request": {
+    "id": 20,
+    "method": "ban",
+    "params": {
+      "ip": "89.58.41.46"
+    }
+  },
+  "response": {
+    "id": 20,
+    "method": "ban",
+    "error": {
+      "code": 0,
+      "message": "Method unavailable in safe mode. Run the node with --unsaferpc argument.",
+      "data": null
+    }
+  }
+}

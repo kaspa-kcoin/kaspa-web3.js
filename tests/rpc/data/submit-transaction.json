@@ -1,0 +1,61 @@
+{
+  "request": {
+    "id": 11,
+    "method": "submitTransaction",
+    "params": {
+      "allowOrphan": false,
+      "transaction": {
+        "gas": 0,
+        "inputs": [
+          {
+            "previousOutpoint": {
+              "index": 6,
+              "transactionId": "cf123968f3a93c8ba328c81a25ac6ec3d20101d2f5a2f2db7e472d5cc95747b6"
+            },
+            "sequence": 0,
+            "sigOpCount": 1,
+            "signatureScript": "41e1ac657e2a28747a6e29916c210af6fb514f7ee2f5fe2236d49a559cba95714c4477e35d30e2337e52760ec9d70982fb82f0c453abd36a6c7be58305b51465d901",
+            "verboseData": null
+          },
+          {
+            "previousOutpoint": {
+              "index": 1,
+              "transactionId": "622741bbf81acc97d49b29c5ae6912c98620ceaaaac6d93597b8496eaec4cc14"
+            },
+            "sequence": 0,
+            "sigOpCount": 1,
+            "signatureScript": "41290800d0495d30b8f9519e1f666840af04ec3506a2bfb5f031b51d5848562ee7d47762c34e5dbfd94569d834dacf1e916efa7ddb45cc9db614c2b8593a9a0fa301",
+            "verboseData": null
+          }
+        ],
+        "lockTime": 0,
+        "mass": 33198,
+        "outputs": [
+          {
+            "scriptPublicKey": "0000aa20b486be26339f726bb2aec73000e1c0dc83753829f49baac47c5f88658c67739e87",
+            "value": 30000000,
+            "verboseData": null
+          },
+          {
+            "scriptPublicKey": "0000208426329e968fbc322383543cc2f75b2a3c3aa6c1e13be66155aaee57f17c9323ac",
+            "value": 21967966802,
+            "verboseData": null
+          }
+        ],
+        "payload": "",
+        "subnetworkId": "0000000000000000000000000000000000000000",
+        "verboseData": null,
+        "version": 0
+      }
+    }
+  },
+  "response": {
+    "id": 11,
+    "method": "submitTransaction",
+    "error": {
+      "code": 0,
+      "message": "Rejected transaction 5c1ddb4494ac8eb6488808c8be89f91e76402da497182a271eaec9227a10a1ea: transaction 5c1ddb4494ac8eb6488808c8be89f91e76402da497182a271eaec9227a10a1ea is an orphan where orphan is disallowed",
+      "data": null
+    }
+  }
+}

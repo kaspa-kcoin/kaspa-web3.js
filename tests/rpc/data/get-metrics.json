@@ -1,0 +1,72 @@
+{
+  "request": {
+    "id": 28,
+    "method": "getMetrics",
+    "params": {
+      "processMetrics": true,
+      "connectionMetrics": true,
+      "bandwidthMetrics": true,
+      "consensusMetrics": true,
+      "storageMetrics": true,
+      "customMetrics": true
+    }
+  },
+  "response": {
+    "id": 28,
+    "method": "getMetrics",
+    "params": {
+      "bandwidthMetrics": {
+        "borshBytesRx": 1487316023,
+        "borshBytesTx": 188929225328,
+        "grpcBytesRx": 2977199127,
+        "grpcBytesTx": 22528300569,
+        "jsonBytesRx": 1511499462,
+        "jsonBytesTx": 1531003959,
+        "p2pBytesRx": 17557608256,
+        "p2pBytesTx": 42567373508
+      },
+      "connectionMetrics": {
+        "activePeers": 26,
+        "borshConnectionAttempts": 199790,
+        "borshHandshakeFailures": 0,
+        "borshLiveConnections": 38,
+        "jsonConnectionAttempts": 2697,
+        "jsonHandshakeFailures": 0,
+        "jsonLiveConnections": 25
+      },
+      "consensusMetrics": {
+        "networkDifficulty": 11858408.410008628,
+        "networkMempoolSize": 0,
+        "networkPastMedianTime": 1735473948577,
+        "networkTipHashesCount": 2,
+        "networkVirtualDaaScore": 82902858,
+        "networkVirtualParentHashesCount": 2,
+        "nodeBlocksSubmittedCount": 2392059,
+        "nodeBodiesProcessedCount": 2367079,
+        "nodeChainBlocksProcessedCount": 2041836,
+        "nodeDatabaseBlocksCount": 246145,
+        "nodeDatabaseHeadersCount": 246145,
+        "nodeDependenciesProcessedCount": 3465302,
+        "nodeHeadersProcessedCount": 2367079,
+        "nodeMassProcessedCount": 18962593137,
+        "nodeTransactionsProcessedCount": 8559428
+      },
+      "customMetrics": null,
+      "processMetrics": {
+        "coreNum": 18,
+        "cpuUsage": 0.024822475388646126,
+        "diskIoReadBytes": 357338431488,
+        "diskIoReadPerSec": 0,
+        "diskIoWriteBytes": 587369246720,
+        "diskIoWritePerSec": 8175.64892578125,
+        "fdNum": 1258,
+        "residentSetSize": 6011523072,
+        "virtualMemorySize": 39352147968
+      },
+      "serverTime": 1735474080583,
+      "storageMetrics": {
+        "storageSizeBytes": 0
+      }
+    }
+  }
+}

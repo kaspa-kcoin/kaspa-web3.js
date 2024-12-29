@@ -82,7 +82,7 @@ function payToAddressScript(address: Address): ScriptPublicKey {
  * @returns {ScriptPublicKey} The script public key for the transaction output.
  */
 function payToScriptHashScript(redeemScript: Uint8Array): ScriptPublicKey {
-  const redeemScriptHash= blake2b(redeemScript, { dkLen: 32, });
+  const redeemScriptHash = blake2b(redeemScript, { dkLen: 32 });
   const script = payToScriptHash(redeemScriptHash);
   return new ScriptPublicKey(ScriptClassHelper.versionOf(ScriptClass.ScriptHash), script);
 }

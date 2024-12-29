@@ -1,0 +1,21 @@
+{
+  "request": {
+    "id": 29,
+    "method": "getServerInfo",
+    "params": {}
+  },
+  "response": {
+    "id": 29,
+    "method": "getServerInfo",
+    "result": {
+      "hasUtxoIndex": true,
+      "isSynced": true,
+      "networkId": "testnet-10",
+      "rpcApiRevision": 0,
+      "rpcApiVersion": 1,
+      "serverVersion": "0.15.4",
+      "virtualDaaScore": 82902893
+    },
+    "error": null
+  }
+}

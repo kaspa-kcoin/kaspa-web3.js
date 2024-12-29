@@ -1,0 +1,18 @@
+{
+  "request": {
+    "id": 12,
+    "method": "getBlock",
+    "params": {
+      "blockHash": "13c8a012e19988fc0e6287eeb083566467099d88e64118ad9765e56b4c914371"
+    }
+  },
+  "response": {
+    "id": 12,
+    "method": "getBlock",
+    "error": {
+      "code": 0,
+      "message": "cannot find header 13c8a012e19988fc0e6287eeb083566467099d88e64118ad9765e56b4c914371",
+      "data": null
+    }
+  }
+}

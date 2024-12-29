@@ -1,0 +1,18 @@
+{
+  "request": {
+    "id": 12,
+    "method": "getSubnetwork",
+    "params": {
+      "subnetworkId": "0000000000000000000000000000000000000000"
+    }
+  },
+  "response": {
+    "id": 13,
+    "method": "getSubnetwork",
+    "error": {
+      "code": 0,
+      "message": "Not implemented",
+      "data": null
+    }
+  }
+}

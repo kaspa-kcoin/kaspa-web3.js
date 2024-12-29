@@ -1,0 +1,22 @@
+{
+  "request": {
+    "id": 33,
+    "method": "getConnections",
+    "params": {
+      "includeProfileData": true
+    }
+  },
+  "response": {
+    "id": 33,
+    "method": "getConnections",
+    "result": {
+      "clients": 62,
+      "peers": 26,
+      "profileData": {
+        "cpuUsage": 0.018643680959939957,
+        "memoryUsage": 5991313408
+      }
+    },
+    "error": null
+  }
+}

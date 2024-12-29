@@ -1,0 +1,24 @@
+{
+  "request": {
+    "id": 9,
+    "method": "getPeerAddresses",
+    "params": {}
+  },
+  "response": {
+    "id": 9,
+    "method": "getPeerAddresses",
+    "params": {
+      "bannedAddresses": [],
+      "knownAddresses": [
+        {
+          "ip": "2603:8081:804:f7ad::f46",
+          "port": 16311
+        },
+        {
+          "ip": "50.99.45.195",
+          "port": 16311
+        }
+      ]
+    }
+  }
+}

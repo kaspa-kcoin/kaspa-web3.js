@@ -60,7 +60,7 @@ abstract class BaseResolver {
    */
   protected async getAllNodeEndpoints(networkId: NetworkId): Promise<string[]> {
     const nodes = await this.fetchAll(networkId);
-    return nodes.map(node => node.url);
+    return nodes.map((node) => node.url);
   }
 
   /**
@@ -137,7 +137,7 @@ abstract class BaseResolver {
     const results: INodeDescriptor[] = [];
     const fetchPromises = this.seedAddresses.map((seed) =>
       this.fetchNodeInfo(seed, networkId)
-        .then(node => results.push(node))
+        .then((node) => results.push(node))
         .catch(() => null)
     );
 

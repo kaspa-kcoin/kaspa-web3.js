@@ -1,0 +1,19 @@
+{
+  "request": {
+    "id": 13,
+    "method": "getVirtualChainFromBlock",
+    "params": {
+      "includeAcceptedTransactionIds": true,
+      "startHash": "7e74aab3049b8b3a133bcbaf93d45f70585753799061c300705f85eed99da9b6"
+    }
+  },
+  "response": {
+    "id": 13,
+    "method": "getVirtualChainFromBlock",
+    "error": {
+      "code": 0,
+      "message": "cannot find header 7e74aab3049b8b3a133bcbaf93d45f70585753799061c300705f85eed99da9b6",
+      "data": null
+    }
+  }
+}

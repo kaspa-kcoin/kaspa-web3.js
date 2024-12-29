@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 16,
+    "method": "getMempoolEntries",
+    "params": {
+      "includeOrphanPool": false,
+      "filterTransactionPool": false
+    }
+  },
+  "response": {
+    "id": 16,
+    "method": "getMempoolEntries",
+    "params": {
+      "mempoolEntries": []
+    }
+  }
+}

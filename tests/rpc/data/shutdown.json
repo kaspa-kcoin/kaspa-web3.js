@@ -1,0 +1,16 @@
+{
+  "request": {
+    "id": 17,
+    "method": "shutdown",
+    "params": {}
+  },
+  "response": {
+    "id": 17,
+    "method": "shutdown",
+    "error": {
+      "code": 0,
+      "message": "Method unavailable in safe mode. Run the node with --unsaferpc argument.",
+      "data": null
+    }
+  }
+}

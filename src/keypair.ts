@@ -2,7 +2,7 @@ import { Address, AddressVersion } from './address';
 import { NetworkType, NetworkTypeHelper } from './consensus/network';
 import { Blake2bHashKey } from './tx/hashing';
 import { schnorr, secp256k1 } from '@noble/curves/secp256k1';
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
 import { randomBytes } from '@noble/hashes/utils';
 import { blake2b } from '@noble/hashes/blake2b';
 
@@ -36,7 +36,7 @@ class Keypair {
     if (!this.xOnlyPublicKey) {
       throw new Error('X-only public key is not available for address generation');
     }
-    const payload =  Buffer.from(this.xOnlyPublicKey, 'hex');
+    const payload = Buffer.from(this.xOnlyPublicKey, 'hex');
     return new Address(NetworkTypeHelper.toAddressPrefix(network), AddressVersion.PubKey, payload);
   }
 
@@ -51,7 +51,7 @@ class Keypair {
     if (!this.publicKey) {
       throw new Error('Ecdsa public key is not available for ECDSA address generation');
     }
-    const payload =  Buffer.from(this.publicKey, 'hex');
+    const payload = Buffer.from(this.publicKey, 'hex');
     return new Address(NetworkTypeHelper.toAddressPrefix(network), AddressVersion.PubKeyECDSA, payload);
   }
 
@@ -61,9 +61,9 @@ class Keypair {
    */
   public static random(): Keypair {
     const privateKeyBytes = randomBytes(32);
-    const privateKeyHex =  Buffer.from(privateKeyBytes).toString('hex');
-    const publicKey = Buffer.from( secp256k1.getPublicKey(privateKeyBytes, true)) .toString('hex');
-    const xOnlyPublicKey = Buffer.from( schnorr.getPublicKey(privateKeyBytes)).toString('hex');
+    const privateKeyHex = Buffer.from(privateKeyBytes).toString('hex');
+    const publicKey = Buffer.from(secp256k1.getPublicKey(privateKeyBytes, true)).toString('hex');
+    const xOnlyPublicKey = Buffer.from(schnorr.getPublicKey(privateKeyBytes)).toString('hex');
 
     return new Keypair(privateKeyHex, publicKey, xOnlyPublicKey);
   }
@@ -88,7 +88,7 @@ class Keypair {
    */
   public static fromPublicKeyHex(pubKey: string): Keypair {
     // Extract the x-coordinate from the public key
-    const x = schnorr.utils.bytesToNumberBE(Uint8Array.from(Buffer.from(pubKey,"hex")) .slice(1, 33));
+    const x = schnorr.utils.bytesToNumberBE(Uint8Array.from(Buffer.from(pubKey, 'hex')).slice(1, 33));
     // Convert the x-coordinate to an elliptic curve point
     const p = schnorr.utils.lift_x(x);
     // The x-only public key is the x-coordinate of the point
@@ -111,7 +111,7 @@ class Keypair {
     }
 
     if (data.length !== 32) throw new Error('Invalid data length');
-    return  schnorr.sign(data, this.privateKey, undefined);
+    return schnorr.sign(data, this.privateKey, undefined);
   }
 
   /**
@@ -127,8 +127,8 @@ class Keypair {
     }
 
     const bytes = Buffer.from(message);
-    const hash= blake2b(bytes, { dkLen: 32, key: Blake2bHashKey.PersonalMessageSigning });
-    return  schnorr.sign(hash, this.privateKey, auxData32);
+    const hash = blake2b(bytes, { dkLen: 32, key: Blake2bHashKey.PersonalMessageSigning });
+    return schnorr.sign(hash, this.privateKey, auxData32);
   }
 
   /**
@@ -139,7 +139,7 @@ class Keypair {
    */
   public verifyMessage(signature: Uint8Array, message: Uint8Array): boolean {
     const bytes = Buffer.from(message);
-    const hashedMsg= blake2b(bytes, { dkLen: 32, key: Blake2bHashKey.PersonalMessageSigning });
+    const hashedMsg = blake2b(bytes, { dkLen: 32, key: Blake2bHashKey.PersonalMessageSigning });
     return schnorr.verify(signature, hashedMsg, this.xOnlyPublicKey!);
   }
 }

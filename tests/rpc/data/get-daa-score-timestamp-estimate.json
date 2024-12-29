@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 31,
+    "method": "getDaaScoreTimestampEstimate",
+    "params": {
+      "daaScores": [82901963]
+    }
+  },
+  "response": {
+    "id": 31,
+    "method": "getDaaScoreTimestampEstimate",
+    "result": {
+      "timestamps": [1735473231964]
+    },
+    "error": null
+  }
+}

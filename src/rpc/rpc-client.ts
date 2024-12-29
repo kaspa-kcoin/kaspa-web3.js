@@ -140,12 +140,11 @@ interface RpcOptions {
 }
 
 /**
- * A client for interacting with a Kaspa node via WebSocket RPC.
- * Implements the RpcEventObservable interface for event handling.
+ * RpcClient is a client for interacting with a Kaspa node via WebSocket RPC.
+ * It manages WebSocket connections, sends requests, and handles event subscriptions.
  *
  * @remarks
- * This client handles WebSocket connections, message sending/receiving, and event subscriptions.
- * It supports automatic reconnection and heartbeat mechanisms through WebsocketHeartbeatJs.
+ * This client supports automatic reconnection and heartbeat mechanisms through WebsocketHeartbeatJs.
  *
  * @example
  * ```typescript
@@ -158,10 +157,11 @@ interface RpcOptions {
  * @example
  * ```typescript
  * const client = new RpcClient({
- *  resolver: new Resolver(),
- *  networkId: NetworkId.Mainnet
+ *   resolver: new Resolver(),
+ *   networkId: NetworkId.Mainnet
  * });
  * await client.connect();
+ * ```
  */
 export class RpcClient implements RpcEventObservable {
   public readonly networkId: NetworkId;
@@ -173,7 +173,7 @@ export class RpcClient implements RpcEventObservable {
   private requestPromiseMap: Map<number, BridgePromise<any>> = new Map();
   private eventListeners: {
     event: keyof RpcEventMap | null;
-    callback: (data: unknown) => void;
+    callback: (data: any) => void;
   }[] = [];
 
   constructor(rpcOptions: RpcOptions) {
@@ -193,10 +193,10 @@ export class RpcClient implements RpcEventObservable {
   }
 
   /**
-   * Establishes a WebSocket connection to the specified endpoint.
-   * If the endpoint is not provided, it uses the resolver to get the node endpoint.
+   * Establishes a secure WebSocket connection to the specified endpoint.
    * Sets up event handlers for open, message, close, and error events.
-   * @throws {Error} If no valid resolver or endpoint is provided.
+   *
+   * @throws {Error} If no valid endpoint is provided.
    */
   connect = async () => {
     let endpoint = this.endpoint;
@@ -743,15 +743,12 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Estimates the network's current hash rate in hashes per second.
    *
-   * @param {number} windowSize - The size of the window to use for the estimation.
-   * @param {string} startHash - The starting hash for the estimation.
+   * @param {EstimateNetworkHashesPerSecondRequestMessage} req - The request message containing the estimation details.
    * @returns {Promise<EstimateNetworkHashesPerSecondResponseMessage>} A promise that resolves to the response message containing the estimated network hashes per second.
    */
   estimateNetworkHashesPerSecond = async (
-    windowSize: number,
-    startHash: string
+    req: EstimateNetworkHashesPerSecondRequestMessage
   ): Promise<EstimateNetworkHashesPerSecondResponseMessage> => {
-    const req: EstimateNetworkHashesPerSecondRequestMessage = { windowSize, startHash };
     return await this.sendRequest<
       EstimateNetworkHashesPerSecondRequestMessage,
       EstimateNetworkHashesPerSecondResponseMessage
@@ -808,11 +805,15 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Retrieves balances for multiple addresses in the Kaspa BlockDAG.
    *
-   * @param {string[]} addresses - The array of addresses to retrieve balances for.
+   * @param {string[] | GetBalancesByAddressesRequestMessage} addressesOrRequest - The array of addresses or the request message containing the addresses.
    * @returns {Promise<GetBalancesByAddressesResponseMessage>} A promise that resolves to the response message containing the balances information.
    */
-  getBalancesByAddresses = async (addresses: string[]): Promise<GetBalancesByAddressesResponseMessage> => {
-    const req: GetBalancesByAddressesRequestMessage = { addresses };
+  getBalancesByAddresses = async (
+    addressesOrRequest: string[] | GetBalancesByAddressesRequestMessage
+  ): Promise<GetBalancesByAddressesResponseMessage> => {
+    const req: GetBalancesByAddressesRequestMessage = Array.isArray(addressesOrRequest)
+      ? { addresses: addressesOrRequest }
+      : addressesOrRequest;
     return await this.sendRequest<GetBalancesByAddressesRequestMessage, GetBalancesByAddressesResponseMessage>(
       'getBalancesByAddresses',
       req

@@ -32,15 +32,15 @@ export enum RpcEventType {
 export type RpcEventMap = {
   Connect: undefined;
   Disconnect: undefined;
-  'BlockAdded': BlockAddedNotificationMessage;
-  'VirtualChainChanged': VirtualChainChangedNotificationMessage;
-  'FinalityConflict': FinalityConflictNotificationMessage;
-  'FinalityConflictResolved': FinalityConflictNotificationMessage;
-  'UtxosChanged': UtxosChangedNotificationMessage;
-  'SinkBlueScoreChanged': SinkBlueScoreChangedNotificationMessage;
-  'VirtualDaaScoreChanged': VirtualDaaScoreChangedNotificationMessage;
-  'PruningPointUtxoSetOverride': PruningPointUtxoSetOverrideNotificationMessage;
-  'NewBlockTemplate': NewBlockTemplateNotificationMessage;
+  BlockAdded: BlockAddedNotificationMessage;
+  VirtualChainChanged: VirtualChainChangedNotificationMessage;
+  FinalityConflict: FinalityConflictNotificationMessage;
+  FinalityConflictResolved: FinalityConflictNotificationMessage;
+  UtxosChanged: UtxosChangedNotificationMessage;
+  SinkBlueScoreChanged: SinkBlueScoreChangedNotificationMessage;
+  VirtualDaaScoreChanged: VirtualDaaScoreChangedNotificationMessage;
+  PruningPointUtxoSetOverride: PruningPointUtxoSetOverrideNotificationMessage;
+  NewBlockTemplate: NewBlockTemplateNotificationMessage;
 };
 
 /**

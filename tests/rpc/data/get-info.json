@@ -1,0 +1,21 @@
+{
+  "request": {
+    "id": 22,
+    "method": "getInfo",
+    "params": {}
+  },
+  "response": {
+    "id": 22,
+    "method": "getInfo",
+    "result": {
+      "hasMessageId": true,
+      "hasNotifyCommand": true,
+      "isSynced": true,
+      "isUtxoIndexed": true,
+      "mempoolSize": 0,
+      "p2pId": "7f1f417c-5e45-4b6d-9ec7-776a9fda8bf1",
+      "serverVersion": "0.15.4"
+    },
+    "error": null
+  }
+}

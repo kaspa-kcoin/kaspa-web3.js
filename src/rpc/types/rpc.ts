@@ -216,9 +216,9 @@ export interface GetSinkResponseMessage {
  */
 export interface GetMempoolEntryRequestMessage {
   /** The transaction's TransactionID. */
-  txId: string;
-  includeOrphanPool: boolean;
-  filterTransactionPool: boolean;
+  transactionId: string;
+  includeOrphanPool?: boolean;
+  filterTransactionPool?: boolean;
 }
 
 export interface GetMempoolEntryResponseMessage {
@@ -279,7 +279,7 @@ export interface GetConnectedPeerInfoMessage {
  * This will, in most cases, result in kaspad connecting to said peer.
  */
 export interface AddPeerRequestMessage {
-  address: string;
+  peerAddress: string;
   /** Whether to keep attempting to connect to this peer after disconnection */
   isPermanent: boolean;
 }
@@ -291,7 +291,7 @@ export interface AddPeerResponseMessage {
 /** SubmitTransactionRequestMessage submits a transaction to the mempool */
 export interface SubmitTransactionRequestMessage {
   transaction: RpcTransaction | undefined;
-  allowOrphan: boolean;
+  allowOrphan?: boolean;
 }
 
 export interface SubmitTransactionResponseMessage {

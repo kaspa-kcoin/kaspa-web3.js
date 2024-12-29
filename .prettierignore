@@ -1,2 +1,2 @@
-tests/tx/data/*.json
+tests/*/*.json
 tsconfig.json

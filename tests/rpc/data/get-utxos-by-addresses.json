@@ -1,0 +1,31 @@
+{
+  "request": {
+    "id": 19,
+    "method": "getUtxosByAddresses",
+    "params": {
+      "addresses": ["kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls"]
+    }
+  },
+  "response": {
+    "id": 19,
+    "method": "getUtxosByAddresses",
+    "result": {
+      "entries": [
+        {
+          "address": "kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls",
+          "outpoint": {
+            "index": 0,
+            "transactionId": "ea99d4b77b866848947015756fccefe62bce6068e862e915d12f91ca79f3d8a7"
+          },
+          "utxoEntry": {
+            "amount": 12300000000,
+            "blockDaaScore": 82901256,
+            "isCoinbase": false,
+            "scriptPublicKey": "00002063fcdf50d2cf40f16ad1124f628f1f502b2b5a879ef72ccc20f7210a73fa3e85ac"
+          }
+        }
+      ]
+    },
+    "error": null
+  }
+}
