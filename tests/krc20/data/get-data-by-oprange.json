@@ -1,0 +1,13 @@
+{
+  "message": "successful",
+  "result": [
+    {
+      "opscore": 829723930000,
+      "addressaffc": "kaspatest:qra9hkw7u3cymmsmtsjykal0kx0v93j9nkcvp6mkldh49zwt98qaxwd59hrq9_AVETA=1000000000",
+      "script": "{\"p\":\"KRC-20\",\"op\":\"deploy\",\"from\":\"kaspatest:qra9hkw7u3cymmsmtsjykal0kx0v93j9nkcvp6mkldh49zwt98qaxwd59hrq9\",\"to\":\"kaspatest:qra9hkw7u3cymmsmtsjykal0kx0v93j9nkcvp6mkldh49zwt98qaxwd59hrq9\",\"tick\":\"AVETA\",\"max\":\"100000000000\",\"lim\":\"1000000000\",\"pre\":\"1000000000\",\"dec\":\"8\"}",
+      "state": "{\"blockaccept\":\"3ea7e27ab57b752786a5b3b8dfb3f1cc271ce10bea5be21302e8d9ddb900488f\",\"fee\":100000000000,\"feeleast\":100000000000,\"mtsadd\":1735545613273,\"opscore\":829723930000,\"opaccept\":1,\"checkpoint\":\"2d1724ea3e65ca4133043a0b976aae05074632f716ee1dce32be26d3d384bc08\"}",
+      "tickaffc": "AVETA=1",
+      "txid": "cca4fa896d0aa6c187ca4072040ecc36bdf465f242d664768990faec988d939f"
+    }
+  ]
+}

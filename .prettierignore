@@ -1,3 +1,4 @@
 tests/tx/data/*.json
 tests/rpc/data/*.json
+tests/krc20/data/*.json
 tsconfig.json

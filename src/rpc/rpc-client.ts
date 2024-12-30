@@ -175,6 +175,8 @@ export class RpcClient implements RpcEventObservable {
     event: keyof RpcEventMap | null;
     callback: (data: any) => void;
   }[] = [];
+  private connected: boolean = false;
+  private connecting: boolean = false;
 
   constructor(rpcOptions: RpcOptions) {
     const { endpoint, resolver, networkId } = rpcOptions;
@@ -199,6 +201,18 @@ export class RpcClient implements RpcEventObservable {
    * @throws {Error} If no valid endpoint is provided.
    */
   connect = async () => {
+    if (this.connected) {
+      console.log('Already connected');
+      return;
+    }
+
+    if (this.connecting) {
+      console.log('Connection attempt already in progress');
+      return;
+    }
+
+    this.connecting = true;
+
     let endpoint = this.endpoint;
 
     if (endpoint === undefined) {
@@ -208,6 +222,7 @@ export class RpcClient implements RpcEventObservable {
       try {
         endpoint = await this.resolver.getNodeEndpoint(this.networkId);
       } catch (error: any) {
+        this.connecting = false;
         throw new Error(`Failed to get node endpoint: ${error.message}`);
       }
     }
@@ -229,6 +244,8 @@ export class RpcClient implements RpcEventObservable {
 
   private handleConnectionOpen = (event: Event) => {
     console.log('Connection opened: ', event);
+    this.connected = true;
+    this.connecting = false;
     this.connectedPromise?.resolve(true);
   };
 
@@ -244,11 +261,14 @@ export class RpcClient implements RpcEventObservable {
 
   private handleConnectionClose = (event: CloseEvent) => {
     console.log('Connection closed: ', event);
+    this.connected = false;
+    this.connecting = false;
     this.requestPromiseMap.clear();
   };
 
   private handleConnectionError = (event: Event) => {
     console.error('WebSocket error: ', event);
+    this.connecting = false;
   };
 
   /**

@@ -8,37 +8,14 @@ The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with th
 
 ## Installation
 
-<details>
-  <summary>npm</summary>
-
 ```sh
 npm install @kcoin/kaspa-web3.js
 ```
 
-</details>
-
-<details>
-  <summary>Yarn</summary>
+or
 
 ```sh
 yarn add @kcoin/kaspa-web3.js
-```
-
-</details>
-
-## Scripts
-
-- `dev`: Start the development server using Vite.
-- `test`: Run tests using Vitest.
-- `build`: Build the project using Vite.
-- `lint`: Lint the codebase using ESLint.
-- `preview`: Preview the production build using Vite.
-- `format`: Format the codebase using Prettier.
-
-Run any script using:
-
-```sh
-npm run <script-name>
 ```
 
 ## Usage
@@ -88,7 +65,7 @@ await rpcClient.connect();
 const utxos = await rpcClient.getUtxosByAddress(SENDER_ADDR);
 const generator = new Generator({
   senderAddress: SENDER_ADDR,
-  amount: 1000000, // Amount in sompi
+  amount: kaspaToSompi(1000),
   receiverAddress: RECEIVER_ADDR,
   networkId
 });
@@ -98,47 +75,65 @@ const transactions = generator.generateTransactions(utxos);
 for (const tx of transactions) {
   tx.sign([yourPrivateKey]);
   const response = await rpcClient.submitTransaction({
-    transaction: tx.toSubmitable(),
+    transaction: tx.toSubmittableJsonTx(),
     allowOrphan: false
   });
   console.log('Transaction submitted:', response);
 }
 ```
 
-### Sending KRC20 Tokens
+### Sending KRC-20 Tokens
 
-To send KRC20 tokens, you need to interact with the smart contract using the `Generator`:
+The `Krc20RpcClient` provides a method to transfer KRC-20 tokens from one address to another. Below is an example of how to use the `transfer` method.
+
+### Example Code
 
 ```typescript
-import { Generator, SignableTransaction, NetworkId } from '@kcoin/kaspa-web3.js';
+import { Krc20RpcClient } from './src/krc20/rpc-client';
+import { RpcClient, NetworkId } from './src/consensus';
 
-const SENDER_ADDR = 'sender-address';
-const RECEIVER_ADDR = 'receiver-address';
-const TOKEN_CONTRACT_ADDR = 'token-contract-address';
-const networkId = NetworkId.Testnet10;
-const rpcClient = new RpcClient({ endpoint: 'ws://localhost:18210' });
-
-await rpcClient.connect();
-const utxos = await rpcClient.getUtxosByAddress(SENDER_ADDR);
-const generator = new Generator({
-  senderAddress: SENDER_ADDR,
-  amount: 1000, // Token amount
-  receiverAddress: RECEIVER_ADDR,
-  contractAddress: TOKEN_CONTRACT_ADDR,
-  networkId
+// Initialize the RpcClient
+const rpcClient = new RpcClient({
+  endpoint: 'ws://localhost:18210' // Replace with your actual endpoint
 });
 
-const transactions = generator.generateTransactions(utxos);
+// Initialize the Krc20RpcClient
+const krc20RpcClient = new Krc20RpcClient({
+  networkId: NetworkId.Mainnet,
+  rpcClient: rpcClient
+});
 
-for (const tx of transactions) {
-  tx.sign([yourPrivateKey]);
-  const response = await rpcClient.submitTransaction({
-    transaction: tx.toSubmitable(),
-    allowOrphan: false
-  });
-  console.log('KRC20 Transaction submitted:', response);
+// Define transfer parameters
+const receiverAddress = 'kaspatest:qpcl6nup27rmd4dvx20xj50f6mlm8zt6s9nxznlwvjspfzy9v4rxvfkug838j';
+const amount = BigInt('1000000000'); // Amount in smallest unit
+const tick = 'AVETA';
+const privateKey = 'your-private-key-hex'; // WARNING: Never hardcode private keys in production code
+const priorityFee = kaspaToSompi(0.02); // Optional priority fee, 0.02 KAS
+
+// Perform the transfer
+async function transferTokens() {
+  try {
+    await rpcClient.connect(); // Ensure the RpcClient is connected
+    const transactionId = await krc20RpcClient.transfer(receiverAddress, amount, tick, privateKey, priorityFee);
+    console.log(`Transfer successful! Transaction ID: ${transactionId}`);
+  } catch (error) {
+    console.error('Transfer failed:', error);
+  }
 }
+
+transferTokens();
 ```
+
+### Explanation
+
+- **`RpcClient`**: This is used to interact with the blockchain and must be passed to the `Krc20RpcClient` when you need to transfer krc20 tokens.
+- **`receiverAddress`**: The address to which the tokens will be sent.
+- **`amount`**: The amount of tokens to transfer, specified in the smallest unit.
+- **`tick`**: The ticker symbol of the KRC-20 token.
+- **`privateKey`**: The private key of the sender's address in hexadecimal format.
+- **`priorityFee`**: An optional fee to prioritize the transaction.
+
+This example demonstrates how to use the `transfer` method to send KRC-20 tokens. Ensure you replace the placeholder values with actual data before running the script.
 
 ### Event Subscriptions
 
@@ -148,6 +143,9 @@ You can subscribe to various events using the `RpcClient`.
 
 ```typescript
 await client.subscribeBlockAdded();
+await client.addEventListener(RpcEventType.BlockAdded, (eventData) => {
+  console.log('Block added:', eventData);
+});
 ```
 
 #### Unsubscribe from Block Added Notifications

@@ -1,0 +1,23 @@
+{
+  "message": "success",
+  "result": [
+    {
+      "tick": "KRC20",
+      "max": "1000000",
+      "lim": "1000000",
+      "pre": "0",
+      "to": "0",
+      "dec": "18",
+      "minted": "0",
+      "opScoreAdd": "0",
+      "opScoreMod": "0",
+      "state": "active",
+      "hashRev": "0",
+      "mtsAdd": "0",
+      "holderTotal": "0",
+      "transferTotal": "0",
+      "mintTotal": "0",
+      "holder": []
+    }
+  ]
+}

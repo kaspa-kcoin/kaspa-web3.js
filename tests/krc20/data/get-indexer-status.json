@@ -1,0 +1,13 @@
+{
+  "message": "synced",
+  "result": {
+    "version": "2.03.1221",
+    "versionApi": "2.03",
+    "daaScore": "82977092",
+    "daaScoreGap": "3",
+    "opScore": "829723930000",
+    "opTotal": "149883922",
+    "tokenTotal": "1804",
+    "feeTotal": "27347830815473660"
+  }
+}

@@ -1,6 +1,4 @@
-export type KaspaNetwork = 'mainnet' | 'testnet-10' | 'testnet-11';
-
-export type KaspaKrc20Response<T> = {
+export type Krc20Response<T> = {
   message: string;
   prev?: string;
   next?: string;
@@ -44,3 +42,50 @@ export type Krc20TokenBalanceInfo = {
 export type GetKrc20AddressTokenListResponse = Krc20TokenBalanceInfo[];
 
 export type GetKrc20BalanceResponse = GetKrc20AddressTokenListResponse;
+
+export type GetKrc20TokenListResponse = {
+  tokens: Krc20TokenDetailsWithHolders[];
+};
+
+export type Krc20Operation = {
+  operationId: string;
+  type: string;
+  timestamp: string;
+  details: string;
+};
+
+export type GetKrc20OperationListResponse = Krc20Operation[];
+
+export type GetKrc20OperationDetailsResponse = {
+  operationId: string;
+  type: string;
+  timestamp: string;
+  details: string;
+  status: string;
+};
+
+export type GetKrc20VspcDetailsResponse = {
+  vspcId: string;
+  details: string;
+  status: string;
+};
+
+export type GetKrc20DataByOPrangeResponse = {
+  opscore: number;
+  addressaffc: string;
+  script: string;
+  state: string;
+  tickaffc: string;
+  txid: string;
+}[];
+
+export type GetKrc20ListingListResponse = {
+  tick: string;
+  from: string;
+  amount: string;
+  uTxid: string;
+  uAddr: string;
+  uAmt: string;
+  uScript: string;
+  opScoreAdd: string;
+}[];

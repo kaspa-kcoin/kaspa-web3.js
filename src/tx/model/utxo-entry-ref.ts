@@ -17,7 +17,7 @@ class UtxoEntryReference extends UtxoEntry {
    * @param isCoinbase - Indicates if the UTXO is from a coinbase transaction.
    */
   constructor(
-    address: Address | undefined,
+    address: Address | string | undefined,
     outpoint: TransactionOutpoint,
     amount: bigint,
     scriptPublicKey: ScriptPublicKey,
@@ -25,7 +25,7 @@ class UtxoEntryReference extends UtxoEntry {
     isCoinbase: boolean
   ) {
     super(amount, scriptPublicKey, blockDaaScore, isCoinbase);
-    this.address = address;
+    this.address = typeof address === 'string' ? Address.fromString(address) : address;
     this.outpoint = outpoint;
   }
 

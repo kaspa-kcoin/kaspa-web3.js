@@ -1,0 +1,21 @@
+{
+  "message": "successful",
+  "prev": "ROLLEX",
+  "next": "AVER",
+  "result": [
+    {
+      "tick": "ROLLEX",
+      "balance": "20000000000000",
+      "locked": "0",
+      "dec": "8",
+      "opScoreMod": "806921250001"
+    },
+    {
+      "tick": "PIAST",
+      "balance": "30000000000",
+      "locked": "0",
+      "dec": "8",
+      "opScoreMod": "806920840002"
+    }
+  ]
+}

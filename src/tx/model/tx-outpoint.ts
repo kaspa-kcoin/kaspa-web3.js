@@ -1,5 +1,6 @@
 import { TransactionId } from './index';
 import { validateU32 } from '../../validator';
+import { Hash } from '../hashing';
 
 /**
  * Represents a transaction outpoint, which is a reference to a specific output in a transaction.
@@ -21,9 +22,9 @@ class TransactionOutpoint {
    * @param transactionId - The ID of the transaction.
    * @param index - The index of the output in the transaction.
    */
-  constructor(transactionId: TransactionId, index: number) {
+  constructor(transactionId: TransactionId | string, index: number) {
     validateU32(index, 'index');
-    this.transactionId = transactionId;
+    this.transactionId = typeof transactionId === 'string' ? Hash.fromHex(transactionId) : transactionId;
     this.index = index;
   }
 

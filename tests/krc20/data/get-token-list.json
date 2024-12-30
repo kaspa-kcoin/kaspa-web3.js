@@ -1,0 +1,39 @@
+{
+  "message": "successful",
+  "prev": "829723930000",
+  "next": "821795320000",
+  "result": [
+    {
+      "tick": "AVETA",
+      "max": "100000000000",
+      "lim": "1000000000",
+      "pre": "1000000000",
+      "to": "kaspatest:qra9hkw7u3cymmsmtsjykal0kx0v93j9nkcvp6mkldh49zwt98qaxwd59hrq9",
+      "dec": "8",
+      "mod": "mint",
+      "minted": "1000000000",
+      "burned": "0",
+      "opScoreAdd": "829723930000",
+      "opScoreMod": "829723930000",
+      "state": "deployed",
+      "hashRev": "cca4fa896d0aa6c187ca4072040ecc36bdf465f242d664768990faec988d939f",
+      "mtsAdd": "1735545613273"
+    },
+    {
+      "tick": "NAIZI",
+      "max": "2100000000000000",
+      "lim": "100000000",
+      "pre": "2100000000000000",
+      "to": "kaspatest:qq2a40zfzpjclx7ke8rq3v5sa2aut67f96h2qugkshmw8h70rypnggwyclmp0",
+      "dec": "8",
+      "mod": "mint",
+      "minted": "2100000000000000",
+      "burned": "0",
+      "opScoreAdd": "829146030000",
+      "opScoreMod": "829146030000",
+      "state": "finished",
+      "hashRev": "97847fd819a9c66132a091ffb4a417ec77608ba234a84e8ed94f81434ea381e2",
+      "mtsAdd": "1735485722379"
+    }
+  ]
+}
