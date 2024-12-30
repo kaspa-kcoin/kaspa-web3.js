@@ -242,15 +242,13 @@ export class RpcClient implements RpcEventObservable {
     this.client!.onerror = this.handleConnectionError;
   }
 
-  private handleConnectionOpen = (event: Event) => {
-    console.log('Connection opened: ', event);
+  private handleConnectionOpen = () => {
     this.connected = true;
     this.connecting = false;
     this.connectedPromise?.resolve(true);
   };
 
   private handleMessage = (event: MessageEvent) => {
-    console.debug('Received message: ', event);
     const res = JSON.parse(event.data) as JsonRpcResponse<any>;
     if (res.id) {
       this.handleResponse(res);
