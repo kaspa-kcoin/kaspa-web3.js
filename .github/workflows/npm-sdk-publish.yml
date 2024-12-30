@@ -16,8 +16,8 @@ jobs:
           registry-url: https://npm.pkg.github.com
           cache: yarn
       - run: |
-          rm .npmrc
-          npm config set ${REGISTRY}:_authToken ${{ secrets.NPM_PACKAGE_TOKEN }}
+          rm -f .npmrc
+          npm config set "${REGISTRY}:_authToken" "${{ secrets.NPM_PACKAGE_TOKEN }}"
         env:
           REGISTRY: //registry.npmjs.org/
       - run: |
