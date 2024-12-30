@@ -71,14 +71,21 @@ export type GetKrc20VspcDetailsResponse = {
 };
 
 export type GetKrc20DataByOPrangeResponse = {
-  oprange: string;
-  data: string;
-};
+  opscore: number;
+  addressaffc: string;
+  script: string;
+  state: string;
+  tickaffc: string;
+  txid: string;
+}[];
 
 export type GetKrc20ListingListResponse = {
-  listings: {
-    token: string;
-    price: string;
-    volume: string;
-  }[];
-};
+  tick: string;
+  from: string;
+  amount: string;
+  uTxid: string;
+  uAddr: string;
+  uAmt: string;
+  uScript: string;
+  opScoreAdd: string;
+}[];

@@ -107,7 +107,7 @@ const krc20RpcClient = new Krc20RpcClient({
 const receiverAddress = 'kaspatest:qpcl6nup27rmd4dvx20xj50f6mlm8zt6s9nxznlwvjspfzy9v4rxvfkug838j';
 const amount = BigInt('1000000000'); // Amount in smallest unit
 const tick = 'AVETA';
-const privateKey = 'your-private-key-hex'; // Replace with your private key
+const privateKey = 'your-private-key-hex'; // WARNING: Never hardcode private keys in production code
 const priorityFee = kaspaToSompi(0.02); // Optional priority fee, 0.02 KAS
 
 // Perform the transfer

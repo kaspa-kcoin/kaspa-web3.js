@@ -199,7 +199,7 @@ export class Krc20RpcClient {
     let isConfirmed = false;
     let maxRetries = 10;
     let currentRetries = 0;
-    while (isConfirmed) {
+    while (!isConfirmed) {
       const utxos = await this.rpcClient.getUtxosByAddresses([sendKrc20Params.p2shAddress.toString()]);
       if (utxos.entries.filter((o) => o.outpoint.transactionId === finalTransactionId).length > 0) {
         isConfirmed = true;
