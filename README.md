@@ -95,7 +95,7 @@ async function sendKAS() {
 }
 
 sendKAS();
-
+```
 ### Explanation
 
 - **`RpcClient`**: Used to interact with the blockchain.
