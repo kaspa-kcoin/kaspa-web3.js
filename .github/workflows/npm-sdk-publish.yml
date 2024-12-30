@@ -1,0 +1,37 @@
+name: publish kaspa-web3.js to npm
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - npm-release
+jobs:
+  Build-and-Publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+          cache: yarn
+      - run: |
+          rm -f .npmrc
+          npm config set "${REGISTRY}:_authToken" "${{ secrets.NPM_PACKAGE_TOKEN }}"
+        env:
+          REGISTRY: //registry.npmjs.org/
+      - run: |
+          if ! Version=$(git describe --tags --abbrev=0 2>/dev/null); then
+            echo "Error: No git tags found"
+            exit 1
+          fi
+          echo Version: $Version
+          export VITE_RELEASE_VERSION=$Version
+
+          yarn install --frozen-lockfile
+          
+          yarn test
+
+          yarn build
+
+          yarn publish --frozen-lockfile --non-interactive --no-git-tag-version --no-commit-hooks --new-version "${Version}" --access public
