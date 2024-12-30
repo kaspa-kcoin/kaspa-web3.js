@@ -82,7 +82,7 @@ async function sendKAS() {
       if (!transaction) break;
       transaction.sign([privateKey]);
       const response = await rpcClient.submitTransaction({
-        transaction: tx.toSubmittableJsonTx(),
+        transaction: transaction.toSubmittableJsonTx(),
         allowOrphan: false
       });
     }
@@ -95,7 +95,6 @@ async function sendKAS() {
 }
 
 sendKAS();
-```
 
 ### Explanation
 
