@@ -1,0 +1,20 @@
+{
+  "message": "successful",
+  "result": [
+    {
+      "chainBlock": {
+        "hash": "2012fc6a1f17e539e6b38ebc09bc85d1ae898bf56761815ae4abc86c69adc6d4",
+        "daascore": 72111986,
+        "header": "{\"version\":1,\"parents\":[{\"parentHashes\":[\"23c5306cbdf1d3aa301277c28a2c81898a09468e7eb2b3ad5b8500b08ba391f9\"]}],\"hashMerkleRoot\":\"5d523a1bbfebad17e2ebd1b37fb44d27f22bc25ca36a09c840784b53cfd95b8d\",\"acceptedIdMerkleRoot\":\"c79045b6c7a67726cddc01f1e2457befd56c57620f0276a8c95537898db451a9\",\"utxoCommitment\":\"66abde5bb6672504ba89c258795221e2e79ed3d67aecbd2f86b6b67bde4b8b93\",\"timestamp\":1724623113231,\"bits\":503429813,\"nonce\":2558415520463629557,\"daaScore\":72111986,\"blueWork\":\"16f7b496debd2\",\"pruningPoint\":\"9030a3c0cc7a22f76b167dac2b82820585b9896c103a250976da7105098ee484\",\"blueScore\":71052885}",
+        "txid": "ac24ef27c2ca0375d309edc6dd25e827edea80cc299c79c8d94893fcc2f0f6bc",
+        "verbose": "{\"hash\":\"2012fc6a1f17e539e6b38ebc09bc85d1ae898bf56761815ae4abc86c69adc6d4\",\"difficulty\":4850800.860190765,\"selectedParentHash\":\"23c5306cbdf1d3aa301277c28a2c81898a09468e7eb2b3ad5b8500b08ba391f9\",\"transactionIds\":[\"ac24ef27c2ca0375d309edc6dd25e827edea80cc299c79c8d94893fcc2f0f6bc\"],\"blueScore\":71052885,\"childrenHashes\":[\"62298b21448ad3e2c8765047ebbfd7f55091b11742353f18a8e203ba752f1686\"],\"mergeSetBluesHashes\":[\"23c5306cbdf1d3aa301277c28a2c81898a09468e7eb2b3ad5b8500b08ba391f9\"],\"isChainBlock\":true}"
+      },
+      "txList": [
+        {
+          "txid": "c79045b6c7a67726cddc01f1e2457befd56c57620f0276a8c95537898db451a9",
+          "data": "{\"outputs\":[{\"amount\":13281278265,\"scriptPublicKey\":{\"scriptPublicKey\":\"2071fd4f815787b6d5ac329e6951e9d6ffb3897a8166614fee64a0148885654666ac\"},\"verboseData\":{\"scriptPublicKeyType\":\"pubkey\",\"scriptPublicKeyAddress\":\"kaspatest:qpcl6nup27rmd4dvx20xj50f6mlm8zt6s9nxznlwvjspfzy9v4rxvfkug838j\"}}],\"subnetworkId\":\"0100000000000000000000000000000000000000\",\"payload\":\"542e3c04000000003977b40b0300000000002220fb23dd36d541472c85100cc8fe943a12cfd364119d87e4a9fb01f0ad062bc0dcac302e31342e312f302e322e35\",\"verboseData\":{\"transactionId\":\"c79045b6c7a67726cddc01f1e2457befd56c57620f0276a8c95537898db451a9\",\"hash\":\"b049aff5e6cd2fcc16a5012710fabd6a7382ae87819f8fae34454c34fda95d39\",\"blockHash\":\"23c5306cbdf1d3aa301277c28a2c81898a09468e7eb2b3ad5b8500b08ba391f9\",\"blockTime\":1724623112608}}"
+        }
+      ]
+    }
+  ]
+}

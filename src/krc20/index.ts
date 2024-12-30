@@ -1,1 +1,1 @@
-export * from './krc20-rpc';
+export * from './rpc-client.ts';

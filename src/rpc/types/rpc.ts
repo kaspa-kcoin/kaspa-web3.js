@@ -1,3 +1,6 @@
+import { UtxoEntryReference } from '../../tx';
+import { ISubmittableJsonTransaction } from '../../tx/generator/model/submittable';
+
 /**
  * RPCError represents a generic non-internal error.
  *
@@ -53,8 +56,8 @@ export interface RpcTransaction {
   subnetworkId: string;
   gas: number;
   payload: string;
-  verboseData: RpcTransactionVerboseData | undefined;
   mass: number;
+  verboseData?: RpcTransactionVerboseData;
 }
 
 export interface RpcTransactionInput {
@@ -290,7 +293,7 @@ export interface AddPeerResponseMessage {
 
 /** SubmitTransactionRequestMessage submits a transaction to the mempool */
 export interface SubmitTransactionRequestMessage {
-  transaction: RpcTransaction | undefined;
+  transaction: ISubmittableJsonTransaction | undefined;
   allowOrphan?: boolean;
 }
 
@@ -557,7 +560,7 @@ export interface GetUtxosByAddressesRequestMessage {
 }
 
 export interface GetUtxosByAddressesResponseMessage {
-  entries: RpcUtxosByAddressesEntry[];
+  entries: UtxoEntryReference[];
   error: RPCError | undefined;
 }
 

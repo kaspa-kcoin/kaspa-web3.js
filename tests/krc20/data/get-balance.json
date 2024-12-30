@@ -1,0 +1,12 @@
+{
+  "message": "successful",
+  "result": [
+    {
+      "tick": "AVETA",
+      "balance": "1000000000",
+      "locked": "0",
+      "dec": "8",
+      "opScoreMod": "829723930000"
+    }
+  ]
+}

@@ -1,13 +1,15 @@
 import { Address } from './address';
 import { Fees, GeneratorSettings, PaymentOutput, TransactionId, TransactionOutpoint, UtxoEntryReference } from './tx';
-import { addressFromScriptPublicKey } from './utils';
+import { addressFromScriptPublicKey, kaspaToSompi } from './utils';
 import { OpCodes, ScriptBuilder } from './tx-script';
 import { NetworkId } from './consensus';
+
+const COMMIT_TX_OUTPUT_AMOUNT = kaspaToSompi(0.3);
 
 /**
  * Interface representing parameters for sending KRC-20 tokens.
  */
-export interface ISendKrc20Params {
+export interface ITxParams {
   /**
    * Sets the priority fee for the transaction.
    * @param priorityFee - The priority fee to set.
@@ -18,7 +20,7 @@ export interface ISendKrc20Params {
 /**
  * Class representing parameters for sending Kaspa.
  */
-class SendKasParams implements ISendKrc20Params {
+class SendKasParams implements ITxParams {
   sender: Address;
   amount: bigint;
   receiver: Address;
@@ -65,7 +67,7 @@ class SendKasParams implements ISendKrc20Params {
 /**
  * Class representing parameters for sending KRC-20 tokens.
  */
-class SendKrc20Params implements ISendKrc20Params {
+class SendKrc20Params implements ITxParams {
   sender: Address;
   krc20Amount: bigint;
   receiver: Address;
@@ -94,7 +96,7 @@ class SendKrc20Params implements ISendKrc20Params {
     receiver: Address | string,
     tick: string,
     networkId: NetworkId,
-    outputAmount: bigint,
+    outputAmount?: bigint,
     priorityFee?: Fees
   ) {
     this.sender = sender instanceof Address ? sender : Address.fromString(sender);
@@ -102,7 +104,7 @@ class SendKrc20Params implements ISendKrc20Params {
     this.receiver = receiver instanceof Address ? receiver : Address.fromString(receiver);
     this.tick = tick.toUpperCase();
     this.networkId = networkId;
-    this.outputAmount = outputAmount;
+    this.outputAmount = outputAmount || COMMIT_TX_OUTPUT_AMOUNT;
     this.priorityFee = priorityFee;
   }
 
@@ -170,6 +172,10 @@ class SendKrc20Params implements ISendKrc20Params {
       .addI64(0n)
       .addData(Buffer.from(JSON.stringify(data, null, 0)))
       .addOp(OpCodes.OpEndIf);
+  }
+
+  get p2shAddress(): Address {
+    return addressFromScriptPublicKey(this.script.createPayToScriptHashScript(), this.networkId.networkType)!;
   }
 }
 
