@@ -11,18 +11,18 @@ The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with th
 <details>
   <summary>npm</summary>
 
-  ```sh
-  npm install @kcoin/kaspa-web3.js
-  ```
+```sh
+npm install @kcoin/kaspa-web3.js
+```
 
 </details>
 
 <details>
   <summary>Yarn</summary>
 
-  ```sh
-  yarn add @kcoin/kaspa-web3.js
-  ```
+```sh
+yarn add @kcoin/kaspa-web3.js
+```
 
 </details>
 
@@ -53,7 +53,7 @@ You can create an instance of `RpcClient` using either an endpoint or a resolver
 import { RpcClient } from '@kcoin/kaspa-web3.js';
 
 const client = new RpcClient({
-  endpoint: 'ws://localhost:18210',
+  endpoint: 'ws://localhost:18210'
 });
 
 await client.connect();
@@ -66,7 +66,7 @@ import { RpcClient, NetworkId, Resolver } from '@kcoin/kaspa-web3.js';
 
 const client = new RpcClient({
   resolver: new Resolver(),
-  networkId: NetworkId.Mainnet,
+  networkId: NetworkId.Mainnet
 });
 
 await client.connect();
@@ -90,7 +90,7 @@ const generator = new Generator({
   senderAddress: SENDER_ADDR,
   amount: 1000000, // Amount in sompi
   receiverAddress: RECEIVER_ADDR,
-  networkId,
+  networkId
 });
 
 const transactions = generator.generateTransactions(utxos);
@@ -99,7 +99,7 @@ for (const tx of transactions) {
   tx.sign([yourPrivateKey]);
   const response = await rpcClient.submitTransaction({
     transaction: tx.toSubmitable(),
-    allowOrphan: false,
+    allowOrphan: false
   });
   console.log('Transaction submitted:', response);
 }
@@ -125,7 +125,7 @@ const generator = new Generator({
   amount: 1000, // Token amount
   receiverAddress: RECEIVER_ADDR,
   contractAddress: TOKEN_CONTRACT_ADDR,
-  networkId,
+  networkId
 });
 
 const transactions = generator.generateTransactions(utxos);
@@ -134,7 +134,7 @@ for (const tx of transactions) {
   tx.sign([yourPrivateKey]);
   const response = await rpcClient.submitTransaction({
     transaction: tx.toSubmitable(),
-    allowOrphan: false,
+    allowOrphan: false
   });
   console.log('KRC20 Transaction submitted:', response);
 }
@@ -205,7 +205,6 @@ npm run format
 - `buffer`: ^6.0.3
 - `toml`: ^3.0.0
 - `websocket-heartbeat-js`: ^1.1.3
-
 
 ## Contributing
 
