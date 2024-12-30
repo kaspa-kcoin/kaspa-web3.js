@@ -1,11 +1,11 @@
-import { DataKind } from './data-kind';
 import { TransactionId, TransactionInput, UtxoEntry, UtxoEntryReference } from '../../model';
 import { Transaction } from '../../tx';
-import { ISubmitableJsonTransaction, ISubmitableBorshTransaction } from './submitable';
+import { ISubmittableJsonTransaction } from './submittable';
 import { SignedTransaction, SignedType } from './signed-tx';
 import { SIG_HASH_ALL, SigHashType } from '../../hashing';
 import { signInput, signWithMultipleV2 } from '../../hashing/sign';
 import { Buffer } from 'buffer';
+import { DataKind } from './data-kind';
 
 /**
  * Represents a transaction that can be signed.
@@ -121,10 +121,10 @@ class SignableTransaction {
   }
 
   /**
-   * Convert to a submitable tx.
-   * @returns {ISubmitableJsonTransaction} The submitable transaction.
+   * Convert to a submittable tx.
+   * @returns {ISubmittableJsonTransaction} The submittable transaction.
    */
-  toSubmitableJson(): ISubmitableJsonTransaction {
+  toSubmittableJsonTx(): ISubmittableJsonTransaction {
     return {
       id: this.id.toString(),
       version: this.tx.version,
@@ -149,46 +149,6 @@ class SignableTransaction {
       subnetworkId: this.tx.subnetworkId.toString(),
       payload: Buffer.from(this.tx.payload).toString('hex'),
       mass: Number(this.tx.mass)
-    };
-  }
-
-  /**
-   * Converts the transaction to a serializable format.
-   * @returns {ISubmitableBorshTransaction} The submitable transaction.
-   */
-  toSubmitableBorsh(): ISubmitableBorshTransaction {
-    return {
-      id: this.id.toString(),
-      version: this.tx.version,
-      inputs: this.tx.inputs.map((input, index) => ({
-        transactionId: input.previousOutpoint.transactionId.toString(),
-        index: input.previousOutpoint.index,
-        sequence: input.sequence.toString(),
-        sigOpCount: input.sigOpCount,
-        signatureScript: Buffer.from(input.signatureScript).toString('hex'),
-        utxo: {
-          address: this.entries[index].address ? this.entries[index].address.toString() : null,
-          amount: this.entries[index].amount.toString(),
-          scriptPublicKey: {
-            version: this.entries[index].scriptPublicKey.version,
-            script: Buffer.from(this.entries[index].scriptPublicKey.script).toString('hex')
-          },
-          blockDaaScore: this.entries[index].blockDaaScore.toString(),
-          isCoinbase: this.entries[index].isCoinbase
-        }
-      })),
-      outputs: this.tx.outputs.map((output) => ({
-        value: output.value.toString(),
-        scriptPublicKey: {
-          version: output.scriptPublicKey.version,
-          script: Buffer.from(output.scriptPublicKey.script).toString('hex')
-        }
-      })),
-      lockTime: this.tx.lockTime.toString(),
-      gas: this.tx.gas.toString(),
-      mass: this.mass.toString(),
-      subnetworkId: this.tx.subnetworkId.toString(),
-      payload: Buffer.from(this.tx.payload).toString('hex')
     };
   }
 }

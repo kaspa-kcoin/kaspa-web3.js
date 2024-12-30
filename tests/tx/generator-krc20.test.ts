@@ -83,7 +83,7 @@ describe('Generator kas tx', () => {
       resultSendKrc20RevealTxSigned[0].tx.inputs[0].signatureScript
     );
 
-    const submitableTx = signedTx.toSubmitableJson();
+    const submitableTx = signedTx.toSubmittableJsonTx();
 
     expect(submitableTx.id).equals(resultSendKrc20RevealTxSigned[0].id.toHex());
   });
