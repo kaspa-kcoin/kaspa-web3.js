@@ -240,7 +240,7 @@ export class Krc20RpcClient {
     );
     while (true) {
       const transaction = generatorOfRevealTx.generateTransaction();
-      if (transaction === undefined) break;
+      if (!transaction) break;
       const signedTx = transaction.sign([privateKey]);
       await this.rpcClient.submitTransaction({
         transaction: signedTx.toSubmittableJsonTx(),
