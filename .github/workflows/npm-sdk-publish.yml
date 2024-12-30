@@ -29,7 +29,7 @@ jobs:
           export VITE_RELEASE_VERSION=$Version
 
           yarn install --frozen-lockfile
-          
+
           yarn test
 
           yarn build

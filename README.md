@@ -1,5 +1,9 @@
 # Kaspa Web3.js SDK
 
+[![Test Status](https://github.com/kaspa-kcoin/kaspa-web3.js/actions/workflows/test.yml/badge.svg)](https://github.com/kaspa-kcoin/kaspa-web3.js/actions/workflows/test.yml)
+[![Build Status](https://github.com/kaspa-kcoin/kaspa-web3.js/actions/workflows/build.yml/badge.svg)](https://github.com/kaspa-kcoin/kaspa-web3.js/actions/workflows/build.yml)
+[![npm version](https://img.shields.io/npm/v/@kcoin/kaspa-web3.js.svg)](https://www.npmjs.com/package/@kcoin/kaspa-web3.js)
+
 ## Overview
 
 The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides various utilities and functions to facilitate blockchain operations, including sending KAS and KRC20 tokens.
@@ -96,6 +100,7 @@ async function sendKAS() {
 
 sendKAS();
 ```
+
 ### Explanation
 
 - **`RpcClient`**: Used to interact with the blockchain.
