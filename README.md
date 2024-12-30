@@ -54,33 +54,58 @@ await client.connect();
 To send KAS, you need to create and submit a transaction using the `Generator`:
 
 ```typescript
-import { Generator, SignableTransaction, NetworkId } from '@kcoin/kaspa-web3.js';
+import { RpcClient, Generator, NetworkId, NetworkType, kaspaToSompi, Fees, SendKasParams } from '@kcoin/kaspa-web3.js';
 
-const SENDER_ADDR = 'sender-address';
-const RECEIVER_ADDR = 'receiver-address';
-const networkId = NetworkId.Testnet10;
-const rpcClient = new RpcClient({ endpoint: 'ws://localhost:18210' });
-
-await rpcClient.connect();
-const utxos = await rpcClient.getUtxosByAddress(SENDER_ADDR);
-const generator = new Generator({
-  senderAddress: SENDER_ADDR,
-  amount: kaspaToSompi(1000),
-  receiverAddress: RECEIVER_ADDR,
-  networkId
+// Initialize the RpcClient
+const rpcClient = new RpcClient({
+  endpoint: 'ws://localhost:18210' // Replace with your actual endpoint
 });
 
-const transactions = generator.generateTransactions(utxos);
+// Define transaction parameters
+const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
+const RECEIVER_ADDR = 'kaspatest:qrjcg7hsgjapumpn8egyu6544qzdqs2lssas4nfwewl55lnenr5pyzd7cmyx6';
+const networkId = new NetworkId(NetworkType.Testnet, 10);
+const amount = kaspaToSompi(10); // Convert KAS to Sompi
+const priorityFees = new Fees(kaspaToSompi(0.02)); // Optional priority fee
+const privateKey = 'your-private-key-hex'; // WARNING: Never hardcode private keys in production code
 
-for (const tx of transactions) {
-  tx.sign([yourPrivateKey]);
-  const response = await rpcClient.submitTransaction({
-    transaction: tx.toSubmittableJsonTx(),
-    allowOrphan: false
-  });
-  console.log('Transaction submitted:', response);
+// Perform the transaction
+async function sendKAS() {
+  try {
+    await rpcClient.connect(); // Ensure the RpcClient is connected
+    const utxos = await rpcClient.getUtxosByAddress(SENDER_ADDR);
+    const sendKasParams = new SendKasParams(SENDER_ADDR, amount, RECEIVER_ADDR, networkId, priorityFees);
+    const generator = new Generator(sendKasParams.toGeneratorSettings(utxos));
+
+    while (true) {
+      const transaction = generator.generateTransaction();
+      if (!transaction) break;
+      transaction.sign([privateKey]);
+      const response = await rpcClient.submitTransaction({
+        transaction: transaction.toSubmittableJsonTx(),
+        allowOrphan: false
+      });
+    }
+
+    const finalTransactionId = generator.summary().finalTransactionId!.toHex();
+    console.log('Final Transaction ID:', finalTransactionId);
+  } catch (error) {
+    console.error('Transaction failed:', error);
+  }
 }
-```
+
+sendKAS();
+
+### Explanation
+
+- **`RpcClient`**: Used to interact with the blockchain.
+- **`Generator`**: Used to create transactions.
+- **`SENDER_ADDR` and `RECEIVER_ADDR`**: The sender and receiver addresses.
+- **`amount`**: The amount of KAS to send, converted to Sompi.
+- **`priorityFees`**: Optional fees to prioritize the transaction.
+- **`privateKey`**: The private key for signing the transaction.
+
+This example demonstrates how to send KAS using the `RpcClient` and `Generator`. Ensure you replace the placeholder values with actual data before running the script.
 
 ### Sending KRC-20 Tokens
 
