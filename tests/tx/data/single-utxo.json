@@ -1,0 +1,15 @@
+[
+  {
+    "address": "kaspatest:qzw9xtuu63l4q3kxpgseut2r9z3xp9t29uhz7smwymendlhptt5fs77lmj7ys",
+    "outpoint": {
+      "index": 0,
+      "transactionId": "3cf08c7b053b9110000a513ba03399b15be3c97631fd55517d0c00abf59e0f09"
+    },
+    "utxoEntry": {
+      "amount": 100000000000,
+      "blockDaaScore": 311357067,
+      "isCoinbase": false,
+      "scriptPublicKey": "0000209c532f9cd47f5046c60a219e2d4328a260956a2f2e2f436e26f336fee15ae898ac"
+    }
+  }
+]

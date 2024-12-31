@@ -166,7 +166,7 @@ interface RpcOptions {
 export class RpcClient implements RpcEventObservable {
   public readonly networkId: NetworkId;
 
-  private client?: WebsocketHeartbeatJs;
+  private ws?: WebsocketHeartbeatJs;
   private readonly resolver?: Resolver;
   private readonly endpoint?: string;
   private connectedPromise: BridgePromise<boolean>;
@@ -227,7 +227,7 @@ export class RpcClient implements RpcEventObservable {
       }
     }
 
-    this.client = new WebsocketHeartbeatJs({
+    this.ws = new WebsocketHeartbeatJs({
       url: endpoint!,
       pingMsg: JSON.stringify(this.buildRequest('ping', {}))
     });
@@ -235,12 +235,12 @@ export class RpcClient implements RpcEventObservable {
     this.setupWebSocketEventHandlers();
   };
 
-  private setupWebSocketEventHandlers() {
-    this.client!.onopen = this.handleConnectionOpen;
-    this.client!.onmessage = this.handleMessage;
-    this.client!.onclose = this.handleConnectionClose;
-    this.client!.onerror = this.handleConnectionError;
-  }
+  private setupWebSocketEventHandlers = () => {
+    this.ws!.onopen = this.handleConnectionOpen;
+    this.ws!.onmessage = this.handleMessage;
+    this.ws!.onclose = this.handleConnectionClose;
+    this.ws!.onerror = this.handleConnectionError;
+  };
 
   private handleConnectionOpen = () => {
     this.connected = true;
@@ -1093,8 +1093,8 @@ export class RpcClient implements RpcEventObservable {
   dispose = () => {
     this.removeAllEventListeners();
     this.requestPromiseMap.clear();
-    this.client?.close();
-    this.client = undefined;
+    this.ws?.close();
+    this.ws = undefined;
   };
 
   /**
@@ -1119,18 +1119,20 @@ export class RpcClient implements RpcEventObservable {
    * @param {TParam} params - The parameters for the RPC method.
    * @returns {Promise<TRes>} A promise that resolves to the response of the RPC method.
    */
-  private async sendRequest<TParam, TRes>(method: string, params: TParam): Promise<TRes> {
-    if (this.client === undefined) {
+  private sendRequest = async <TParam, TRes>(method: string, params: TParam): Promise<TRes> => {
+    if (this.ws === undefined) {
       await this.connect();
     }
 
     await this.connectedPromise.promise;
     const request = this.buildRequest(method, params);
     const bridgePromise = new BridgePromise<TRes>();
-    this.requestPromiseMap.set(request.id ?? 0, bridgePromise);
-    this.client!.send(JSON.stringify(request));
+    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
+    console.log('sending request', JSON.stringify(request));
+    console.log(`requestPromiseMap size: ${this.requestPromiseMap.size}`);
+    this.ws!.send(JSON.stringify(request));
     return bridgePromise.promise;
-  }
+  };
 
   private buildSubscribeRequest = <T>(event: RpcEventType, params: T): JsonRpcRequest<T> => {
     let req: any = {
@@ -1156,18 +1158,18 @@ export class RpcClient implements RpcEventObservable {
    * @param {RpcEventType} event - The RPC event to subscribe to.
    * @param {TParam} params - The parameters for the RPC method.
    */
-  private async sendSubscribeRequest<TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> {
-    if (this.client === undefined) {
+  private sendSubscribeRequest = async <TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> => {
+    if (this.ws === undefined) {
       await this.connect();
     }
 
     await this.connectedPromise.promise;
     const request = this.buildSubscribeRequest(event, params);
     const bridgePromise = new BridgePromise<TRes>();
-    this.requestPromiseMap.set(request.id ?? 0, bridgePromise);
-    this.client!.send(JSON.stringify(request));
+    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
+    this.ws!.send(JSON.stringify(request));
     return bridgePromise.promise;
-  }
+  };
 
   /**
    * Sends a JSON-RPC unsubscribe request to the server.
@@ -1175,25 +1177,27 @@ export class RpcClient implements RpcEventObservable {
    * @param {RpcEventType} event - The RPC event to unsubscribe from.
    * @param {TParam} params - The parameters for the RPC method.
    */
-  private async sendUnsubscribeRequest<TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> {
-    if (this.client === undefined) {
+  private sendUnsubscribeRequest = async <TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> => {
+    if (this.ws === undefined) {
       await this.connect();
     }
 
     await this.connectedPromise.promise;
     const request = this.buildUnsubscribeRequest(event, params);
     const bridgePromise = new BridgePromise<TRes>();
-    this.requestPromiseMap.set(request.id ?? 0, bridgePromise);
-    this.client!.send(JSON.stringify(request));
+    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
+    this.ws!.send(JSON.stringify(request));
     return bridgePromise.promise;
-  }
+  };
 
   /**
    * Handles the response from the server for a JSON-RPC request.
    *
    * @param {JsonRpcResponse<any>} res - The response from the server.
    */
-  private handleResponse(res: JsonRpcResponse<any>) {
+  private handleResponse = (res: JsonRpcResponse<any>) => {
+    console.log('received response', JSON.stringify(res));
+    console.log(`requestPromiseMap size: ${this.requestPromiseMap.size}`);
     const bridgePromise = this.requestPromiseMap.get(res.id!);
     if (bridgePromise) {
       if (res.error) {
@@ -1203,14 +1207,14 @@ export class RpcClient implements RpcEventObservable {
       }
       this.requestPromiseMap.delete(res.id!);
     }
-  }
+  };
 
   /**
    * Handles an event notification from the server.
    *
    * @param {JsonRpcResponse<any>} res - The event notification from the server.
    */
-  private handleEvent(res: JsonRpcResponse<any>) {
+  private handleEvent = (res: JsonRpcResponse<any>) => {
     if (!res.method.endsWith('Notification')) throw new Error(`Invalid event name: ${res.method}`);
 
     for (const listener of this.eventListeners) {
@@ -1218,7 +1222,7 @@ export class RpcClient implements RpcEventObservable {
         listener.callback(res.params);
       }
     }
-  }
+  };
 
   /**
    * Ensures that the response from the server does not contain an error.

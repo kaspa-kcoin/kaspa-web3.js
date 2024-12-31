@@ -87,8 +87,11 @@ function parseUtxosFromFile(file: string): UtxoEntryReference[] {
   const utxos = parseWithBigInt(fileContent);
 
   return utxos.map((utxo: any) => {
+    let address = utxo.address.prefix
+      ? Address.fromString(utxo.address.prefix + ':' + utxo.address.payload)
+      : Address.fromString(utxo.address);
     return new UtxoEntryReference(
-      Address.fromString(utxo.address.prefix + ':' + utxo.address.payload),
+      address,
       new TransactionOutpoint(Hash.fromHex(utxo.outpoint.transactionId), utxo.outpoint.index),
       BigInt(utxo.amount),
       new ScriptPublicKey(

@@ -126,6 +126,7 @@ class SignableTransaction {
    */
   toSubmittableJsonTx(): ISubmittableJsonTransaction {
     return {
+      verb: undefined,
       id: this.id.toString(),
       version: this.tx.version,
       inputs: this.tx.inputs.map((input) => ({

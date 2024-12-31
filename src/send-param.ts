@@ -3,6 +3,7 @@ import { Fees, GeneratorSettings, PaymentOutput, TransactionId, TransactionOutpo
 import { addressFromScriptPublicKey, kaspaToSompi } from './utils';
 import { OpCodes, ScriptBuilder } from './tx-script';
 import { NetworkId } from './consensus';
+import { RpcUtxosByAddressesEntry } from './rpc/types';
 
 const COMMIT_TX_OUTPUT_AMOUNT = kaspaToSompi(0.3);
 
@@ -117,7 +118,7 @@ class SendKrc20Params implements ITxParams {
    * @param uxtos - The UTXO entries.
    * @returns The generator settings.
    */
-  toCommitTxGeneratorSettings(uxtos: UtxoEntryReference[] = []): GeneratorSettings {
+  toCommitTxGeneratorSettings(uxtos: UtxoEntryReference[] | RpcUtxosByAddressesEntry[] = []): GeneratorSettings {
     const P2SHAddress = addressFromScriptPublicKey(
       this.script.createPayToScriptHashScript(),
       this.networkId.networkType
@@ -133,7 +134,10 @@ class SendKrc20Params implements ITxParams {
    * @param commitTxId - The commit transaction ID.
    * @returns The generator settings.
    */
-  toRevealTxGeneratorSettings(uxtos: UtxoEntryReference[] = [], commitTxId: TransactionId): GeneratorSettings {
+  toRevealTxGeneratorSettings(
+    uxtos: UtxoEntryReference[] | RpcUtxosByAddressesEntry[] = [],
+    commitTxId: TransactionId
+  ): GeneratorSettings {
     const P2SHAddress = addressFromScriptPublicKey(
       this.script.createPayToScriptHashScript(),
       this.networkId.networkType
