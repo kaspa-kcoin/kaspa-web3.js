@@ -48,7 +48,6 @@ class GeneratorSettings {
     this.priorityFee = priorityFee instanceof Fees ? priorityFee : new Fees(priorityFee);
     return this;
   }
-
   /**
    * Converts an RpcUtxosByAddressesEntry to a UtxoEntryReference.
    *
@@ -56,13 +55,16 @@ class GeneratorSettings {
    * @returns {UtxoEntryReference} The converted UTXO entry reference.
    */
   rpcUtxosByAddressesEntryToUtxoEntryReference = (utxo: RpcUtxosByAddressesEntry): UtxoEntryReference => {
+    if (!utxo.outpoint?.transactionId || !utxo.utxoEntry?.scriptPublicKey) {
+      throw new Error("Invalid RpcUtxosByAddressesEntry: Missing outpoint or script public key.");
+    }
     return new UtxoEntryReference(
       Address.fromString(utxo.address),
-      new TransactionOutpoint(Hash.fromString(utxo.outpoint!.transactionId), utxo.outpoint!.index),
-      BigInt(utxo.utxoEntry?.amount ?? 0),
-      ScriptPublicKey.fromHex(utxo.utxoEntry!.scriptPublicKey!),
-      BigInt(utxo.utxoEntry?.blockDaaScore ?? 0),
-      utxo.utxoEntry?.isCoinbase ?? false
+      new TransactionOutpoint(Hash.fromString(utxo.outpoint.transactionId), utxo.outpoint.index),
+      BigInt(utxo.utxoEntry.amount ?? 0),
+      ScriptPublicKey.fromHex(utxo.utxoEntry.scriptPublicKey),
+      BigInt(utxo.utxoEntry.blockDaaScore ?? 0),
+      utxo.utxoEntry.isCoinbase ?? false
     );
   };
 }
