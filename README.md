@@ -68,7 +68,7 @@ const rpcClient = new RpcClient({
 // Define transaction parameters
 const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
 const RECEIVER_ADDR = 'kaspatest:qrjcg7hsgjapumpn8egyu6544qzdqs2lssas4nfwewl55lnenr5pyzd7cmyx6';
-const networkId = new NetworkId(NetworkType.Testnet, 10);
+const networkId = NetworkId.Testnet10;
 const amount = kaspaToSompi(10); // Convert KAS to Sompi
 const priorityFees = new Fees(kaspaToSompi(0.02)); // Optional priority fee
 const privateKey = 'your-private-key-hex'; // WARNING: Never hardcode private keys in production code
