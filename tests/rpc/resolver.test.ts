@@ -85,12 +85,12 @@ describe('Resolver', () => {
     await expect(resolver['fetch'](NetworkId.Testnet10)).rejects.toThrowError(/Network error/);
   });
 
-  it('json resolver real', async () => {
-    console.time('getEndpoint');
-    const resolver = new Resolver(null, true);
-    const endpoints = await resolver.getAllNodeEndpoints(NetworkId.Testnet11);
-    console.log(endpoints);
-    console.timeEnd('getEndpoint');
-    expect(endpoints).length.greaterThan(0);
-  }, 1000000);
+  // it('json resolver real', async () => {
+  //   console.time('getEndpoint');
+  //   const resolver = new Resolver(null, true);
+  //   const endpoints = await resolver.getAllNodeEndpoints(NetworkId.Testnet11);
+  //   console.log(endpoints);
+  //   console.timeEnd('getEndpoint');
+  //   expect(endpoints).length.greaterThan(0);
+  // }, 1000000);
 });

@@ -91,7 +91,7 @@ describe('Generator kas tx', () => {
   });
 });
 
-describe('Generator specific settings', () => {
+describe('Generator specific test cases', () => {
   it('should generate transactions without errors', () => {
     const sendKrc20Params = new SendKrc20Params(
       'kaspatest:qzw9xtuu63l4q3kxpgseut2r9z3xp9t29uhz7smwymendlhptt5fs77lmj7ys',
