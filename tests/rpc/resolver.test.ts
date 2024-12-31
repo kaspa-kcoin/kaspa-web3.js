@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Resolver, tryParseResolvers } from '../src/rpc/resolver';
-import { NetworkId, NetworkType } from '../src/consensus/network';
+import { Resolver, tryParseResolvers } from '../../src/rpc/resolver';
+import { NetworkId, NetworkType } from '../../src/consensus/network';
 
 describe('Resolver', () => {
   const mockToml = `

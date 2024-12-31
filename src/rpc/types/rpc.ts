@@ -1,4 +1,3 @@
-import { UtxoEntryReference } from '../../tx';
 import { ISubmittableJsonTransaction } from '../../tx/generator/model/submittable';
 
 /**
@@ -560,7 +559,7 @@ export interface GetUtxosByAddressesRequestMessage {
 }
 
 export interface GetUtxosByAddressesResponseMessage {
-  entries: UtxoEntryReference[];
+  entries: RpcUtxosByAddressesEntry[];
   error: RPCError | undefined;
 }
 

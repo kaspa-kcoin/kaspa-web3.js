@@ -3,7 +3,9 @@ import { Fees, Generator, SignableTransaction } from '../../src/tx';
 import { kaspaToSompi, NetworkId, NetworkType, SendKrc20Params } from '../../src';
 import { parseTxsFromFile, parseUtxosFromFile } from './test-helper';
 import { SignedType } from '../../src/tx/generator/model/signed-tx';
+import fs from 'fs';
 import path from 'path';
+import { RpcUtxosByAddressesEntry } from '../../src/rpc/types';
 
 const SENDDER_PK = '5cd51b74226a845b8c757494136659997db1aaedf34c528e297f849f0fe87faf';
 const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
@@ -86,5 +88,34 @@ describe('Generator kas tx', () => {
     const submitableTx = signedTx.toSubmittableJsonTx();
 
     expect(submitableTx.id).equals(resultSendKrc20RevealTxSigned[0].id.toHex());
+  });
+});
+
+describe('Generator specific test cases', () => {
+  it('should generate transactions without errors', () => {
+    const sendKrc20Params = new SendKrc20Params(
+      'kaspatest:qzw9xtuu63l4q3kxpgseut2r9z3xp9t29uhz7smwymendlhptt5fs77lmj7ys',
+      200000000n,
+      'kaspatest:qq5zy4rfsrzllchkd7myamqqe83k55qykmpc8exyt5a4qn798f3hjx24kkevw',
+      'KAST',
+      new NetworkId(NetworkType.Testnet, 10),
+      kaspaToSompi(0.3),
+      new Fees(0n)
+    );
+    const data = fs.readFileSync(path.resolve(__dirname, './data/single-utxo.json'), 'utf-8');
+    const utxos = JSON.parse(data) as RpcUtxosByAddressesEntry[];
+    const settings = sendKrc20Params.toCommitTxGeneratorSettings(utxos);
+    const generator = new Generator(settings);
+    const transactions = new Array<SignableTransaction>();
+
+    while (true) {
+      const transaction = generator.generateTransaction();
+      if (transaction === undefined) {
+        break;
+      }
+      transactions.push(transaction);
+    }
+
+    expect(transactions.length).toBeGreaterThan(0);
   });
 });
