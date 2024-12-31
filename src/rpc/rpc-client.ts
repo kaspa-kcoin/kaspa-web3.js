@@ -1128,8 +1128,6 @@ export class RpcClient implements RpcEventObservable {
     const request = this.buildRequest(method, params);
     const bridgePromise = new BridgePromise<TRes>();
     this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
-    console.log('sending request', JSON.stringify(request));
-    console.log(`requestPromiseMap size: ${this.requestPromiseMap.size}`);
     this.ws!.send(JSON.stringify(request));
     return bridgePromise.promise;
   };
@@ -1196,8 +1194,6 @@ export class RpcClient implements RpcEventObservable {
    * @param {JsonRpcResponse<any>} res - The response from the server.
    */
   private handleResponse = (res: JsonRpcResponse<any>) => {
-    console.log('received response', JSON.stringify(res));
-    console.log(`requestPromiseMap size: ${this.requestPromiseMap.size}`);
     const bridgePromise = this.requestPromiseMap.get(res.id!);
     if (bridgePromise) {
       if (res.error) {
