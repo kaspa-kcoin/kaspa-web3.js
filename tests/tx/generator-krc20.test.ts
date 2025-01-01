@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Fees, Generator, SignableTransaction } from '../../src/tx';
-import { kaspaToSompi, NetworkId, NetworkType, SendKrc20Params } from '../../src';
+import { kaspaToSompi, NetworkId, NetworkType, Krc20TransferParams } from '../../src';
 import { parseTxsFromFile, parseUtxosFromFile } from './test-helper';
 import { SignedType } from '../../src/tx/generator/model/signed-tx';
 import fs from 'fs';
@@ -11,18 +11,20 @@ const SENDDER_PK = '5cd51b74226a845b8c757494136659997db1aaedf34c528e297f849f0fe8
 const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
 const RECEIVER_ADDR = 'kaspatest:qrjcg7hsgjapumpn8egyu6544qzdqs2lssas4nfwewl55lnenr5pyzd7cmyx6';
 const TESTNET_10 = new NetworkId(NetworkType.Testnet, 10);
-const PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
-const OUTPUT_AMOUNT = kaspaToSompi(0.3);
+const COMMIT_PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
+const REVEAL_PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
 
 describe('Generator kas tx', () => {
-  const sentKrc20CommitTx = new SendKrc20Params(
+  const sentKrc20CommitTx = new Krc20TransferParams(
     SENDER_ADDR,
-    kaspaToSompi(101),
-    RECEIVER_ADDR,
-    'KAST',
     TESTNET_10,
-    OUTPUT_AMOUNT,
-    PRIORITY_FEES
+    REVEAL_PRIORITY_FEES,
+    {
+      tick: 'KAST',
+      to: RECEIVER_ADDR,
+      amount: kaspaToSompi(101)
+    },
+    COMMIT_PRIORITY_FEES
   );
   const resultSendKrc20CommitTx = parseTxsFromFile(path.resolve(__dirname, './data/sendkrc20-commit-tx.json'));
   const resultSendKrc20RevealTx = parseTxsFromFile(path.resolve(__dirname, './data/sendkrc20-reveal-tx.json'));
@@ -93,14 +95,16 @@ describe('Generator kas tx', () => {
 
 describe('Generator specific test cases', () => {
   it('should generate transactions without errors', () => {
-    const sendKrc20Params = new SendKrc20Params(
+    const sendKrc20Params = new Krc20TransferParams(
       'kaspatest:qzw9xtuu63l4q3kxpgseut2r9z3xp9t29uhz7smwymendlhptt5fs77lmj7ys',
-      200000000n,
-      'kaspatest:qq5zy4rfsrzllchkd7myamqqe83k55qykmpc8exyt5a4qn798f3hjx24kkevw',
-      'KAST',
       new NetworkId(NetworkType.Testnet, 10),
-      kaspaToSompi(0.3),
-      new Fees(0n)
+      new Fees(0n),
+      {
+        tick: 'KAST',
+        to: 'kaspatest:qq5zy4rfsrzllchkd7myamqqe83k55qykmpc8exyt5a4qn798f3hjx24kkevw',
+        amount: 200000000n
+      },
+      COMMIT_PRIORITY_FEES
     );
     const data = fs.readFileSync(path.resolve(__dirname, './data/single-utxo.json'), 'utf-8');
     const utxos = JSON.parse(data) as RpcUtxosByAddressesEntry[];

@@ -112,58 +112,43 @@ sendKAS();
 
 This example demonstrates how to send KAS using the `RpcClient` and `Generator`. Ensure you replace the placeholder values with actual data before running the script.
 
-### Sending KRC-20 Tokens
+### KRC-20 Token Operations
 
-The `Krc20RpcClient` provides a method to transfer KRC-20 tokens from one address to another. Below is an example of how to use the `transfer` method.
+This section provides examples of how to deploy, mint, and transfer KRC-20 tokens using the `Krc20RpcClient` class.
 
-### Example Code
+### Prerequisites
 
-```typescript
-import { Krc20RpcClient } from './src/krc20/rpc-client';
-import { RpcClient, NetworkId } from './src/consensus';
+- Ensure you have a valid private key for the operations.
+- Set up your environment with the necessary dependencies and configurations.
 
-// Initialize the RpcClient
-const rpcClient = new RpcClient({
-  endpoint: 'ws://localhost:18210' // Replace with your actual endpoint
-});
+### Example Scripts
 
-// Initialize the Krc20RpcClient
-const krc20RpcClient = new Krc20RpcClient({
-  networkId: NetworkId.Mainnet,
-  rpcClient: rpcClient
-});
+- **Deploy a KRC-20 Token**: [deploy.ts](examples/krc20/deploy.ts)
 
-// Define transfer parameters
-const receiverAddress = 'kaspatest:qpcl6nup27rmd4dvx20xj50f6mlm8zt6s9nxznlwvjspfzy9v4rxvfkug838j';
-const amount = BigInt('1000000000'); // Amount in smallest unit
-const tick = 'AVETA';
-const privateKey = 'your-private-key-hex'; // WARNING: Never hardcode private keys in production code
-const priorityFee = kaspaToSompi(0.02); // Optional priority fee, 0.02 KAS
+  - This script demonstrates how to deploy a new KRC-20 token with specified parameters.
 
-// Perform the transfer
-async function transferTokens() {
-  try {
-    await rpcClient.connect(); // Ensure the RpcClient is connected
-    const transactionId = await krc20RpcClient.transfer(receiverAddress, amount, tick, privateKey, priorityFee);
-    console.log(`Transfer successful! Transaction ID: ${transactionId}`);
-  } catch (error) {
-    console.error('Transfer failed:', error);
-  }
-}
+- **Mint KRC-20 Tokens**: [mint.ts](examples/krc20/mint.ts)
 
-transferTokens();
+  - This script shows how to mint additional tokens to a specified address.
+
+- **Transfer KRC-20 Tokens**: [transfer.ts](examples/krc20/transfer.ts)
+  - This script illustrates transferring tokens from one address to another.
+
+### Notes
+
+- Replace `'your-private-key-hex-here'` with your actual private key.
+- Replace `'your-tick'` with the ticker symbol of your KRC-20 token.
+- Ensure that the network ID and addresses are correctly set for your environment.
+
+### Running the Scripts
+
+To run any of the scripts, use the following command:
+
+```bash
+bun run examples/krc20/<script-name>.ts
 ```
 
-### Explanation
-
-- **`RpcClient`**: This is used to interact with the blockchain and must be passed to the `Krc20RpcClient` when you need to transfer krc20 tokens.
-- **`receiverAddress`**: The address to which the tokens will be sent.
-- **`amount`**: The amount of tokens to transfer, specified in the smallest unit.
-- **`tick`**: The ticker symbol of the KRC-20 token.
-- **`privateKey`**: The private key of the sender's address in hexadecimal format.
-- **`priorityFee`**: An optional fee to prioritize the transaction.
-
-This example demonstrates how to use the `transfer` method to send KRC-20 tokens. Ensure you replace the placeholder values with actual data before running the script.
+Replace `<script-name>` with the name of the script you want to execute (e.g., `deploy`, `mint`, or `transfer`).
 
 ### Event Subscriptions
 

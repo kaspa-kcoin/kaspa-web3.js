@@ -6,5 +6,4 @@ export * from './consensus';
 export * from './krc20';
 export { Keypair } from './keypair';
 export { kaspaToSompi, addressFromScriptPublicKey } from './utils';
-export { SendKasParams, SendKrc20Params } from './send-param';
 export type { TransactionId, TransactionMass } from './tx';

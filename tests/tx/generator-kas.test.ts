@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { Fees, Generator, SignableTransaction } from '../../src/tx';
-import { kaspaToSompi, NetworkId, NetworkType, SendKasParams } from '../../src';
+import { kaspaToSompi, NetworkId, NetworkType } from '../../src';
 import { parseTxsFromFile, parseUtxosFromFile } from './test-helper';
 import path from 'path';
+import { SendKasParams } from '../../src/send-param';
 
 const SENDER_ADDR = 'kaspatest:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz';
 const RECEIVER_ADDR = 'kaspatest:qrjcg7hsgjapumpn8egyu6544qzdqs2lssas4nfwewl55lnenr5pyzd7cmyx6';
