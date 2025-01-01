@@ -56,7 +56,7 @@ class GeneratorSettings {
    */
   rpcUtxosByAddressesEntryToUtxoEntryReference = (utxo: RpcUtxosByAddressesEntry): UtxoEntryReference => {
     if (!utxo.outpoint?.transactionId || !utxo.utxoEntry?.scriptPublicKey) {
-      throw new Error("Invalid RpcUtxosByAddressesEntry: Missing outpoint or script public key.");
+      throw new Error('Invalid RpcUtxosByAddressesEntry: Missing outpoint or script public key.');
     }
     return new UtxoEntryReference(
       Address.fromString(utxo.address),
