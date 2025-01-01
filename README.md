@@ -6,11 +6,13 @@
 
 ## Overview
 
-The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides various utilities and functions to facilitate blockchain operations, including sending KAS and KRC20 tokens.
+The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides utilities and functions to facilitate blockchain operations, including sending KAS and KRC20 tokens.
 
 **Note:** The `RpcClient` in this SDK only supports WebSocket JSON-RPC requests.
 
 ## Installation
+
+Install the SDK using npm or yarn:
 
 ```sh
 npm install @kcoin/kaspa-web3.js
@@ -55,10 +57,10 @@ await client.connect();
 
 ### Sending KAS
 
-To send KAS, you need to create and submit a transaction using the `Generator`:
+To send KAS, create and submit a transaction using the `Generator`:
 
 ```typescript
-import { RpcClient, Generator, NetworkId, NetworkType, kaspaToSompi, Fees, SendKasParams } from '@kcoin/kaspa-web3.js';
+import { RpcClient, Generator, NetworkId, kaspaToSompi, Fees, SendKasParams } from '@kcoin/kaspa-web3.js';
 
 // Initialize the RpcClient
 const rpcClient = new RpcClient({
@@ -101,46 +103,29 @@ async function sendKAS() {
 sendKAS();
 ```
 
-### Explanation
-
-- **`RpcClient`**: Used to interact with the blockchain.
-- **`Generator`**: Used to create transactions.
-- **`SENDER_ADDR` and `RECEIVER_ADDR`**: The sender and receiver addresses.
-- **`amount`**: The amount of KAS to send, converted to Sompi.
-- **`priorityFees`**: Optional fees to prioritize the transaction.
-- **`privateKey`**: The private key for signing the transaction.
-
-This example demonstrates how to send KAS using the `RpcClient` and `Generator`. Ensure you replace the placeholder values with actual data before running the script.
-
 ### KRC-20 Token Operations
 
 This section provides examples of how to deploy, mint, and transfer KRC-20 tokens using the `Krc20RpcClient` class.
 
-### Prerequisites
+#### Prerequisites
 
 - Ensure you have a valid private key for the operations.
 - Set up your environment with the necessary dependencies and configurations.
 
-### Example Scripts
+#### Example Scripts
 
 - **Deploy a KRC-20 Token**: [deploy.ts](examples/krc20/deploy.ts)
 
-  - This script demonstrates how to deploy a new KRC-20 token with specified parameters.
+  - Demonstrates how to deploy a new KRC-20 token with specified parameters.
 
 - **Mint KRC-20 Tokens**: [mint.ts](examples/krc20/mint.ts)
 
-  - This script shows how to mint additional tokens to a specified address.
+  - Shows how to mint additional tokens to a specified address.
 
 - **Transfer KRC-20 Tokens**: [transfer.ts](examples/krc20/transfer.ts)
-  - This script illustrates transferring tokens from one address to another.
+  - Illustrates transferring tokens from one address to another.
 
-### Notes
-
-- Replace `'your-private-key-hex-here'` with your actual private key.
-- Replace `'your-tick'` with the ticker symbol of your KRC-20 token.
-- Ensure that the network ID and addresses are correctly set for your environment.
-
-### Running the Scripts
+#### Running the Scripts
 
 To run any of the scripts, use the following command:
 
