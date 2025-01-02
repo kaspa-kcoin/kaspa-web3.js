@@ -163,7 +163,7 @@ class Krc20DeployParams extends Krc20TxParams {
    * Constructs a new Krc20DeployParams instance.
    * @param sender - The sender's address.
    * @param networkId - The network ID.
-   * @param priorityFee - The optional priority fee.
+   * @param revealTxPriorityFee - The priority fee for the reveal transaction, krc20 deploy requires $1000 KAS.
    * @param options - The deployment-specific parameters.
    * @param commitTxPriorityFee - The priority fee for the commit transaction. Defaults to 0 KAS.
    * @param commitTxOutputAmount - The output amount for the commit transaction. Defaults to 0.3 KAS.
@@ -171,7 +171,7 @@ class Krc20DeployParams extends Krc20TxParams {
   constructor(
     sender: Address,
     networkId: NetworkId,
-    priorityFee: Fees,
+    revealTxPriorityFee: Fees,
     options: Krc20DeployOptions,
     commitTxPriorityFee: Fees = Fees.from(0n),
     commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
@@ -181,7 +181,7 @@ class Krc20DeployParams extends Krc20TxParams {
     if (options.pre !== undefined) validateU64(options.pre, 'options.pre');
     if (options.to != undefined && !Address.validate(options.to)) throw new Error('Invalid address format');
 
-    super(sender, networkId, priorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
+    super(sender, networkId, revealTxPriorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
   }
 
   /**
@@ -206,7 +206,7 @@ class Krc20MintParams extends Krc20TxParams {
    * Constructs a new Krc20MintParams instance.
    * @param sender - The sender's address.
    * @param networkId - The network ID.
-   * @param priorityFee - The optional priority fee.
+   * @param revealTxPriorityFee - The priority fee for the reveal transaction, krc20 mint requires $1 KAS.
    * @param options - The minting-specific parameters.
    * @param commitTxPriorityFee - The priority fee for the commit transaction. Defaults to 0 KAS.
    * @param commitTxOutputAmount - The output amount for the commit transaction. Defaults to 0.3 KAS.
@@ -214,14 +214,14 @@ class Krc20MintParams extends Krc20TxParams {
   constructor(
     sender: Address,
     networkId: NetworkId,
-    priorityFee: Fees,
+    revealTxPriorityFee: Fees,
     options: Krc20MintOptions,
     commitTxPriorityFee: Fees = Fees.from(0n),
     commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
   ) {
     if (options.to != undefined && !Address.validate(options.to)) throw new Error('Invalid address format');
 
-    super(sender, networkId, priorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
+    super(sender, networkId, revealTxPriorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
   }
 
   /**
@@ -244,7 +244,7 @@ class Krc20TransferParams extends Krc20TxParams {
    * Constructs a new Krc20TransferParams instance.
    * @param sender - The sender's address or string.
    * @param networkId - The network ID.
-   * @param priorityFee - The optional priority fee.
+   * @param revealTxPriorityFee - The priority fee for the reveal transaction.
    * @param options - The transfer-specific parameters.
    * @param commitTxPriorityFee - The priority fee for the commit transaction. Defaults to 0 KAS.
    * @param commitTxOutputAmount - The output amount for the commit transaction. Defaults to 0.3 KAS.
@@ -252,7 +252,7 @@ class Krc20TransferParams extends Krc20TxParams {
   constructor(
     sender: Address | string,
     networkId: NetworkId,
-    priorityFee: Fees,
+    revealTxPriorityFee: Fees,
     options: Krc20TransferOptions,
     commitTxPriorityFee: Fees = Fees.from(0n),
     commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
@@ -260,7 +260,7 @@ class Krc20TransferParams extends Krc20TxParams {
     if (options.amount <= 0n) throw new Error('amount must be greater than 0');
     if (!Address.validate(options.to)) throw new Error('Invalid address format');
 
-    super(sender, networkId, priorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
+    super(sender, networkId, revealTxPriorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
   }
 
   /**
