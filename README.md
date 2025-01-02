@@ -49,6 +49,8 @@ import { RpcClient, NetworkId, Resolver } from '@kcoin/kaspa-web3.js';
 
 const client = new RpcClient({
   resolver: new Resolver(),
+  // resolver: Resolver.createWithEndpoints([your-endpoints]),
+  // Resolver will test the endpoints and select the fastest one.
   networkId: NetworkId.Mainnet
 });
 
@@ -167,39 +169,43 @@ try {
 }
 ```
 
-## Development
+## FAQ
 
-### Building the SDK
+<details>
+  <summary>1. What functionalities are implemented in Kaspa Web3.js?</summary>
 
-To build the SDK, run:
+Kaspa Web3.js implements transaction construction, signing, and related hashing. It includes the following components:
 
-```sh
-npm run build
-```
+- `Keypair`: Represents a pair of public and private keys used for cryptographic operations.
+- `TxScriptBuilder`: A utility for constructing transaction scripts.
+- `RpcClient`: A client for interacting with the Kaspa blockchain via WebSocket JSON-RPC requests.
+- `Generator`: A class for generating transactions, including inputs, outputs, and fees.
+- `Resolver`: A utility for resolving network endpoints and selecting the fastest one.
+- `Krc20RpcClient`: A specialized RPC client for interacting with KRC-20 tokens on the Kaspa blockchain.
 
-### Running Tests
+</details>
 
-To run the test suite, use:
+<details>
+  <summary>2. What communication protocols does RpcClient support?</summary>
 
-```sh
-npm run test
-```
+RpcClient only supports WebSocket with JSON serialization. It includes the full implementation of RPC methods and subscribe-related interfaces.
 
-### Formatting Code
+</details>
 
-To format the code using Prettier, run:
+<details>
+  <summary>3. Why does RpcClient only implement JSON WebSocket?</summary>
 
-```sh
-npm run format
-```
+- GRPC does not support duplex communication in browsers.
+- Borsh serialization encoded WebSocket can become incompatible with minor changes in node data structures, making it difficult to maintain.
+- JSON serialization provides better compatibility, so kaspa-web3.js exclusively uses JSON WebSocket.
+
+</details>
 
 ## Dependencies
 
-### Production
-
 - `@noble/curves`: ^1.7.0
 - `@noble/hashes`: ^1.6.1
-- `@noble/secp256k1`: ^2.1.0
+- `@noble/secp256k1`: ^2.2.1
 - `buffer`: ^6.0.3
 - `toml`: ^3.0.0
 - `websocket-heartbeat-js`: ^1.1.3
