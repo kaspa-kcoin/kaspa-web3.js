@@ -216,4 +216,6 @@ This project is licensed under the [MIT License](./LICENSE).
 
 If you find this project useful and would like to support its development, you can send KAS donations to the following address:
 
+```text
 kaspa:qzyrvjcaama3ecf8reg7evxxz0pl80nx9fwas5rcw5udqj4x2jyf26jufex4z
+```
