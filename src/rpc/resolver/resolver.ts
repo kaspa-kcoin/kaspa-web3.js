@@ -6,8 +6,26 @@ import { BaseResolver } from './base-resolver.ts';
  * This resolver only supports JSON WebSocket endpoints.
  */
 class Resolver extends BaseResolver {
+  public extendEndpoints: string[] = [];
+
+  /**
+   * Constructs a new instance of the Resolver class.
+   * @param {string[] | null} [seedAddresses=null] - The seed addresses for the resolver.
+   * @param {boolean} [tls=true] - Indicates whether to use TLS.
+   */
   constructor(seedAddresses: string[] | null = null, tls: boolean = true) {
     super(seedAddresses, tls);
+  }
+
+  /**
+   * Creates a new Resolver instance with the specified endpoints.
+   * @param {string[]} endpoints - The endpoints to be added to the resolver.
+   * @returns {Resolver} A new Resolver instance with the specified endpoints.
+   */
+  createWithEndpoints(endpoints: string[]): Resolver {
+    const resolver = new Resolver();
+    resolver.extendEndpoints = endpoints;
+    return resolver;
   }
 
   override async getNodeEndpoint(networkId: NetworkId): Promise<string> {
@@ -20,20 +38,21 @@ class Resolver extends BaseResolver {
         .catch(() => null);
     });
 
-    const result = await Promise.any(promises);
-    if (result === null) {
+    const fastestEndpoint = await Promise.any(promises);
+    if (fastestEndpoint === null) {
       throw new Error('No valid endpoint found');
     }
 
-    return result;
+    return fastestEndpoint;
   }
 
   override async getAllNodeEndpoints(networkId: NetworkId): Promise<string[]> {
     const endpoints = await super.getAllNodeEndpoints(networkId);
     const jsonEndpoints = endpoints.map((url) => url.replace('borsh', 'json'));
+    const allEndpoints = [...jsonEndpoints, ...this.extendEndpoints];
     const reachableEndpoints: string[] = [];
 
-    const promises = jsonEndpoints.map((endpoint) =>
+    const promises = allEndpoints.map((endpoint) =>
       this.testConnection(endpoint)
         .then((reachableEndpoint) => reachableEndpoints.push(reachableEndpoint))
         .catch(() => null)
