@@ -125,6 +125,18 @@ class BridgePromise<T> {
   }
 }
 
+enum ConnectionState {
+  Disconnected,
+  Connecting,
+  Connected
+}
+
+enum RequestType {
+  Normal,
+  Subscribe,
+  Unsubscribe
+}
+
 /**
  * Options for configuring the RPC client.
  *
@@ -132,11 +144,13 @@ class BridgePromise<T> {
  * @property {string} [endpoint] - The endpoint URL for the RPC server.
  * @property {Resolver} [resolver] - The resolver instance to use for resolving requests.
  * @property {NetworkId} [networkId] - The network identifier to use for the RPC client.
+ * @property {number} [timeout] - The timeout duration for requests in milliseconds.
  */
 interface RpcOptions {
   endpoint?: string;
   resolver?: Resolver;
   networkId?: NetworkId;
+  timeout?: number;
 }
 
 /**
@@ -167,6 +181,7 @@ export class RpcClient implements RpcEventObservable {
   public readonly networkId: NetworkId;
 
   private ws?: WebsocketHeartbeatJs;
+  private readonly timeout: number;
   private readonly resolver?: Resolver;
   private readonly endpoint?: string;
   private connectedPromise: BridgePromise<boolean>;
@@ -175,8 +190,7 @@ export class RpcClient implements RpcEventObservable {
     event: keyof RpcEventMap | null;
     callback: (data: any) => void;
   }[] = [];
-  private connected: boolean = false;
-  private connecting: boolean = false;
+  private connectionState: ConnectionState = ConnectionState.Disconnected;
 
   constructor(rpcOptions: RpcOptions) {
     const { endpoint, resolver, networkId } = rpcOptions;
@@ -191,28 +205,27 @@ export class RpcClient implements RpcEventObservable {
     this.resolver = resolver;
     this.networkId = networkId!;
     this.endpoint = endpoint;
+    this.timeout = rpcOptions.timeout ?? 5000;
     this.connectedPromise = new BridgePromise<boolean>();
   }
 
   /**
-   * Establishes a secure WebSocket connection to the specified endpoint.
+   * Establishes WebSocket connection.
    * Sets up event handlers for open, message, close, and error events.
+   * This method is safe to call multiple times. If the connection is already established or in the process of being established, it will not attempt to reconnect.
    *
    * @throws {Error} If no valid endpoint is provided.
    */
   connect = async () => {
-    if (this.connected) {
-      console.log('Already connected');
+    if (this.connectionState === ConnectionState.Connected) {
       return;
     }
 
-    if (this.connecting) {
-      console.log('Connection attempt already in progress');
-      return;
+    if (this.connectionState === ConnectionState.Connecting) {
+      return this.connectedPromise.promise;
     }
 
-    this.connecting = true;
-
+    this.connectionState = ConnectionState.Connecting;
     let endpoint = this.endpoint;
 
     if (endpoint === undefined) {
@@ -222,7 +235,7 @@ export class RpcClient implements RpcEventObservable {
       try {
         endpoint = await this.resolver.getNodeEndpoint(this.networkId);
       } catch (error: any) {
-        this.connecting = false;
+        this.connectionState = ConnectionState.Disconnected;
         throw new Error(`Failed to get node endpoint: ${error.message}`);
       }
     }
@@ -243,8 +256,8 @@ export class RpcClient implements RpcEventObservable {
   };
 
   private handleConnectionOpen = () => {
-    this.connected = true;
-    this.connecting = false;
+    console.debug('Connection opened');
+    this.connectionState = ConnectionState.Connected;
     this.connectedPromise?.resolve(true);
   };
 
@@ -258,15 +271,14 @@ export class RpcClient implements RpcEventObservable {
   };
 
   private handleConnectionClose = (event: CloseEvent) => {
-    console.log('Connection closed: ', event);
-    this.connected = false;
-    this.connecting = false;
+    console.debug('Connection closed: ', event);
+    this.connectionState = ConnectionState.Disconnected;
     this.requestPromiseMap.clear();
   };
 
   private handleConnectionError = (event: Event) => {
-    console.error('WebSocket error: ', event);
-    this.connecting = false;
+    console.warn('WebSocket error: ', event);
+    this.connectionState = ConnectionState.Disconnected;
   };
 
   /**
@@ -432,7 +444,6 @@ export class RpcClient implements RpcEventObservable {
    * @param {boolean} includeAcceptedTransactionIds - Whether to include accepted transaction IDs in the notification.
    * @returns {Promise<void>} A promise that resolves when the subscription is successfully initiated.
    */
-  //{"id":16956029488558164974,"method":"subscribe","params":{"VirtualChainChanged":{"include_accepted_transaction_ids":true}}}
   subscribeVirtualChainChanged = async (includeAcceptedTransactionIds: boolean): Promise<void> => {
     const req: NotifyVirtualChainChangedRequestMessage = {
       include_accepted_transaction_ids: includeAcceptedTransactionIds
@@ -462,6 +473,7 @@ export class RpcClient implements RpcEventObservable {
       NotifyVirtualChainChangedRequestMessage,
       NotifyVirtualChainChangedResponseMessage
     >(RpcEventType.VirtualChainChanged, req);
+
     this.ensureResponse(res);
   };
 
@@ -476,7 +488,7 @@ export class RpcClient implements RpcEventObservable {
   };
 
   /**
-   * Retrieves information about a sub-network in the Kaspa BlockDAG.
+   * Retrieves information about a subnetwork in the Kaspa BlockDAG.
    *
    * @param {GetSubnetworkRequestMessage} req - The request message containing the subnetwork details to be retrieved.
    * @returns {Promise<GetSubnetworkResponseMessage>} A promise that resolves to the response message containing the subnetwork information.
@@ -824,7 +836,7 @@ export class RpcClient implements RpcEventObservable {
    * Retrieves balances for multiple addresses in the Kaspa BlockDAG.
    *
    * @param {string[] | GetBalancesByAddressesRequestMessage} addressesOrRequest - The array of addresses or the request message containing the addresses.
-   * @returns {Promise<GetBalancesByAddressesResponseMessage>} A promise that resolves to the response message containing the balances information.
+   * @returns {Promise<GetBalancesByAddressesResponseMessage>} A promise that resolves to the response message containing the balance information.
    */
   getBalancesByAddresses = async (
     addressesOrRequest: string[] | GetBalancesByAddressesRequestMessage
@@ -968,7 +980,7 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Retrieves the current number of network connections.
    *
-   * @returns {Promise<GetConnectionsResponseMessage>} A promise that resolves to the response message containing the connections information.
+   * @returns {Promise<GetConnectionsResponseMessage>} A promise that resolves to the response message containing the connection information.
    */
   getConnections = async (): Promise<GetConnectionsResponseMessage> => {
     const req: GetConnectionsRequestMessage = { includeProfileData: false };
@@ -1033,10 +1045,18 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Adds an event listener for a specific RPC event.
    *
+   * @template M - The type of the event.
    * @param {keyof RpcEventMap} event - The event to listen for.
    * @param {(eventData: RpcEventMap[M]) => void} callback - The callback function to be invoked when the event occurs.
    */
   addEventListener<M extends keyof RpcEventMap>(event: M, callback: (eventData: RpcEventMap[M]) => void): void;
+  /**
+   * Adds an event listener for RPC events.
+   *
+   * @param {RpcEventCallback | keyof RpcEventMap} eventOrCallback - The event type or callback function.
+   * @param {RpcEventCallback} [callback] - The callback function to be executed when the event occurs.
+   * @throws {Error} If a callback is not provided when specifying an event.
+   */
   addEventListener(
     eventOrCallback: keyof RpcEventMap | RpcEventCallback,
     callback?: (eventData: unknown) => void
@@ -1100,6 +1120,7 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Builds a JSON-RPC request object.
    *
+   * @template T - The type of the request parameters.
    * @param {string} method - The RPC method to be called.
    * @param {T} params - The parameters for the RPC method.
    * @returns {JsonRpcRequest<T>} The JSON-RPC request object.
@@ -1113,80 +1134,125 @@ export class RpcClient implements RpcEventObservable {
   };
 
   /**
-   * Sends a JSON-RPC request to the server and returns the response.
+   * Sends an RPC request to the server.
    *
+   * @template TParam - The type of the request parameters.
+   * @template TRes - The type of the response.
    * @param {string} method - The RPC method to be called.
    * @param {TParam} params - The parameters for the RPC method.
-   * @returns {Promise<TRes>} A promise that resolves to the response of the RPC method.
+   * @param {RequestType} [requestType=RequestType.Normal] - The type of the request (Normal, Subscribe, Unsubscribe).
+   * @returns {Promise<TRes>} A promise that resolves to the response.
+   * @throws {Error} If the request times out.
+   */
+  private async sendRpcRequest<TParam, TRes>(
+    method: string,
+    params: TParam,
+    requestType: RequestType = RequestType.Normal
+  ): Promise<TRes> {
+    if (this.ws === undefined || this.connectionState !== ConnectionState.Connected) {
+      await this.connect();
+    }
+
+    await this.connectedPromise.promise;
+
+    const request = this.buildRpcRequest(
+      method,
+      params,
+      requestType,
+      requestType !== RequestType.Normal ? (method as RpcEventType) : undefined
+    );
+
+    const bridgePromise = new BridgePromise<TRes>();
+    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
+    this.ws!.send(JSON.stringify(request));
+
+    return Promise.race([bridgePromise.promise, this.createTimeoutPromise<TRes>(this.timeout)]);
+  }
+
+  /**
+   * Sends a normal RPC request to the server.
+   *
+   * @template TParam - The type of the request parameters.
+   * @template TRes - The type of the response.
+   * @param {string} method - The RPC method to be called.
+   * @param {TParam} params - The parameters for the RPC method.
+   * @returns {Promise<TRes>} A promise that resolves to the response.
    */
   private sendRequest = async <TParam, TRes>(method: string, params: TParam): Promise<TRes> => {
-    if (this.ws === undefined) {
-      await this.connect();
-    }
-
-    await this.connectedPromise.promise;
-    const request = this.buildRequest(method, params);
-    const bridgePromise = new BridgePromise<TRes>();
-    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
-    this.ws!.send(JSON.stringify(request));
-    return bridgePromise.promise;
-  };
-
-  private buildSubscribeRequest = <T>(event: RpcEventType, params: T): JsonRpcRequest<T> => {
-    let req: any = {
-      id: this.generateRandomId(),
-      method: 'subscribe'
-    };
-    req[event] = params;
-    return req;
-  };
-
-  private buildUnsubscribeRequest = <T>(event: RpcEventType, params: T): JsonRpcRequest<T> => {
-    let req: any = {
-      id: this.generateRandomId(),
-      method: 'unsubscribe'
-    };
-    req[event] = params;
-    return req;
+    return this.sendRpcRequest<TParam, TRes>(method, params, RequestType.Normal);
   };
 
   /**
-   * Sends a JSON-RPC subscription request to the server.
+   * Sends a subscribe RPC request to the server.
    *
-   * @param {RpcEventType} event - The RPC event to subscribe to.
-   * @param {TParam} params - The parameters for the RPC method.
+   * @template TParam - The type of the request parameters.
+   * @template TRes - The type of the response.
+   * @param {RpcEventType} event - The event to subscribe to.
+   * @param {TParam} params - The parameters for the subscription.
+   * @returns {Promise<TRes>} A promise that resolves to the response.
    */
   private sendSubscribeRequest = async <TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> => {
-    if (this.ws === undefined) {
-      await this.connect();
-    }
-
-    await this.connectedPromise.promise;
-    const request = this.buildSubscribeRequest(event, params);
-    const bridgePromise = new BridgePromise<TRes>();
-    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
-    this.ws!.send(JSON.stringify(request));
-    return bridgePromise.promise;
+    return this.sendRpcRequest<TParam, TRes>(event, params, RequestType.Subscribe);
   };
 
   /**
-   * Sends a JSON-RPC unsubscribe request to the server.
+   * Sends an unsubscribe RPC request to the server.
    *
-   * @param {RpcEventType} event - The RPC event to unsubscribe from.
-   * @param {TParam} params - The parameters for the RPC method.
+   * @template TParam - The type of the request parameters.
+   * @template TRes - The type of the response.
+   * @param {RpcEventType} event - The event to unsubscribe from.
+   * @param {TParam} params - The parameters for the unsubscription.
+   * @returns {Promise<TRes>} A promise that resolves to the response.
    */
   private sendUnsubscribeRequest = async <TParam, TRes>(event: RpcEventType, params: TParam): Promise<TRes> => {
-    if (this.ws === undefined) {
-      await this.connect();
-    }
-
-    await this.connectedPromise.promise;
-    const request = this.buildUnsubscribeRequest(event, params);
-    const bridgePromise = new BridgePromise<TRes>();
-    this.requestPromiseMap.set(request.id ?? this.generateRandomId(), bridgePromise);
-    this.ws!.send(JSON.stringify(request));
-    return bridgePromise.promise;
+    return this.sendRpcRequest<TParam, TRes>(event, params, RequestType.Unsubscribe);
   };
+
+  /**
+   * Builds a JSON-RPC request object.
+   *
+   * @template T - The type of the request parameters.
+   * @param {string} method - The RPC method to be called.
+   * @param {T} params - The parameters for the RPC method.
+   * @param {RequestType} requestType - The type of the request (Normal, Subscribe, Unsubscribe).
+   * @param {RpcEventType} [event] - The event type for subscription/unsubscription requests.
+   * @returns {JsonRpcRequest<T>} The JSON-RPC request object.
+   */
+  private buildRpcRequest = <T>(
+    method: string,
+    params: T,
+    requestType: RequestType,
+    event?: RpcEventType
+  ): JsonRpcRequest<T> => {
+    const request: any = {
+      id: this.generateRandomId(),
+      method:
+        requestType === RequestType.Normal
+          ? method
+          : requestType === RequestType.Subscribe
+            ? 'subscribe'
+            : 'unsubscribe'
+    };
+    if (event) {
+      request[event] = params;
+    } else {
+      request.params = params;
+    }
+    return request;
+  };
+
+  /**
+   * Creates a promise that rejects after a specified timeout.
+   *
+   * @template T - The type of the promise.
+   * @param {number} timeout - The timeout duration in milliseconds.
+   * @returns {Promise<T>} A promise that rejects with an error after the timeout.
+   */
+  private createTimeoutPromise<T>(timeout: number): Promise<T> {
+    return new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out')), timeout);
+    });
+  }
 
   /**
    * Handles the response from the server for a JSON-RPC request.
@@ -1223,6 +1289,7 @@ export class RpcClient implements RpcEventObservable {
   /**
    * Ensures that the response from the server does not contain an error.
    *
+   * @template Res - The type of the response.
    * @param {Res} response - The response from the server.
    * @throws {Error} If the response contains an error.
    */
