@@ -22,7 +22,7 @@ class Resolver extends BaseResolver {
    * @param {string[]} endpoints - The endpoints to be added to the resolver.
    * @returns {Resolver} A new Resolver instance with the specified endpoints.
    */
-  createWithEndpoints(endpoints: string[]): Resolver {
+  static createWithEndpoints(endpoints: string[]): Resolver {
     const resolver = new Resolver();
     resolver.extendEndpoints = endpoints;
     return resolver;
