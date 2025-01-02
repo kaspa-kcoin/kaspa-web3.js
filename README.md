@@ -210,10 +210,10 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](./LICENSE).
 
 ## Donations
 
 If you find this project useful and would like to support its development, you can send KAS donations to the following address:
 
-**Kaspa Donation Address:** kaspa:qzyrvjcaama3ecf8reg7evxxz0pl80nx9fwas5rcw5udqj4x2jyf26jufex4z
+kaspa:qzyrvjcaama3ecf8reg7evxxz0pl80nx9fwas5rcw5udqj4x2jyf26jufex4z
