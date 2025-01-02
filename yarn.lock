@@ -353,9 +353,9 @@
   integrity sha512-pq5D8h10hHBjyqX+cfBm0i8JUXJ0UhczFc4r74zbuT9XgewFo2E3J1cOaGtdZynILNmQ685YWGzGE1Zv6io50w==
 
 "@noble/secp256k1@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-2.1.0.tgz#71d829a0b8ce84aea137708f82273977eea84597"
-  integrity sha512-XLEQQNdablO0XZOIniFQimiXsZDNwaYgL96dZwC54Q30imSbAOFf3NKtepc+cXyuZf5Q1HCgbqgZ2UFFuHVcEw==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-2.2.0.tgz#cdbf6eada4b6017f60a633db2a2d49d3a78711e8"
+  integrity sha512-pUAoFOQX0lMAB2J+XEEbq4K1x3gzyCPp3zfndAazn53x3F8JY+lQou7ef2CDI71dkhZJOPv2dOJ7fEBXgNKb2A==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
