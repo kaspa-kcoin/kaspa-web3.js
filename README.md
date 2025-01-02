@@ -171,9 +171,10 @@ try {
 
 ## FAQ
 
-1. **What functionalities are implemented in Kaspa Web3.js?**
+<details>
+  <summary>1. What functionalities are implemented in Kaspa Web3.js?</summary>
 
-   Kaspa Web3.js implements transaction construction, signing, and related hashing. It includes the following components:
+Kaspa Web3.js implements transaction construction, signing, and related hashing. It includes the following components:
 
 - `Keypair`: Represents a pair of public and private keys used for cryptographic operations.
 - `TxScriptBuilder`: A utility for constructing transaction scripts.
@@ -182,16 +183,23 @@ try {
 - `Resolver`: A utility for resolving network endpoints and selecting the fastest one.
 - `Krc20RpcClient`: A specialized RPC client for interacting with KRC-20 tokens on the Kaspa blockchain.
 
-2. **What communication protocols does RpcClient support?**
+</details>
 
-   RpcClient only supports WebSocket with JSON serialization. It includes the full implementation of RPC methods and subscribe-related interfaces.
+<details>
+  <summary>2. What communication protocols does RpcClient support?</summary>
 
-3. **Why does RpcClient only implement JSON WebSocket?**
+RpcClient only supports WebSocket with JSON serialization. It includes the full implementation of RPC methods and subscribe-related interfaces.
+
+</details>
+
+<details>
+  <summary>3. Why does RpcClient only implement JSON WebSocket?</summary>
 
 - GRPC does not support duplex communication in browsers.
 - Borsh serialization encoded WebSocket can become incompatible with minor changes in node data structures, making it difficult to maintain.
-- JSON serialization offers stronger compatibility.
-  Therefore, kaspa-web3.js only implements JSON WebSocket.
+- JSON serialization provides better compatibility, so kaspa-web3.js exclusively uses JSON WebSocket.
+
+</details>
 
 ## Dependencies
 
