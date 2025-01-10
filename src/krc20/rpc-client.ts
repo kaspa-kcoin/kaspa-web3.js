@@ -10,7 +10,10 @@ import {
   GetKrc20OperationDetailsResponse,
   GetKrc20VspcDetailsResponse,
   GetKrc20DataByOPrangeResponse,
-  GetKrc20ListingListResponse
+  GetKrc20ListingListResponse,
+  Krc20PagerRequest,
+  makeQueryString,
+  Krc20TokenListRequest
 } from './types';
 import { NetworkId } from '../consensus';
 import { Fees, Generator } from '../tx';
@@ -233,8 +236,13 @@ export class Krc20RpcClient {
    * Retrieves the list of all KRC-20 tokens.
    * @returns A promise that resolves to the list of all tokens.
    */
-  async getKrc20TokenList(): Promise<Krc20Response<GetKrc20TokenListResponse>> {
-    return await this.httpRequest.get<Krc20Response<GetKrc20TokenListResponse>>(`/krc20/tokenlist`);
+  async getKrc20TokenList(req: Krc20PagerRequest): Promise<Krc20Response<GetKrc20TokenListResponse>> {
+    let queryString = makeQueryString(req);
+    let url = '/krc20/tokenlist';
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+    return await this.httpRequest.get<Krc20Response<GetKrc20TokenListResponse>>(url);
   }
 
   /**
@@ -271,11 +279,16 @@ export class Krc20RpcClient {
 
   /**
    * Retrieves the list of operations for a specific address.
-   * @param address - The address to query.
+   * @param req - The request parameters.
    * @returns A promise that resolves to the list of operations.
    */
-  async getKrc20OperationList(address: string): Promise<Krc20Response<GetKrc20OperationListResponse>> {
-    return await this.httpRequest.get<Krc20Response<GetKrc20OperationListResponse>>(`/krc20/oplist?address=${address}`);
+  async getKrc20OperationList(req: Krc20TokenListRequest): Promise<Krc20Response<GetKrc20OperationListResponse>> {
+    let queryString = makeQueryString(req);
+    let url = '/krc20/oplist';
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+    return await this.httpRequest.get<Krc20Response<GetKrc20OperationListResponse>>(url);
   }
 
   /**

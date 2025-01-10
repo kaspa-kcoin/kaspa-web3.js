@@ -3,6 +3,7 @@ import { Krc20RpcClient } from '../../src/krc20/rpc-client';
 import { NetworkId } from '../../src/consensus';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { Krc20PagerRequest, Krc20TokenListRequest } from '../../src/krc20/types';
 
 describe('Krc20RpcClient', () => {
   const networkId = NetworkId.Mainnet;
@@ -39,15 +40,17 @@ describe('Krc20RpcClient', () => {
   });
 
   it('should retrieve KRC-20 token list', async () => {
-    const response = JSON.parse(readFileSync(join(__dirname, 'data', 'get-token-list.json'), 'utf-8'));
+    const mockData = JSON.parse(readFileSync(join(__dirname, 'data', 'get-token-list.json'), 'utf-8'));
 
     // Mock the fetch response
     (global.fetch as any).mockResolvedValue({
-      json: async () => response
+      json: async () => mockData
     });
 
-    const result = await client.getKrc20TokenList();
-    expect(result).toEqual(response);
+    const req: Krc20PagerRequest = {};
+    const response = await client.getKrc20TokenList(req);
+    const result = response.result;
+    expect(result).toEqual(mockData.result);
   });
 
   it('should retrieve KRC-20 address token list', async () => {
@@ -86,7 +89,8 @@ describe('Krc20RpcClient', () => {
       json: async () => response
     });
 
-    const result = await client.getKrc20OperationList(address);
+    const request: Krc20TokenListRequest = { address };
+    const result = await client.getKrc20OperationList(request);
     expect(result).toEqual(response);
   });
 
