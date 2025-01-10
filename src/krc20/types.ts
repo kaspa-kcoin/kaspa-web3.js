@@ -1,8 +1,18 @@
+export interface Krc20PagerRequest {
+  next?: string;
+  prev?: string;
+}
+
+export interface Krc20TokenListRequest extends Krc20PagerRequest {
+  address?: string;
+  tick?: string;
+}
+
 export type Krc20Response<T> = {
   message: string;
   prev?: string;
   next?: string;
-  result: T;
+  result: T | null;
 };
 
 export type Krc20TokenHolder = {
@@ -89,3 +99,9 @@ export type GetKrc20ListingListResponse = {
   uScript: string;
   opScoreAdd: string;
 }[];
+
+export function makeQueryString(params: any): string {
+  return Object.keys(params)
+    .map((key) => `${key}=${encodeURIComponent(params[key].toString())}`)
+    .join('&');
+}
