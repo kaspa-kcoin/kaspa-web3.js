@@ -100,8 +100,9 @@ export type GetKrc20ListingListResponse = {
   opScoreAdd: string;
 }[];
 
-export function makeQueryString(params: any): string {
+export function makeQueryString(params: Record<string, string | number | boolean | undefined>): string {
   return Object.keys(params)
+    .filter(key => params[key] !== undefined)
     .map((key) => `${key}=${encodeURIComponent(params[key].toString())}`)
     .join('&');
 }
