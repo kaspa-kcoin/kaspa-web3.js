@@ -237,11 +237,7 @@ export class Krc20RpcClient {
    * @returns A promise that resolves to the list of all tokens.
    */
   async getKrc20TokenList(req: Krc20PagerRequest): Promise<Krc20Response<GetKrc20TokenListResponse>> {
-    let queryString = makeQueryString(req);
-    let url = '/krc20/tokenlist';
-    if (queryString) {
-      url += `?${queryString}`;
-    }
+    const url = this.buildUrl('/krc20/tokenlist', req);
     return await this.httpRequest.get<Krc20Response<GetKrc20TokenListResponse>>(url);
   }
 
@@ -283,11 +279,7 @@ export class Krc20RpcClient {
    * @returns A promise that resolves to the list of operations.
    */
   async getKrc20OperationList(req: Krc20TokenListRequest): Promise<Krc20Response<GetKrc20OperationListResponse>> {
-    let queryString = makeQueryString(req);
-    let url = '/krc20/oplist';
-    if (queryString) {
-      url += `?${queryString}`;
-    }
+    const url = this.buildUrl('/krc20/oplist', req);
     return await this.httpRequest.get<Krc20Response<GetKrc20OperationListResponse>>(url);
   }
 
@@ -325,5 +317,14 @@ export class Krc20RpcClient {
    */
   async getKrc20ListingList(tick: string): Promise<Krc20Response<GetKrc20ListingListResponse>> {
     return await this.httpRequest.get<Krc20Response<GetKrc20ListingListResponse>>(`/krc20/market/${tick}`);
+  }
+
+  private buildUrl(base: string, params: Record<string, any>): string {
+    try {
+      const queryString = makeQueryString(params);
+      return queryString ? `${base}?${queryString}` : base;
+    } catch (error: any) {
+      throw new Error(`Failed to build URL: ${error.message}`);
+    }
   }
 }
