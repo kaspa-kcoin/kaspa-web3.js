@@ -47,6 +47,13 @@ class UtxoEntry {
     this.blockDaaScore = blockDaaScore;
     this.isCoinbase = isCoinbase;
   }
+
+  equals(other: UtxoEntry): boolean {
+    return this.amount === other.amount &&
+      this.scriptPublicKey.equals(other.scriptPublicKey) &&
+      this.blockDaaScore === other.blockDaaScore &&
+      this.isCoinbase === other.isCoinbase;
+  }
 }
 
 export { UtxoEntry };

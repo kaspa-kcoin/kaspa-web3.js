@@ -13,7 +13,7 @@ import { DataKind } from './data-kind';
 class SignableTransaction {
   id: TransactionId;
   tx: Transaction;
-  entries: UtxoEntryReference[];
+  entries: UtxoEntry[];
   paymentAmount: bigint;
   changeAmount: bigint;
   aggregateInputAmount: bigint;
@@ -38,7 +38,7 @@ class SignableTransaction {
    */
   constructor(
     tx: Transaction,
-    entries: UtxoEntryReference[],
+    entries: UtxoEntry[],
     paymentAmount: bigint = 0n,
     changeAmount: bigint = 0n,
     aggregateInputAmount: bigint = 0n,

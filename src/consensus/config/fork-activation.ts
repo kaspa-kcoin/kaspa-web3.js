@@ -10,7 +10,7 @@ class ForkActivation {
    * Constructs a new `ForkActivation` instance.
    * @param daaScore - The DAA score.
    */
-  private constructor(daaScore: bigint) {
+  constructor(daaScore: bigint) {
     this.daaScore = daaScore;
   }
 

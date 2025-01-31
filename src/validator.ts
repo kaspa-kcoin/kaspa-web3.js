@@ -86,4 +86,4 @@ function maxValueOfU(numberOfBits: number): bigint {
   return (1n << BigInt(numberOfBits)) - 1n;
 }
 
-export { validateU8, validateU16, validateU32, validateU64, validateU128, validateU256 };
+export { validateU8, validateU16, validateU32, validateU64, validateU128, validateU256, maxValueOfU };
