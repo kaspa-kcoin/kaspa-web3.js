@@ -2,7 +2,7 @@ import { Address } from '../address';
 import { NetworkId } from '../consensus';
 import { RpcUtxosByAddressesEntry } from '../rpc/types';
 import { Fees, UtxoEntryReference, GeneratorSettings, PaymentOutput, TransactionId, TransactionOutpoint } from '../tx';
-import { ScriptBuilder, OpCodes } from '../tx-script';
+import { ScriptBuilder, OpCodes } from '../tx/script';
 import { addressFromScriptPublicKey, kaspaToSompi } from '../utils';
 import { validateU64, validateU8 } from '../validator.ts';
 

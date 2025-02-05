@@ -13,7 +13,7 @@ import {
   SignableTransaction,
   Stage
 } from './model';
-import { payToAddressScript } from '../../tx-script';
+import { payToAddressScript } from '../script/standard';
 import {
   Fees,
   FeeSource,

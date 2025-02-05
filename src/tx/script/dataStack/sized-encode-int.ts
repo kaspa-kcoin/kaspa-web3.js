@@ -55,7 +55,7 @@ class SizedEncodeInt {
 
     if (data.length === 0) return new SizedEncodeInt(BigInt(0));
 
-    this.checkMinimalDataEncoding(data);
+    SizedEncodeInt.checkMinimalDataEncoding(data);
 
     const msb = data[data.length - 1];
     const sign = 1 - 2 * ((msb >> 7) & 1);

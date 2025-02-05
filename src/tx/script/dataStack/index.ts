@@ -1,7 +1,7 @@
-import { SizedEncodeInt } from './sized-encode-int';
-import { TxScriptError } from '../error';
+import { SizedEncodeInt } from './sized-encode-int.ts';
+import { TxScriptError } from '../error.ts';
 
-export { OpcodeDataBool } from './opcode-data-bool';
+export { OpcodeDataBool } from './opcode-data-bool.ts';
 
 /**
  * IDataStack defines the interface for a data stack.
