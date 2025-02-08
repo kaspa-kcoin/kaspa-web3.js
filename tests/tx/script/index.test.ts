@@ -74,9 +74,9 @@ describe('TxScriptEngine Tests', () => {
   it('test_check_error_condition', () => {
     const testCases: ScriptTestCase[] = [
       { script: new Uint8Array([0x51]), errorMsg: undefined }, // OpTrue
-      { script: new Uint8Array([0x61]), errorMsg: 'TxScriptError: attempt to read from empty stack' }, // OpNop
-      { script: new Uint8Array([0x51, 0x51]), errorMsg: 'TxScriptError: stack contains 1 unexpected items' }, // OpTrue, OpTrue
-      { script: new Uint8Array([0x00]), errorMsg: 'TxScriptError: false stack entry at end of script execution' } // OpFalse
+      { script: new Uint8Array([0x61]), errorMsg: 'attempt to read from empty stack' }, // OpNop
+      { script: new Uint8Array([0x51, 0x51]), errorMsg: 'stack contains 1 unexpected items' }, // OpTrue, OpTrue
+      { script: new Uint8Array([0x00]), errorMsg: 'false stack entry at end of script execution' } // OpFalse
     ];
 
     runTestScriptCases(testCases);
@@ -84,21 +84,21 @@ describe('TxScriptEngine Tests', () => {
 
   it('test_check_opif', () => {
     const testCases: ScriptTestCase[] = [
-      { script: new Uint8Array([0x63]), errorMsg: 'TxScriptError: attempt to read from empty stack' }, // OpIf
+      { script: new Uint8Array([0x63]), errorMsg: 'attempt to read from empty stack' }, // OpIf
       {
         script: new Uint8Array([0x52, 0x63]),
-        errorMsg: 'TxScriptError: encountered invalid state while running script expected boolean'
+        errorMsg: 'encountered invalid state while running script: expected boolean'
       }, // Op2, OpIf
       {
         script: new Uint8Array([0x51, 0x63]),
-        errorMsg: 'TxScriptError: end of script reached in conditional execution'
+        errorMsg: 'end of script reached in conditional execution'
       }, // OpTrue, OpIf
       {
         script: new Uint8Array([0x00, 0x63]),
-        errorMsg: 'TxScriptError: end of script reached in conditional execution'
+        errorMsg: 'end of script reached in conditional execution'
       }, // OpFalse, OpIf
       { script: new Uint8Array([0x51, 0x63, 0x51, 0x68]), errorMsg: undefined }, // OpTrue, OpIf, OpTrue, OpEndIf
-      { script: new Uint8Array([0x00, 0x63, 0x51, 0x68]), errorMsg: 'TxScriptError: attempt to read from empty stack' } // OpFalse, OpIf, OpTrue, OpEndIf
+      { script: new Uint8Array([0x00, 0x63, 0x51, 0x68]), errorMsg: 'attempt to read from empty stack' } // OpFalse, OpIf, OpTrue, OpEndIf
     ];
 
     runTestScriptCases(testCases);
@@ -108,15 +108,15 @@ describe('TxScriptEngine Tests', () => {
     const testCases: ScriptTestCase[] = [
       {
         script: new Uint8Array([0x67]),
-        errorMsg: 'TxScriptError: encountered invalid state while running script condition stack empty'
+        errorMsg: 'encountered invalid state while running script: condition stack empty'
       }, // OpElse
       {
         script: new Uint8Array([0x51, 0x63, 0x67]),
-        errorMsg: 'TxScriptError: end of script reached in conditional execution'
+        errorMsg: 'end of script reached in conditional execution'
       }, // OpTrue, OpIf, OpElse
       {
         script: new Uint8Array([0x00, 0x63, 0x67]),
-        errorMsg: 'TxScriptError: end of script reached in conditional execution'
+        errorMsg: 'end of script reached in conditional execution'
       }, // OpFalse, OpIf, OpElse
       { script: new Uint8Array([0x51, 0x63, 0x51, 0x67, 0x68]), errorMsg: undefined }, // OpTrue, OpIf, OpTrue, OpElse, OpEndIf
       { script: new Uint8Array([0x00, 0x63, 0x67, 0x51, 0x68]), errorMsg: undefined } // OpFalse, OpIf, OpElse, OpTrue, OpEndIf
@@ -127,19 +127,19 @@ describe('TxScriptEngine Tests', () => {
 
   it('test_check_opnotif', () => {
     const testCases: ScriptTestCase[] = [
-      { script: new Uint8Array([0x64]), errorMsg: 'TxScriptError: attempt to read from empty stack' }, // OpNotIf
+      { script: new Uint8Array([0x64]), errorMsg: 'attempt to read from empty stack' }, // OpNotIf
       {
         script: new Uint8Array([0x51, 0x64]),
-        errorMsg: 'TxScriptError: end of script reached in conditional execution'
+        errorMsg: 'end of script reached in conditional execution'
       }, // OpTrue, OpNotIf
       {
         script: new Uint8Array([0x00, 0x64]),
-        errorMsg: 'TxScriptError: end of script reached in conditional execution'
+        errorMsg: 'end of script reached in conditional execution'
       }, // OpFalse, OpNotIf
       { script: new Uint8Array([0x51, 0x64, 0x67, 0x51, 0x68]), errorMsg: undefined }, // OpTrue, OpNotIf, OpElse, OpTrue, OpEndIf
       {
         script: new Uint8Array([0x51, 0x64, 0x51, 0x67, 0x00, 0x68]),
-        errorMsg: 'TxScriptError: false stack entry at end of script execution'
+        errorMsg: 'false stack entry at end of script execution'
       }, // OpTrue, OpNotIf, OpTrue, OpElse, OpFalse, OpEndIf
       { script: new Uint8Array([0x00, 0x64, 0x51, 0x68]), errorMsg: undefined } // OpFalse, OpNotIf, OpTrue, OpEndIf
     ];
@@ -152,12 +152,12 @@ describe('TxScriptEngine Tests', () => {
       {
         // OpTrue, OpIf, OpFalse, OpElse, OpTrue, OpIf, OpTrue, OpEndIf, OpEndIf
         script: new Uint8Array([0x51, 0x63, 0x00, 0x67, 0x51, 0x63, 0x51, 0x68, 0x68]),
-        errorMsg: 'TxScriptError: false stack entry at end of script execution'
+        errorMsg: 'false stack entry at end of script execution'
       },
       {
         // OpTrue, OpIf, OpFalse, OpElse, OpFalse, OpIf, OpElse, OpTrue, OpEndIf, OpEndIf
         script: new Uint8Array([0x51, 0x63, 0x00, 0x67, 0x00, 0x63, 0x67, 0x51, 0x68, 0x68]),
-        errorMsg: 'TxScriptError: false stack entry at end of script execution'
+        errorMsg: 'false stack entry at end of script execution'
       },
       {
         // OpTrue, OpNotIf, OpFalse, OpElse, OpTrue, OpIf, OpTrue, OpEndIf, OpEndIf
@@ -173,7 +173,7 @@ describe('TxScriptEngine Tests', () => {
         // OpTrue, OpNotIf, OpFalse, OpElse, OpFalse, OpNotIf, OpFalse, OpElse, OpTrue, OpEndIf, OpEndIf
 
         script: new Uint8Array([0x51, 0x64, 0x00, 0x67, 0x00, 0x64, 0x00, 0x67, 0x51, 0x68, 0x68]),
-        errorMsg: 'TxScriptError: false stack entry at end of script execution'
+        errorMsg: 'false stack entry at end of script execution'
       },
       { script: new Uint8Array([0x51, 0x00, 0x63, 0x63, 0x00, 0x68, 0x68]), errorMsg: undefined }, // OpTrue, OpFalse, OpIf, OpIf, OpFalse, OpEndIf, OpEndIf
       {
@@ -245,9 +245,7 @@ describe('TxScriptEngine Tests', () => {
       if (test.isValid) {
         expect(() => TxScriptEngine.checkPubKeyEncoding(test.key)).not.toThrow();
       } else {
-        expect(() => TxScriptEngine.checkPubKeyEncoding(test.key)).toThrow(
-          new Error('TxScriptError: unsupported public key type')
-        );
+        expect(() => TxScriptEngine.checkPubKeyEncoding(test.key)).toThrow(new Error('unsupported public key type'));
       }
     }
   });

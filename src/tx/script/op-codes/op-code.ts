@@ -1,4 +1,4 @@
-import { ScriptBuilderError } from '../error.ts';
+import { ScriptBuilderError, TxScriptError } from '../error.ts';
 import {
   IVerifiableTransaction,
   MAX_TX_IN_SEQUENCE_NUM,
@@ -29,20 +29,17 @@ class OpCode {
     const dataLength = getDataLengthOfCode(code);
 
     if (code === OpCodes.OpPushData1 || code === OpCodes.OpPushData2 || code === OpCodes.OpPushData4) {
-      if (data.length > dataLength) this.throwMalformedPushError(code, dataLength);
+      if (data.length > dataLength) TxScriptError.throwMalformedPushError(code, dataLength);
     } else {
-      if (data.length !== dataLength) this.throwMalformedPushError(code, dataLength);
+      if (data.length !== dataLength) TxScriptError.throwMalformedPushError(code, dataLength);
     }
 
     this.code = code;
     this.data = data;
   }
 
-  empty(code: OpCodes) {
-    return {
-      code,
-      data: new Uint8Array(0)
-    } as any as OpCode;
+  static empty(code: OpCodes) {
+    return new OpCode(code, new Uint8Array(0));
   }
 
   execute<T extends IVerifiableTransaction>(vm: TxScriptEngine<T>): void {
@@ -130,10 +127,9 @@ class OpCode {
       case OpCodes.OpPushData4:
         pushData(this.data, vm);
         break;
-
       case OpCodes.OpReserved:
-        throw new Error(`TxScriptError: Encountered reserved opcode ${this.code}`);
-
+        TxScriptError.throwOpcodeReservedError(this.code);
+        break;
       case OpCodes.Op1Negate:
       case OpCodes.OpTrue:
       case OpCodes.Op2:
@@ -156,32 +152,31 @@ class OpCode {
 
       case OpCodes.OpNop:
         break;
-
       case OpCodes.OpVer:
-        throw new Error(`TxScriptError: Encountered reserved opcode ${this.code}`);
-
+        TxScriptError.throwOpcodeReservedError(this.code);
+        break;
       case OpCodes.OpIf:
       case OpCodes.OpNotIf: {
         let cond = OpCond.Skip;
         if (vm.isExecuting()) {
           const condBuf = vm.dstack.pop();
           if (!condBuf) {
-            this.throwEmptyStackError();
+            TxScriptError.throwEmptyStackError();
             break;
           }
           if (condBuf.length > 1) {
-            this.throwInvalidStateError('expected boolean');
+            TxScriptError.throwInvalidStateError('expected boolean');
           }
 
           const stackCond = condBuf[0];
           if (this.code === OpCodes.OpIf) {
             if (stackCond === 1) cond = OpCond.True;
             else if (stackCond === undefined) cond = OpCond.False;
-            else this.throwInvalidStateError('expected boolean');
+            else TxScriptError.throwInvalidStateError('expected boolean');
           } else if (this.code === OpCodes.OpNotIf) {
             if (stackCond === 1) cond = OpCond.False;
             else if (stackCond === undefined) cond = OpCond.True;
-            else this.throwInvalidStateError('expected boolean');
+            else TxScriptError.throwInvalidStateError('expected boolean');
           }
         }
 
@@ -191,14 +186,14 @@ class OpCode {
 
       case OpCodes.OpVerIf:
       case OpCodes.OpVerNotIf: {
-        this.throwOpcodeReservedError(this.code);
+        TxScriptError.throwOpcodeReservedError(this.code);
         break;
       }
 
       case OpCodes.OpElse: {
         const lastCond = vm.condStack[vm.condStack.length - 1];
         if (lastCond === undefined) {
-          this.throwInvalidStateError('condition stack empty');
+          TxScriptError.throwInvalidStateError('condition stack empty');
           break;
         }
 
@@ -209,25 +204,26 @@ class OpCode {
 
       case OpCodes.OpEndIf:
         if (vm.condStack.pop() === undefined) {
-          this.throwInvalidStateError('condition stack empty');
+          TxScriptError.throwInvalidStateError('condition stack empty');
         }
         break;
 
       case OpCodes.OpVerify: {
-        const result = vm.dstack.pop();
-        if (!result || result[0] !== 1) {
-          throw new Error('TxScriptError: Verify error');
+        const [result] = vm.dstack.popRaw(1);
+        if (!OpcodeDataBool.deserialize(result)) {
+          TxScriptError.throwVerifyError();
         }
         break;
       }
 
       case OpCodes.OpReturn:
-        throw new Error('TxScriptError: Early return');
+        TxScriptError.throwEarlyReturn();
+        break;
 
       case OpCodes.OpToAltStack: {
         const item = vm.dstack.pop();
         if (!item) {
-          this.throwEmptyStackError();
+          TxScriptError.throwEmptyStackError();
           break;
         }
         vm.astack.push(item);
@@ -237,7 +233,7 @@ class OpCode {
       case OpCodes.OpFromAltStack: {
         const last = vm.astack.pop();
         if (!last) {
-          this.throwEmptyStackError();
+          TxScriptError.throwEmptyStackError();
           break;
         }
         vm.dstack.push(last);
@@ -290,7 +286,7 @@ class OpCode {
 
       case OpCodes.OpNip:
         if (vm.dstack.length < 2) {
-          throw new Error(`opcode requires at least 2 but stack has only ${vm.dstack.length}`);
+          TxScriptError.throwInvalidStackOperation(2, vm.dstack.length);
         }
         vm.dstack.splice(vm.dstack.length - 2, 1);
         break;
@@ -301,9 +297,9 @@ class OpCode {
 
       case OpCodes.OpPick: {
         const [loc] = vm.dstack.popItems(1);
-        const locValue = new DataView(loc.serialize().buffer).getInt32(0, true);
+        const locValue = Number(loc.value);
         if (locValue < 0 || locValue >= vm.dstack.length) {
-          throw new Error('TxScriptError: pick at an invalid location');
+          TxScriptError.throwInvalidStateError('pick at an invalid location');
         }
         vm.dstack.push(vm.dstack[vm.dstack.length - locValue - 1]);
         break;
@@ -311,9 +307,9 @@ class OpCode {
 
       case OpCodes.OpRoll: {
         const [loc] = vm.dstack.popItems(1);
-        const locValue = new DataView(loc.serialize().buffer).getInt32(0, true);
+        const locValue = Number(loc.value);
         if (locValue < 0 || locValue >= vm.dstack.length) {
-          throw new Error('TxScriptError: roll at an invalid location');
+          TxScriptError.throwInvalidStateError('roll at an invalid location');
         }
         const item = vm.dstack.splice(vm.dstack.length - locValue - 1, 1)[0];
         vm.dstack.push(item);
@@ -329,10 +325,7 @@ class OpCode {
         break;
 
       case OpCodes.OpTuck:
-        if (vm.dstack.length < 2)
-          throw new Error(
-            `TxScriptError: Invalid stack operation, requires at least 2 items but stack has only ${vm.dstack.length}`
-          );
+        if (vm.dstack.length < 2) TxScriptError.throwInvalidStackOperation(2, vm.dstack.length);
 
         const item = vm.dstack[vm.dstack.length - 1];
         vm.dstack.splice(vm.dstack.length - 2, 0, item);
@@ -344,16 +337,15 @@ class OpCode {
       case OpCodes.OpSubStr:
       case OpCodes.OpLeft:
       case OpCodes.OpRight:
-        throw new Error(`TxScriptError: attempt to execute disabled opcode ${this.code}`);
-
+        TxScriptError.throwOpcodeDisabledError(this.code);
+        break;
       case OpCodes.OpSize: {
         const last = vm.dstack[vm.dstack.length - 1];
-        if (!last)
-          throw new Error('TxScriptError: Invalid stack operation, requires at least 1 item but stack is empty');
+        if (!last) TxScriptError.throwInvalidStackOperation(1, vm.dstack.length);
 
         const size = last.length;
         if (size > i64Max) {
-          throw new Error(`TxScriptError: Number too big: ${size}`);
+          TxScriptError.throwNumberTooBig(size);
         }
         vm.dstack.pushItem(new SizedEncodeInt(BigInt(size)));
 
@@ -365,37 +357,28 @@ class OpCode {
       case OpCodes.OpAnd:
       case OpCodes.OpOr:
       case OpCodes.OpXor:
-        throw new Error(`TxScriptError: attempt to execute disabled opcode ${this.code}`);
-
+        TxScriptError.throwOpcodeDisabledError(this.code);
+        break;
       case OpCodes.OpEqual: {
-        if (vm.dstack.length < 2)
-          throw new Error(
-            `TxScriptError: Invalid stack operation, requires at least 2 items but stack has only ${vm.dstack.length}`
-          );
+        if (vm.dstack.length < 2) TxScriptError.throwInvalidStackOperation(2, vm.dstack.length);
 
-        const newStack = vm.dstack.splice(vm.dstack.length - 2);
-        if (areUint8ArraysEqual(vm.dstack, newStack)) vm.dstack.push(new Uint8Array([1]));
+        const newStack = vm.dstack.splice(vm.dstack.length - 2, 2);
+        if (areUint8ArraysEqualSingle(newStack[0], newStack[1])) vm.dstack.push(new Uint8Array([1]));
         else vm.dstack.push(new Uint8Array());
 
         break;
       }
 
       case OpCodes.OpEqualVerify:
-        {
-          if (vm.dstack.length < 2)
-            throw new Error(
-              `TxScriptError: Invalid stack operation, requires at least 2 items but stack has only ${vm.dstack.length}`
-            );
-
-          const newStack = vm.dstack.splice(vm.dstack.length - 2);
-
-          if (!areUint8ArraysEqual(vm.dstack, newStack)) this.throwVerifyError();
-        }
+        if (vm.dstack.length < 2) TxScriptError.throwInvalidStackOperation(2, vm.dstack.length);
+        const newStack = vm.dstack.splice(vm.dstack.length - 2, 2);
+        if (!areUint8ArraysEqualSingle(newStack[0], newStack[1])) TxScriptError.throwVerifyError();
         break;
 
       case OpCodes.OpReserved1:
       case OpCodes.OpReserved2:
-        throw new Error(`TxScriptError: attempt to execute reserved opcode ${this.code}`);
+        TxScriptError.throwOpcodeReservedError(this.code);
+        break;
 
       case OpCodes.Op1Add: {
         const [value] = vm.dstack.popItems(1);
@@ -403,7 +386,7 @@ class OpCode {
         if (result > i64Max) {
           throw new Error(`TxScriptError: Result of addition exceeds 64-bit signed integer range`);
         }
-        vm.dstack.pushItem(value);
+        vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
       }
 
@@ -413,13 +396,15 @@ class OpCode {
         if (result < -i64Max) {
           throw new Error('TxScriptError: Result of subtraction exceeds 64-bit signed integer range');
         }
-        vm.dstack.pushItem(value);
+        vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
       }
 
       case OpCodes.Op2Mul:
-      case OpCodes.Op2Div:
-        throw new Error(`TxScriptError: Opcode disabled: ${this.code}`);
+      case OpCodes.Op2Div: {
+        TxScriptError.throwOpcodeDisabledError(this.code);
+        break;
+      }
 
       case OpCodes.OpNegate: {
         const [value] = vm.dstack.popItems(1);
@@ -427,7 +412,7 @@ class OpCode {
         if (result < -i64Max || result > i64Max) {
           throw new Error('TxScriptError: Negation result exceeds 64-bit signed integer range');
         }
-        vm.dstack.pushItem(value);
+        vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
       }
 
@@ -437,7 +422,7 @@ class OpCode {
         if (result > i64Max) {
           throw new Error('TxScriptError: Absolute value exceeds 64-bit signed integer range');
         }
-        vm.dstack.pushItem(value);
+        vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
       }
 
@@ -477,8 +462,10 @@ class OpCode {
       case OpCodes.OpDiv:
       case OpCodes.OpMod:
       case OpCodes.OpLShift:
-      case OpCodes.OpRShift:
-        throw new Error(`TxScriptError: Opcode disabled: ${this.code}`);
+      case OpCodes.OpRShift: {
+        TxScriptError.throwOpcodeDisabledError(this.code);
+        break;
+      }
 
       case OpCodes.OpBoolAnd: {
         const [a, b] = vm.dstack.popItems(2);
@@ -503,7 +490,7 @@ class OpCode {
 
       case OpCodes.OpNumEqualVerify: {
         const [a, b] = vm.dstack.popItems(2);
-        if (a.value !== b.value) this.throwVerifyError();
+        if (a.value !== b.value) TxScriptError.throwVerifyError();
         break;
       }
 
@@ -558,7 +545,7 @@ class OpCode {
 
       case OpCodes.OpWithin: {
         const [x, l, u] = vm.dstack.popItems(3);
-        const r = x >= l && x < u ? 1n : 0n;
+        const r = x.value >= l.value && x.value < u.value ? 1n : 0n;
         vm.dstack.pushItem(SizedEncodeInt.from(r));
         break;
       }
@@ -566,7 +553,8 @@ class OpCode {
       // Undefined opcodes.
       case OpCodes.OpUnknown166:
       case OpCodes.OpUnknown167:
-        throw new Error(`TxScriptError: attempt to execute invalid opcode ${this.code}`);
+        TxScriptError.throwInvalidOpcode(this.code);
+        break;
 
       // Crypto opcodes.
       case OpCodes.OpSHA256: {
@@ -625,7 +613,7 @@ class OpCode {
         const opCheckSig = new OpCode(OpCodes.OpCheckSig, this.data.slice());
         opCheckSig.execute(vm);
         let [valid] = vm.dstack.popItems(1);
-        if (!valid) this.throwVerifyError();
+        if (!valid) TxScriptError.throwVerifyError();
         break;
       }
 
@@ -638,13 +626,13 @@ class OpCode {
         const opCheckMultiSig = new OpCode(OpCodes.OpCheckMultiSig, this.data.slice());
         opCheckMultiSig.execute(vm);
         let [valid] = vm.dstack.popItems(1);
-        if (!valid) this.throwVerifyError();
+        if (!valid) TxScriptError.throwVerifyError();
         break;
       }
 
       case OpCodes.OpCheckLockTimeVerify: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpCheckLockTimeVerify');
+          TxScriptError.throwInvalidSourceError('OpCheckLockTimeVerify');
           break;
         }
 
@@ -664,7 +652,11 @@ class OpCode {
         while (lockTimeBytes.length < 8) {
           lockTimeBytes = Buffer.concat([lockTimeBytes, Buffer.from([0])]);
         }
-        const stackLockTime = new DataView(lockTimeBytes.buffer).getBigInt64(0, true);
+        const stackLockTime = new DataView(
+          lockTimeBytes.buffer,
+          lockTimeBytes.byteOffset,
+          lockTimeBytes.byteLength
+        ).getBigUint64(0, true);
 
         // The lock time field of a transaction is either a DAA score at
         // which the transaction is finalized or a timestamp depending on if the
@@ -710,7 +702,7 @@ class OpCode {
 
       case OpCodes.OpCheckSequenceVerify: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpCheckSequenceVerify');
+          TxScriptError.throwInvalidSourceError('OpCheckSequenceVerify');
           break;
         }
 
@@ -730,7 +722,11 @@ class OpCode {
         while (sequenceBytes.length < 8) {
           sequenceBytes = Buffer.concat([sequenceBytes, Buffer.from([0])]);
         }
-        const stackSequence = new DataView(sequenceBytes.buffer).getBigInt64(0, true);
+        const stackSequence = new DataView(
+          sequenceBytes.buffer,
+          sequenceBytes.byteOffset,
+          sequenceBytes.byteLength
+        ).getBigInt64(0, true);
 
         // To provide for future soft-fork extensibility, if the
         // operand has the disabled lock-time flag set,
@@ -762,13 +758,13 @@ class OpCode {
       // Introspection opcodes
       // Transaction level opcodes (following Transaction struct field order)
       case OpCodes.OpTxVersion: {
-        this.throwOpcodeReservedError(this.code);
+        TxScriptError.throwOpcodeReservedError(this.code);
         break;
       }
 
       case OpCodes.OpTxInputCount: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpTxInputCount');
+          TxScriptError.throwInvalidSourceError('OpTxInputCount');
           break;
         }
 
@@ -781,13 +777,13 @@ class OpCode {
       case OpCodes.OpTxSubnetId:
       case OpCodes.OpTxGas:
       case OpCodes.OpTxPayload: {
-        this.throwOpcodeReservedError(this.code);
+        TxScriptError.throwOpcodeReservedError(this.code);
         break;
       }
 
       case OpCodes.OpTxInputIndex: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpTxInputIndex');
+          TxScriptError.throwInvalidSourceError('OpTxInputIndex');
           break;
         }
 
@@ -801,13 +797,13 @@ class OpCode {
       case OpCodes.OpOutpointIndex:
       case OpCodes.OpTxInputScriptSig:
       case OpCodes.OpTxInputSeq: {
-        this.throwOpcodeReservedError(this.code);
+        TxScriptError.throwOpcodeReservedError(this.code);
         break;
       }
 
       case OpCodes.OpTxInputAmount: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpTxInputAmount');
+          TxScriptError.throwInvalidSourceError('OpTxInputAmount');
           break;
         }
         const { tx } = vm.scriptSource;
@@ -817,7 +813,7 @@ class OpCode {
           throw new Error(`TxScriptError: Invalid input index: ${idx}, transaction inputs length: ${tx.inputs.length}`);
         }
 
-        if (utxo.amount > i64Max) throw new Error(`TxScriptError: Number too big: ${utxo.amount}`);
+        if (utxo.amount > i64Max) TxScriptError.throwNumberTooBig(utxo.amount);
 
         pushNumber(Number(utxo.amount), vm);
         break;
@@ -825,7 +821,7 @@ class OpCode {
 
       case OpCodes.OpTxInputSpk: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpTxInputSpk');
+          TxScriptError.throwInvalidSourceError('OpTxInputSpk');
           break;
         }
         const { tx } = vm.scriptSource;
@@ -840,13 +836,13 @@ class OpCode {
 
       case OpCodes.OpTxInputBlockDaaScore:
       case OpCodes.OpTxInputIsCoinbase: {
-        this.throwOpcodeReservedError(this.code);
+        TxScriptError.throwOpcodeReservedError(this.code);
         break;
       }
 
       case OpCodes.OpTxOutputAmount: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpTxOutputAmount');
+          TxScriptError.throwInvalidSourceError('OpTxOutputAmount');
           break;
         }
         const { tx } = vm.scriptSource;
@@ -857,14 +853,14 @@ class OpCode {
             `TxScriptError: Invalid output index: ${idx}, transaction outputs length: ${tx.outputs().length}`
           );
         }
-        if (output.value > i64Max) throw new Error(`TxScriptError: Number too big: ${output.value}`);
+        if (output.value > i64Max) TxScriptError.throwNumberTooBig(output.value);
         pushNumber(Number(output.value), vm);
         break;
       }
 
       case OpCodes.OpTxOutputSpk: {
         if (vm.scriptSource.type !== 'TxInput') {
-          this.throwInvalidSourceError('OpTxOutputSpk');
+          TxScriptError.throwInvalidSourceError('OpTxOutputSpk');
           break;
         }
         const { tx } = vm.scriptSource;
@@ -939,7 +935,7 @@ class OpCode {
       case OpCodes.OpPubKeyHash:
       case OpCodes.OpPubKey:
       case OpCodes.OpInvalidOpCode: {
-        this.throwOpcodeReservedError(this.code);
+        TxScriptError.throwInvalidOpcode(this.code);
         break;
       }
 
@@ -1071,32 +1067,6 @@ class OpCode {
     }
     return new OpCode(code, data);
   }
-
-  private throwMalformedPushError(code: OpCodes, length: number) {
-    throw new Error(`opcode requires ${code.valueOf()} bytes, but script only has ${length} remaining`);
-  }
-
-  private throwVerifyError() {
-    throw new Error('TxScriptError: script ran, but verification failed');
-  }
-
-  private throwOpcodeReservedError(code: OpCodes) {
-    throw new Error(`TxScriptError: Opcode reserved: ${code}`);
-  }
-
-  private throwInvalidSourceError(codeName: string) {
-    throw new Error(
-      `TxScriptError: opcode not supported on current source: ${codeName} only applies to transaction inputs`
-    );
-  }
-
-  private throwEmptyStackError() {
-    throw new Error('TxScriptError: attempt to read from empty stack');
-  }
-
-  private throwInvalidStateError(msg: string) {
-    throw new Error(`TxScriptError: encountered invalid state while running script ${msg}`);
-  }
 }
 
 /**
@@ -1122,18 +1092,6 @@ function pushData<T extends IVerifiableTransaction>(data: Uint8Array, vm: TxScri
 function pushNumber<T extends IVerifiableTransaction>(number: number, vm: TxScriptEngine<T>) {
   const sizeEncodeInt = SizedEncodeInt.from(BigInt(number));
   vm.dstack.pushItem(sizeEncodeInt);
-}
-
-function areUint8ArraysEqual(arr1: Uint8Array[], arr2: Uint8Array[]): boolean {
-  if (arr1.length !== arr2.length) {
-    return false;
-  }
-  for (let i = 0; i < arr1.length; i++) {
-    if (!areUint8ArraysEqualSingle(arr1[i], arr2[i])) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function areUint8ArraysEqualSingle(arr1: Uint8Array, arr2: Uint8Array): boolean {

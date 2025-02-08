@@ -37,7 +37,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   popItems(size: number): SizedEncodeInt[] {
     if (this.length < size) {
-      throw new TxScriptError(`Invalid stack operation: ${size} items requested, but only ${this.length} available.`);
+      TxScriptError.throwInvalidStackOperation(size, this.length);
     }
 
     const items = this.slice(this.length - size).map(SizedEncodeInt.deserialize);
@@ -50,7 +50,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   peekItems(size: number): SizedEncodeInt[] {
     if (this.length < size) {
-      throw new TxScriptError(`Invalid stack operation: ${size} items requested, but only ${this.length} available.`);
+      TxScriptError.throwInvalidStackOperation(size, this.length);
     }
 
     return this.slice(this.length - size).map(SizedEncodeInt.deserialize);
@@ -61,7 +61,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   popRaw(size: number): Uint8Array[] {
     if (this.length < size) {
-      throw new TxScriptError(`Invalid stack operation: ${size} items requested, but only ${this.length} available.`);
+      TxScriptError.throwInvalidStackOperation(size, this.length);
     }
 
     const items = this.slice(this.length - size);
@@ -74,7 +74,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   peekRaw(size: number): Uint8Array[] {
     if (this.length < size) {
-      throw new TxScriptError(`Invalid stack operation: ${size} items requested, but only ${this.length} available.`);
+      TxScriptError.throwInvalidStackOperation(size, this.length);
     }
 
     return this.slice(this.length - size);
@@ -92,7 +92,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   dropItems(size: number): void {
     if (this.length < size) {
-      throw new TxScriptError(`Invalid stack operation: ${size} items requested, but only ${this.length} available.`);
+      TxScriptError.throwInvalidStackOperation(size, this.length);
     }
 
     this.splice(this.length - size, size);
@@ -103,7 +103,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   dupItems(size: number): void {
     if (this.length < size) {
-      throw new TxScriptError(`Invalid stack operation: ${size} items requested, but only ${this.length} available.`);
+      TxScriptError.throwInvalidStackOperation(size, this.length);
     }
 
     const items = this.slice(this.length - size);
@@ -115,9 +115,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   overItems(size: number): void {
     if (this.length < 2 * size) {
-      throw new TxScriptError(
-        `Invalid stack operation: ${2 * size} items requested, but only ${this.length} available.`
-      );
+      TxScriptError.throwInvalidStackOperation(2 * size, this.length);
     }
 
     const items = this.slice(this.length - 2 * size, this.length - size);
@@ -129,9 +127,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   rotItems(size: number): void {
     if (this.length < 3 * size) {
-      throw new TxScriptError(
-        `Invalid stack operation: ${3 * size} items requested, but only ${this.length} available.`
-      );
+      TxScriptError.throwInvalidStackOperation(3 * size, this.length);
     }
 
     const items = this.slice(this.length - 3 * size, this.length - 2 * size);
@@ -144,9 +140,7 @@ class DataStack extends Array<Uint8Array> implements IDataStack {
    */
   swapItems(size: number): void {
     if (this.length < 2 * size) {
-      throw new TxScriptError(
-        `Invalid stack operation: ${2 * size} items requested, but only ${this.length} available.`
-      );
+      TxScriptError.throwInvalidStackOperation(2 * size, this.length);
     }
 
     const firstItems = this.slice(this.length - 2 * size, this.length - size);

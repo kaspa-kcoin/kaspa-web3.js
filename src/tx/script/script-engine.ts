@@ -8,6 +8,7 @@ import {
   SignableTransaction,
   toSmallInt,
   TransactionInput,
+  TxScriptError,
   UtxoEntry
 } from '../';
 import { OpCode, OpCond } from './op-codes';
@@ -175,11 +176,11 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
       }
       const opcode = scriptResult.value;
       if (opcode.isDisabled()) {
-        throw new Error('TxScriptError: Opcode disabled');
+        TxScriptError.throwOpcodeDisabledError(opcode);
       }
 
       if (opcode.alwaysIllegal()) {
-        throw new Error('TxScriptError: Opcode reserved');
+        TxScriptError.throwOpcodeReservedError(opcode);
       }
 
       if (verifyOnlyPush && !opcode.isPushOpcode()) {
@@ -195,7 +196,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     }
 
     if (this.condStack.length > 0) {
-      throw new Error('TxScriptError: end of script reached in conditional execution');
+      TxScriptError.throwErrUnbalancedConditional();
     }
 
     this.astack = new DataStack();
@@ -260,12 +261,14 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     if (isP2shVal) {
       this.checkErrorCondition(false);
       if (!savedStack) {
-        throw new Error('TxScriptError: attempt to read from empty stack');
+        TxScriptError.throwEmptyStackError();
+        return;
       }
       this.dstack = savedStack as DataStack;
       const script = this.dstack.pop();
       if (!script) {
-        throw new Error('TxScriptError: attempt to read from empty stack');
+        TxScriptError.throwEmptyStackError();
+        return;
       }
       this.executeScript(script, false);
     }
@@ -285,28 +288,28 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
   private checkErrorCondition(finalScript: boolean): void {
     if (finalScript) {
       if (this.dstack.length > 1) {
-        throw new Error(`TxScriptError: stack contains ${this.dstack.length - 1} unexpected items`);
+        TxScriptError.throwCleanStackError(this.dstack.length - 1);
       } else if (this.dstack.length === 0) {
-        throw new Error('TxScriptError: attempt to read from empty stack');
+        TxScriptError.throwEmptyStackError();
       }
     }
 
     const [v] = this.dstack.popItems(1);
 
     if (v.value !== 1n) {
-      throw new Error('TxScriptError: false stack entry at end of script execution');
+      TxScriptError.throwEvalFalseError();
     }
   }
 
   static checkPubKeyEncoding(pubKey: Uint8Array): void {
     if (pubKey.length !== 32) {
-      throw new Error('TxScriptError: unsupported public key type');
+      TxScriptError.throwPubKeyFormat();
     }
   }
 
   static checkPubKeyEncodingEcdsa(pubKey: Uint8Array): void {
     if (pubKey.length !== 33) {
-      throw new Error('TxScriptError: unsupported public key type');
+      TxScriptError.throwPubKeyFormat();
     }
   }
 
@@ -324,10 +327,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
       throw new Error(`TxScriptError: TooManyOperations: exceeded max operation limit of ${MAX_OPS_PER_SCRIPT}`);
     }
 
-    if (this.dstack.length < numKeysValue)
-      throw new Error(
-        `TxScriptError: InvalidStackOperation: opcode requires at least ${numKeysValue} but stack has only ${this.dstack.length}`
-      );
+    if (this.dstack.length < numKeysValue) TxScriptError.throwInvalidStackOperation(numKeysValue, this.dstack.length);
 
     const pubKeys = this.dstack.splice(this.dstack.length - numKeysValue, numKeysValue);
 
@@ -339,10 +339,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     }
     const numSigsUsize = Number(numSigs.value);
 
-    if (this.dstack.length < numSigsUsize)
-      throw new Error(
-        `TxScriptError: invalid signature count: opcode requires at least ${numSigsUsize} but stack has only ${this.dstack.length}`
-      );
+    if (this.dstack.length < numSigsUsize) TxScriptError.throwInvalidStackOperation(numSigsUsize, this.dstack.length);
 
     const signatures = this.dstack.splice(this.dstack.length - numSigsUsize, numSigsUsize);
 
