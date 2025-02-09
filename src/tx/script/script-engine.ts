@@ -13,7 +13,7 @@ import {
 } from '../';
 import { OpCode, OpCond } from './op-codes';
 import { ScriptClassHelper } from './script-class';
-import { DataStack } from './dataStack';
+import { DataStack, OpcodeDataBool } from './dataStack';
 import { MAX_OPS_PER_SCRIPT, MAX_PUB_KEYS_PER_MUTLTISIG } from '../constants';
 import { SizedEncodeInt } from './dataStack/sized-encode-int.ts';
 import { schnorr, secp256k1 } from '@noble/curves/secp256k1';
@@ -264,7 +264,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
         TxScriptError.throwEmptyStackError();
         return;
       }
-      this.dstack = savedStack as DataStack;
+      this.dstack = new DataStack(...savedStack);
       const script = this.dstack.pop();
       if (!script) {
         TxScriptError.throwEmptyStackError();
@@ -294,9 +294,10 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
       }
     }
 
-    const [v] = this.dstack.popItems(1);
+    const [v] = this.dstack.popRaw(1);
+    const result = OpcodeDataBool.deserialize(v);
 
-    if (v.value !== 1n) {
+    if (!result) {
       TxScriptError.throwEvalFalseError();
     }
   }

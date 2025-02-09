@@ -773,6 +773,17 @@ class OpCode {
         break;
       }
 
+      case OpCodes.OpTxOutputCount: {
+        if (vm.scriptSource.type !== 'TxInput') {
+          TxScriptError.throwInvalidSourceError('OpTxOutputCount');
+          break;
+        }
+
+        const { tx } = vm.scriptSource;
+        pushNumber(tx.tx().outputs.length, vm);
+        break;
+      }
+
       case OpCodes.OpTxLockTime:
       case OpCodes.OpTxSubnetId:
       case OpCodes.OpTxGas:
@@ -807,12 +818,13 @@ class OpCode {
           break;
         }
         const { tx } = vm.scriptSource;
-        const [idx] = vm.dstack.popItems(1);
-        const utxo = tx.utxo(Number(idx.value));
+        const [val] = vm.dstack.popItems(1);
+        const idx = Number(val.value);
+        const utxo = tx.utxo(idx);
         if (!utxo) {
-          throw new Error(`TxScriptError: Invalid input index: ${idx}, transaction inputs length: ${tx.inputs.length}`);
+          TxScriptError.throwInvalidInputIndex(idx, tx.inputs().length);
+          break;
         }
-
         if (utxo.amount > i64Max) TxScriptError.throwNumberTooBig(utxo.amount);
 
         pushNumber(Number(utxo.amount), vm);
@@ -825,10 +837,12 @@ class OpCode {
           break;
         }
         const { tx } = vm.scriptSource;
-        const [idx] = vm.dstack.popItems(1);
-        const utxo = tx.utxo(Number(idx));
+        const [val] = vm.dstack.popItems(1);
+        const idx = Number(val.value);
+        const utxo = tx.utxo(idx);
         if (!utxo) {
-          throw new Error(`TxScriptError: Invalid input index: ${idx}, transaction inputs length: ${tx.inputs.length}`);
+          TxScriptError.throwInvalidInputIndex(idx, tx.inputs().length);
+          break;
         }
         vm.dstack.push(utxo.scriptPublicKey.toBytes());
         break;
@@ -846,12 +860,13 @@ class OpCode {
           break;
         }
         const { tx } = vm.scriptSource;
-        const [idx] = vm.dstack.popItems(1);
+        const [val] = vm.dstack.popItems(1);
+        const idx = Number(val.value);
         const output = tx.outputs()[Number(idx)];
+
         if (!output) {
-          throw new Error(
-            `TxScriptError: Invalid output index: ${idx}, transaction outputs length: ${tx.outputs().length}`
-          );
+          TxScriptError.throwInvalidOutputIndex(idx, tx.outputs().length);
+          break;
         }
         if (output.value > i64Max) TxScriptError.throwNumberTooBig(output.value);
         pushNumber(Number(output.value), vm);
@@ -865,12 +880,10 @@ class OpCode {
         }
         const { tx } = vm.scriptSource;
         const [idx] = vm.dstack.popItems(1);
-        const output = tx.outputs()[Number(idx)];
-        if (!output) {
-          throw new Error(
-            `TxScriptError: Invalid output index: ${idx}, transaction outputs length: ${tx.outputs().length}`
-          );
-        }
+        const index = Number(idx.value);
+        const output = tx.outputs()[index];
+
+        if (!output) TxScriptError.throwInvalidOutputIndex(index, tx.outputs().length);
         vm.dstack.push(output.scriptPublicKey.toBytes());
         break;
       }

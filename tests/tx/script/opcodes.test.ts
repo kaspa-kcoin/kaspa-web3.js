@@ -7,6 +7,8 @@ import {
   LOCK_TIME_THRESHOLD,
   OpCode,
   OpCodes,
+  PopulatedTransaction,
+  ScriptBuilder,
   ScriptPublicKey,
   SigCacheKey,
   SOMPI_PER_KASPA,
@@ -21,8 +23,9 @@ import {
   TxScriptError,
   UtxoEntry
 } from '../../../src';
-import { payToAddressScript } from '../../../src/tx/script/standard';
+import { payToAddressScript, payToScriptHashScript } from '../../../src/tx/script/standard';
 import { DataStack } from '../../../src/tx/script/dataStack';
+import { SizedEncodeInt } from '../../../src/tx/script/dataStack/sized-encode-int';
 
 interface TestCase {
   init: DataStack;
@@ -1929,5 +1932,829 @@ describe('OpCode Tests', () => {
     ];
 
     runSuccessTestCases(successCases);
+  });
+});
+
+describe('OpCode KIP10 Tests', () => {
+  // Mock structures
+  interface Kip10Mock {
+    spk: ScriptPublicKey;
+    amount: bigint;
+  }
+
+  // Helper functions
+  function createMockSpk(value: number): ScriptPublicKey {
+    const pubKey = new Uint8Array(32).fill(value);
+    const addr = new Address(AddressPrefix.Testnet, 0, pubKey);
+    return payToAddressScript(addr);
+  }
+
+  function kip10TxMock(inputs: Kip10Mock[], outputs: Kip10Mock[]): [Transaction, UtxoEntry[]] {
+    const dummyPrevOut = new TransactionOutpoint(Hash.fromU64Word(1n), 1);
+    const dummySigScript = new Uint8Array(65);
+
+    const utxos: UtxoEntry[] = inputs.map(({ spk, amount }) => new UtxoEntry(amount, spk, 0n, false));
+
+    const txInputs = inputs.map(() => new TransactionInput(dummyPrevOut, dummySigScript, 10n, 0));
+
+    const txOutputs = outputs.map(({ spk, amount }) => new TransactionOutput(amount, spk));
+
+    const tx = new Transaction(TX_VERSION + 1, txInputs, txOutputs, 0n, SUBNETWORK_ID_NATIVE, 0n, new Uint8Array());
+
+    return [tx, utxos];
+  }
+
+  // Test Groups
+  interface TestGroup {
+    name: string;
+    //kip10Enabled: boolean; // kip10 enabled
+    testCases: TestCase[];
+  }
+
+  enum Operation {
+    InputSpk,
+    OutputSpk,
+    InputAmount,
+    OutputAmount
+  }
+
+  interface SuccessCase {
+    operation: Operation;
+    index: number;
+    expectedResult: {
+      expectedSpk?: Uint8Array;
+      expectedAmount?: Uint8Array;
+    };
+  }
+
+  interface ErrorCase {
+    operation: Operation;
+    index?: number;
+    expectedError: string;
+  }
+
+  interface TestCase {
+    type: 'success' | 'error';
+    case: SuccessCase | ErrorCase;
+  }
+
+  function executeTestGroup(group: TestGroup) {
+    const inputSpk1 = createMockSpk(1);
+    const inputSpk2 = createMockSpk(2);
+    const outputSpk1 = createMockSpk(3);
+    const outputSpk2 = createMockSpk(4);
+
+    const inputs = [
+      { spk: inputSpk1, amount: 1111n },
+      { spk: inputSpk2, amount: 2222n }
+    ];
+
+    const outputs = [
+      { spk: outputSpk1, amount: 3333n },
+      { spk: outputSpk2, amount: 4444n }
+    ];
+
+    const [tx, utxoEntries] = kip10TxMock(inputs, outputs);
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    for (let currentIdx = 0; currentIdx < tx.inputs.length; currentIdx++) {
+      const signableTx = new PopulatedTransaction(tx, utxoEntries);
+      const vm = TxScriptEngine.fromTransactionInput(
+        signableTx,
+        tx.inputs[currentIdx],
+        currentIdx,
+        utxoEntries[currentIdx],
+        sigCache,
+        true
+      );
+
+      // Check input index opcode first
+      const opInputIdx = OpCode.empty(OpCodes.OpTxInputIndex);
+      const expected = new DataStack(...vm.dstack);
+      expected.pushItem(SizedEncodeInt.from(BigInt(currentIdx)));
+      opInputIdx.execute(vm);
+      expect(vm.dstack).deep.eq(expected);
+      vm.dstack = new DataStack();
+
+      // Prepare opcodes
+      const opInputSpk = OpCode.empty(OpCodes.OpTxInputSpk);
+      const opOutputSpk = OpCode.empty(OpCodes.OpTxOutputSpk);
+      const opInputAmount = OpCode.empty(OpCodes.OpTxInputAmount);
+      const opOutputAmount = OpCode.empty(OpCodes.OpTxOutputAmount);
+
+      // Execute each test case
+      for (const testCase of group.testCases) {
+        if (testCase.type === 'success') {
+          vm.dstack.push(SizedEncodeInt.from(BigInt(testCase.case.index!)).serialize());
+          let successCase = testCase.case as SuccessCase;
+          let successOp;
+          switch (successCase.operation) {
+            case Operation.InputSpk:
+              successOp = () => opInputSpk.execute(vm);
+              break;
+            case Operation.OutputSpk:
+              successOp = () => opOutputSpk.execute(vm);
+              break;
+            case Operation.InputAmount:
+              successOp = () => opInputAmount.execute(vm);
+              break;
+            case Operation.OutputAmount:
+              successOp = () => opOutputAmount.execute(vm);
+              break;
+          }
+
+          expect(successOp).not.toThrow();
+
+          if (successCase.expectedResult.expectedSpk) {
+            expect(vm.dstack).deep.eq(new DataStack(successCase.expectedResult.expectedSpk));
+          }
+          if (successCase.expectedResult.expectedAmount) {
+            expect(vm.dstack).deep.eq(new DataStack(successCase.expectedResult.expectedAmount));
+          }
+          vm.dstack = new DataStack();
+        } else {
+          let errorCase = testCase.case as ErrorCase;
+          if (errorCase.index !== undefined) {
+            vm.dstack.push(SizedEncodeInt.from(BigInt(errorCase.index)).serialize());
+          }
+
+          let failedOp;
+          switch (errorCase.operation) {
+            case Operation.InputSpk:
+              failedOp = () => opInputSpk.execute(vm);
+              break;
+            case Operation.OutputSpk:
+              failedOp = () => opOutputSpk.execute(vm);
+              break;
+            case Operation.InputAmount:
+              failedOp = () => opInputAmount.execute(vm);
+              break;
+            case Operation.OutputAmount:
+              failedOp = () => opOutputAmount.execute(vm);
+              break;
+          }
+
+          expect(failedOp).toThrowError(errorCase.expectedError);
+          vm.dstack = new DataStack();
+        }
+      }
+    }
+  }
+
+  it('test_unary_introspection_ops', () => {
+    const testGroups: TestGroup[] = [
+      {
+        name: 'Valid input indices',
+        testCases: [
+          {
+            type: 'success',
+            case: {
+              operation: Operation.InputSpk,
+              index: 0,
+              expectedResult: {
+                expectedSpk: createMockSpk(1).toBytes(),
+                expectedAmount: undefined
+              }
+            }
+          },
+          {
+            type: 'success',
+            case: {
+              operation: Operation.InputSpk,
+              index: 1,
+              expectedResult: {
+                expectedSpk: createMockSpk(2).toBytes(),
+                expectedAmount: undefined
+              }
+            }
+          },
+          {
+            type: 'success',
+            case: {
+              operation: Operation.InputAmount,
+              index: 0,
+              expectedResult: {
+                expectedSpk: undefined,
+                expectedAmount: SizedEncodeInt.from(1111n).serialize()
+              }
+            }
+          },
+          {
+            type: 'success',
+            case: {
+              operation: Operation.InputAmount,
+              index: 1,
+              expectedResult: {
+                expectedSpk: undefined,
+                expectedAmount: SizedEncodeInt.from(2222n).serialize()
+              }
+            }
+          }
+        ]
+      },
+      {
+        name: 'Valid output indices',
+        testCases: [
+          {
+            type: 'success',
+            case: {
+              operation: Operation.OutputSpk,
+              index: 0,
+              expectedResult: {
+                expectedSpk: createMockSpk(3).toBytes(),
+                expectedAmount: undefined
+              }
+            }
+          },
+          {
+            type: 'success',
+            case: {
+              operation: Operation.OutputSpk,
+              index: 1,
+              expectedResult: {
+                expectedSpk: createMockSpk(4).toBytes(),
+                expectedAmount: undefined
+              }
+            }
+          },
+          {
+            type: 'success',
+            case: {
+              operation: Operation.OutputAmount,
+              index: 0,
+              expectedResult: {
+                expectedSpk: undefined,
+                expectedAmount: SizedEncodeInt.from(3333n).serialize()
+              }
+            }
+          },
+          {
+            type: 'success',
+            case: {
+              operation: Operation.OutputAmount,
+              index: 1,
+              expectedResult: {
+                expectedSpk: undefined,
+                expectedAmount: SizedEncodeInt.from(4444n).serialize()
+              }
+            }
+          }
+        ]
+      },
+      {
+        name: 'Error cases',
+        testCases: [
+          {
+            type: 'error',
+            case: { operation: Operation.InputAmount, expectedError: 'opcode requires at least 1 but stack has only 0' }
+          },
+          {
+            type: 'error',
+            case: {
+              operation: Operation.InputAmount,
+              index: -1,
+              expectedError: 'transaction input -1 is out of bounds, should be non-negative below 2'
+            }
+          },
+          {
+            type: 'error',
+            case: {
+              operation: Operation.InputAmount,
+              index: 2,
+              expectedError: 'transaction input 2 is out of bounds, should be non-negative below 2'
+            }
+          },
+          {
+            type: 'error',
+            case: {
+              operation: Operation.OutputAmount,
+              expectedError: 'opcode requires at least 1 but stack has only 0'
+            }
+          },
+          {
+            type: 'error',
+            case: {
+              operation: Operation.OutputAmount,
+              index: -1,
+              expectedError: 'transaction output -1 is out of bounds, should be non-negative below 2'
+            }
+          },
+          {
+            type: 'error',
+            case: {
+              operation: Operation.OutputAmount,
+              index: 2,
+              expectedError: 'transaction output 2 is out of bounds, should be non-negative below 2'
+            }
+          }
+        ]
+      }
+    ];
+
+    for (const group of testGroups) {
+      executeTestGroup(group);
+    }
+  });
+
+  function createMockTx(inputCount: number, outputCount: number): [Transaction, UtxoEntry[]] {
+    const dummyPrevOut = new TransactionOutpoint(Hash.fromU64Word(1n), 1);
+    const dummySigScript = new Uint8Array(65);
+
+    // Create inputs with different SPKs and amounts
+    const inputs: Kip10Mock[] = Array.from({ length: inputCount }, (_, i) => ({
+      spk: createMockSpk(i),
+      amount: BigInt(1000 + i)
+    }));
+
+    // Create outputs with different SPKs and amounts
+    const outputs: Kip10Mock[] = Array.from({ length: outputCount }, (_, i) => ({
+      spk: createMockSpk(100 + i),
+      amount: BigInt(2000 + i)
+    }));
+
+    // Create utxos and inputs from mock inputs
+    const utxos: UtxoEntry[] = inputs.map(({ spk, amount }) => new UtxoEntry(amount, spk, 0n, false));
+
+    const txInputs = inputs.map(() => new TransactionInput(dummyPrevOut, dummySigScript, 10n, 0));
+
+    const txOutputs = outputs.map(({ spk, amount }) => new TransactionOutput(amount, spk));
+
+    const tx = new Transaction(TX_VERSION + 1, txInputs, txOutputs, 0n, SUBNETWORK_ID_NATIVE, 0n, new Uint8Array());
+
+    return [tx, utxos];
+  }
+
+  it('test_op_input_output_count', () => {
+    // Test cases with different input/output combinations
+    const testCases = [
+      [1, 0], // Minimum inputs, no outputs
+      [1, 1], // Minimum inputs, one output
+      [1, 2], // Minimum inputs, multiple outputs
+      [2, 1], // Multiple inputs, one output
+      [3, 2], // Multiple inputs, multiple outputs
+      [5, 3], // More inputs than outputs
+      [2, 4] // More outputs than inputs
+    ];
+
+    for (const [inputCount, outputCount] of testCases) {
+      const [tx, utxoEntries] = createMockTx(inputCount, outputCount);
+      const sigCache = new Map<SigCacheKey, boolean>();
+
+      const signableTx = new PopulatedTransaction(tx, utxoEntries);
+
+      // Test with KIP-10 enabled and disabled
+      const vm = TxScriptEngine.fromTransactionInput(
+        signableTx,
+        tx.inputs[0], // Use first input
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      const opInputCount = OpCode.empty(OpCodes.OpTxInputCount);
+      const opOutputCount = OpCode.empty(OpCodes.OpTxOutputCount);
+
+      // Test input count
+      opInputCount.execute(vm);
+      expect(vm.dstack).deep.eq(new DataStack(SizedEncodeInt.from(BigInt(inputCount)).serialize()));
+      vm.dstack = new DataStack();
+
+      // Test output count
+      opOutputCount.execute(vm);
+      expect(vm.dstack).toEqual(new DataStack(SizedEncodeInt.from(BigInt(outputCount)).serialize()));
+      vm.dstack = new DataStack();
+    }
+  });
+
+  it('test_output_amount', () => {
+    // Create script: 0 OP_OUTPUTAMOUNT 100 EQUAL
+    const redeemScript = new ScriptBuilder()
+      .addOp(OpCodes.Op0)
+      .addOp(OpCodes.OpTxOutputAmount)
+      .addI64(100n)
+      .addOp(OpCodes.OpEqual).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+
+    // Create transaction with output amount 100
+    const inputMock: Kip10Mock = {
+      spk: spk,
+      amount: 200n
+    };
+
+    const outputMock: Kip10Mock = {
+      spk: createMockSpk(1),
+      amount: 100n
+    };
+
+    // Test success case
+    {
+      const [tx, utxoEntries] = kip10TxMock([inputMock], [outputMock]);
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const sigCache = new Map<SigCacheKey, boolean>();
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).not.toThrow();
+    }
+
+    // Test failure case with wrong amount
+    {
+      const wrongOutputMock: Kip10Mock = {
+        spk: createMockSpk(1),
+        amount: 99n // Wrong amount
+      };
+
+      const [tx, utxoEntries] = kip10TxMock([inputMock], [wrongOutputMock]);
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const sigCache = new Map<SigCacheKey, boolean>();
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).toThrowError('false stack entry at end of script execution');
+    }
+  });
+
+  it('test_input_amount', () => {
+    // Create script: 0 OP_INPUTAMOUNT 200 EQUAL
+    const redeemScript = new ScriptBuilder()
+      .addOp(OpCodes.Op0)
+      .addOp(OpCodes.OpTxInputAmount)
+      .addI64(200n)
+      .addOp(OpCodes.OpEqual).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Test success case
+    {
+      const inputMock: Kip10Mock = {
+        spk: spk,
+        amount: 200n
+      };
+
+      const outputMock: Kip10Mock = {
+        spk: createMockSpk(1),
+        amount: 100n
+      };
+
+      const [tx, utxoEntries] = kip10TxMock([inputMock], [outputMock]);
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).not.toThrow();
+    }
+
+    // Test failure case
+    {
+      const inputMock: Kip10Mock = {
+        spk: spk,
+        amount: 199n // Wrong amount
+      };
+
+      const outputMock: Kip10Mock = {
+        spk: createMockSpk(1),
+        amount: 100n
+      };
+
+      const [tx, utxoEntries] = kip10TxMock([inputMock], [outputMock]);
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).toThrowError('false stack entry at end of script execution');
+    }
+  });
+
+  it('test_input_spk_basic', () => {
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Create script: 0 OP_INPUTSPK OpNop
+    const redeemScript = new ScriptBuilder().addOps([OpCodes.Op0, OpCodes.OpTxInputSpk, OpCodes.OpNop]).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+    const [tx, utxoEntries] = kip10TxMock([{ spk, amount: 100n }], []);
+
+    tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+    const vm = TxScriptEngine.fromTransactionInput(
+      new PopulatedTransaction(tx, utxoEntries),
+      tx.inputs[0],
+      0,
+      utxoEntries[0],
+      sigCache,
+      true
+    );
+
+    expect(() => vm.execute()).not.toThrow();
+  });
+
+  it('test_input_spk_different', () => {
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Create script: 0 OP_INPUTSPK 1 OP_INPUTSPK OP_EQUAL OP_NOT
+    const redeemScript = new ScriptBuilder().addOps([
+      OpCodes.Op0,
+      OpCodes.OpTxInputSpk,
+      OpCodes.Op1,
+      OpCodes.OpTxInputSpk,
+      OpCodes.OpEqual,
+      OpCodes.OpNot
+    ]).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+    const [tx, utxoEntries] = kip10TxMock(
+      [
+        { spk, amount: 100n },
+        { spk: createMockSpk(2), amount: 100n }
+      ],
+      []
+    );
+
+    tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+    const vm = TxScriptEngine.fromTransactionInput(
+      new PopulatedTransaction(tx, utxoEntries),
+      tx.inputs[0],
+      0,
+      utxoEntries[0],
+      sigCache,
+      true
+    );
+
+    expect(() => vm.execute()).not.toThrow();
+  });
+
+  it('test_input_spk_same', () => {
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Create script: 0 OP_INPUTSPK 1 OP_INPUTSPK OP_EQUAL
+    const redeemScript = new ScriptBuilder().addOps([
+      OpCodes.Op0,
+      OpCodes.OpTxInputSpk,
+      OpCodes.Op1,
+      OpCodes.OpTxInputSpk,
+      OpCodes.OpEqual
+    ]).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+    const [tx, utxoEntries] = kip10TxMock(
+      [
+        { spk, amount: 100n },
+        { spk, amount: 100n }
+      ],
+      []
+    );
+
+    tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+    const vm = TxScriptEngine.fromTransactionInput(
+      new PopulatedTransaction(tx, utxoEntries),
+      tx.inputs[0],
+      0,
+      utxoEntries[0],
+      sigCache,
+      true
+    );
+
+    expect(() => vm.execute()).not.toThrow();
+  });
+
+  it('test_output_spk', () => {
+    const expectedSpk = createMockSpk(42);
+    const expectedSpkBytes = expectedSpk.toBytes();
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Create script: 0 OP_OUTPUTSPK <expected_spk_bytes> EQUAL
+    const redeemScript = new ScriptBuilder()
+      .addOp(OpCodes.Op0)
+      .addOp(OpCodes.OpTxOutputSpk)
+      .addData(expectedSpkBytes)
+      .addOp(OpCodes.OpEqual).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+
+    // Test success case
+    {
+      const [tx, utxoEntries] = kip10TxMock([{ spk, amount: 200n }], [{ spk: expectedSpk, amount: 100n }]);
+
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).not.toThrow();
+    }
+
+    // Test failure case
+    {
+      const [tx, utxoEntries] = kip10TxMock(
+        [{ spk, amount: 200n }],
+        [{ spk: createMockSpk(43), amount: 100n }] // Different SPK
+      );
+
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).toThrowError('false stack entry at end of script execution');
+    }
+  });
+
+  it('test_input_index', () => {
+    // Create script: OP_INPUTINDEX 0 EQUAL
+    const redeemScript = new ScriptBuilder().addOp(OpCodes.OpTxInputIndex).addI64(0n).addOp(OpCodes.OpEqual).script;
+
+    const spk = payToScriptHashScript(redeemScript);
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Test first input (success case)
+    {
+      const [tx, utxoEntries] = kip10TxMock([{ spk, amount: 200n }], [{ spk: createMockSpk(1), amount: 100n }]);
+
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).not.toThrow();
+    }
+
+    // Test second input (failure case)
+    {
+      const [tx, utxoEntries] = kip10TxMock(
+        [
+          { spk: createMockSpk(1), amount: 100n },
+          { spk, amount: 200n }
+        ],
+        [{ spk: createMockSpk(2), amount: 100n }]
+      );
+
+      tx.inputs[1].signatureScript = new ScriptBuilder().addData(redeemScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[1],
+        1,
+        utxoEntries[1],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).toThrowError('false stack entry at end of script execution');
+    }
+  });
+
+  it('test_counts', () => {
+    const sigCache = new Map<SigCacheKey, boolean>();
+
+    // Test OpInputCount: "OP_INPUTCOUNT 2 EQUAL"
+    const inputCountScript = new ScriptBuilder().addOp(OpCodes.OpTxInputCount).addI64(2n).addOp(OpCodes.OpEqual).script;
+
+    // Test OpOutputCount: "OP_OUTPUTCOUNT 3 EQUAL"
+    const outputCountScript = new ScriptBuilder()
+      .addOp(OpCodes.OpTxOutputCount)
+      .addI64(3n)
+      .addOp(OpCodes.OpEqual).script;
+
+    const inputSpk = payToScriptHashScript(inputCountScript);
+    const outputSpk = payToScriptHashScript(outputCountScript);
+
+    // Create transaction with 2 inputs and 3 outputs
+    const [tx, utxoEntries] = kip10TxMock(
+      [
+        { spk: inputSpk, amount: 100n },
+        { spk: outputSpk, amount: 200n }
+      ],
+      [
+        { spk: createMockSpk(1), amount: 50n },
+        { spk: createMockSpk(2), amount: 100n },
+        { spk: createMockSpk(3), amount: 150n }
+      ]
+    );
+
+    // Test InputCount
+    {
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(inputCountScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).not.toThrow();
+    }
+
+    // Test OutputCount
+    {
+      tx.inputs[1].signatureScript = new ScriptBuilder().addData(outputCountScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[1],
+        1,
+        utxoEntries[1],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).not.toThrow();
+    }
+
+    // Test failure cases with wrong counts
+    {
+      // Wrong input count script: "OP_INPUTCOUNT 3 EQUAL"
+      const wrongInputCountScript = new ScriptBuilder()
+        .addOp(OpCodes.OpTxInputCount)
+        .addI64(3n)
+        .addOp(OpCodes.OpEqual).script;
+
+      tx.inputs[0].signatureScript = new ScriptBuilder().addData(wrongInputCountScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[0],
+        0,
+        utxoEntries[0],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).toThrowError('false stack entry at end of script execution');
+    }
+
+    {
+      // Wrong output count script: "OP_OUTPUTCOUNT 2 EQUAL"
+      const wrongOutputCountScript = new ScriptBuilder()
+        .addOp(OpCodes.OpTxOutputCount)
+        .addI64(2n)
+        .addOp(OpCodes.OpEqual).script;
+
+      tx.inputs[1].signatureScript = new ScriptBuilder().addData(wrongOutputCountScript).script;
+
+      const vm = TxScriptEngine.fromTransactionInput(
+        new PopulatedTransaction(tx, utxoEntries),
+        tx.inputs[1],
+        1,
+        utxoEntries[1],
+        sigCache,
+        true
+      );
+
+      expect(() => vm.execute()).toThrowError('false stack entry at end of script execution');
+    }
   });
 });

@@ -67,6 +67,14 @@ class TxScriptError extends Error {
   static throwEarlyReturn() {
     throw new TxScriptError('script returned early');
   }
+
+  static throwInvalidInputIndex(idx: number, length: number) {
+    throw new TxScriptError(`transaction input ${idx} is out of bounds, should be non-negative below ${length}`);
+  }
+
+  static throwInvalidOutputIndex(idx: number, length: number) {
+    throw new TxScriptError(`transaction output ${idx} is out of bounds, should be non-negative below ${length}`);
+  }
 }
 
 function getCodeValue(code: OpCode | OpCodes): number {
