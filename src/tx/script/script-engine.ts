@@ -36,12 +36,12 @@ type ScriptSource<T extends IVerifiableTransaction> =
   | { type: 'TxInput'; tx: T; input: TransactionInput; idx: number; utxoEntry: UtxoEntry; isP2sh: boolean }
   | { type: 'StandAloneScripts'; scripts: Uint8Array[] };
 
-function* parseScript(script: Uint8Array): IterableIterator<OpCode> {
+function* parseScript(script: Uint8Array): IterableIterator<OpCode | Error> {
   const it = script[Symbol.iterator]();
   while (true) {
     const opcode = OpCode.deserialize(it);
 
-    if (!opcode) break;
+    if (opcode === undefined) break;
     yield opcode;
   }
 }
@@ -54,20 +54,27 @@ function getSigOpCount(signatureScript: Uint8Array, prevScriptPublicKey: ScriptP
   }
 
   const signatureScriptOps = Array.from(parseScript(signatureScript));
-  if (signatureScriptOps.length === 0 || signatureScriptOps.some((op) => !op.isPushOpcode())) {
+  if (signatureScriptOps.length === 0 || signatureScriptOps.some((op) => op instanceof OpCode && !op.isPushOpcode())) {
     return 0;
   }
 
-  const p2shScript = signatureScriptOps[signatureScriptOps.length - 1].getData();
+  const lastOp = signatureScriptOps[signatureScriptOps.length - 1];
+  if (!(lastOp instanceof OpCode)) {
+    return 0;
+  }
+  const p2shScript = lastOp.getData();
   const p2shOps = Array.from(parseScript(p2shScript));
   return getSigOpCountByOpcodes(p2shOps);
 }
 
-function getSigOpCountByOpcodes(opcodes: Array<OpCode>): number {
+function getSigOpCountByOpcodes(opcodes: Array<OpCode | Error>): number {
   // TODO: Check for overflows
   let numSigs = 0;
   for (let i = 0; i < opcodes.length; i++) {
     const opcode = opcodes[i];
+
+    if (!(opcode instanceof OpCode)) break;
+
     switch (opcode.value()) {
       case OpCodes.OpCheckSig:
       case OpCodes.OpCheckSigVerify:
@@ -83,6 +90,7 @@ function getSigOpCountByOpcodes(opcodes: Array<OpCode>): number {
         }
 
         const prevOpcode = opcodes[i - 1];
+        if (!(prevOpcode instanceof OpCode)) break;
         if (prevOpcode.value() >= OpCodes.OpTrue && prevOpcode.value() <= OpCodes.Op16) {
           numSigs += toSmallInt(prevOpcode);
         } else {
@@ -97,7 +105,9 @@ function getSigOpCountByOpcodes(opcodes: Array<OpCode>): number {
 }
 
 function isUnspendable(script: Uint8Array): boolean {
-  return Array.from(parseScript(script)).some((op, index) => index === 0 && op.value() === OpCodes.OpReturn);
+  return Array.from(parseScript(script)).some(
+    (op, index) => index === 0 && op instanceof OpCode && op.value() === OpCodes.OpReturn
+  );
 }
 
 class TxScriptEngine<T extends IVerifiableTransaction> {
@@ -175,6 +185,11 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
         break;
       }
       const opcode = scriptResult.value;
+
+      if (opcode instanceof TxScriptError || opcode instanceof Error) {
+        throw opcode;
+      }
+
       if (opcode.isDisabled()) {
         TxScriptError.throwOpcodeDisabledError(opcode);
       }

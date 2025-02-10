@@ -1053,64 +1053,68 @@ class OpCode {
     return new Uint8Array([this.value(), ...this.data]);
   }
 
-  static deserialize(it: Iterator<number>): OpCode | undefined {
+  static deserialize(it: Iterator<number>): OpCode | undefined | Error {
     const result = it.next();
     if (result.done) return undefined;
 
-    const code = result.value;
-    validateOpcodeRange(code);
+    try {
+      const code = result.value;
+      validateOpcodeRange(code);
 
-    let dataLen = getDataLengthOfCode(code);
+      let dataLen = getDataLengthOfCode(code);
 
-    let lenBytesLength = 0;
+      let lenBytesLength = 0;
 
-    switch (code) {
-      case OpCodes.OpPushData1:
-        lenBytesLength = 1;
-        break;
-      case OpCodes.OpPushData2:
-        lenBytesLength = 2;
-        break;
-      case OpCodes.OpPushData4:
-        lenBytesLength = 4;
-        break;
-    }
-
-    if (lenBytesLength > 0) {
-      const lenBytes = new Uint8Array(lenBytesLength);
-      for (let i = 0; i < lenBytesLength; i++) {
-        const result = it.next();
-        if (result.done) {
-          TxScriptError.throwMalformedPushSize(lenBytes);
-        }
-        lenBytes[i] = result.value;
-      }
       switch (code) {
         case OpCodes.OpPushData1:
-          dataLen = lenBytes[0];
+          lenBytesLength = 1;
           break;
         case OpCodes.OpPushData2:
-          dataLen = new DataView(lenBytes.buffer).getUint16(0, true);
+          lenBytesLength = 2;
           break;
         case OpCodes.OpPushData4:
-          dataLen = new DataView(lenBytes.buffer).getUint32(0, true);
+          lenBytesLength = 4;
           break;
       }
-    }
 
-    const tmpData = [];
-    for (let i = 0; i < dataLen; i++) {
-      const result = it.next();
-      if (result.done) {
-        if (isPushData(code) && tmpData.length < dataLen) TxScriptError.throwMalformedPush(dataLen, tmpData.length);
-
-        break;
+      if (lenBytesLength > 0) {
+        const lenBytes = new Uint8Array(lenBytesLength);
+        for (let i = 0; i < lenBytesLength; i++) {
+          const result = it.next();
+          if (result.done) {
+            TxScriptError.throwMalformedPushSize(lenBytes);
+          }
+          lenBytes[i] = result.value;
+        }
+        switch (code) {
+          case OpCodes.OpPushData1:
+            dataLen = lenBytes[0];
+            break;
+          case OpCodes.OpPushData2:
+            dataLen = new DataView(lenBytes.buffer).getUint16(0, true);
+            break;
+          case OpCodes.OpPushData4:
+            dataLen = new DataView(lenBytes.buffer).getUint32(0, true);
+            break;
+        }
       }
-      tmpData.push(result.value);
 
-      if (tmpData.length === dataLen) break;
+      const tmpData = [];
+      for (let i = 0; i < dataLen; i++) {
+        const result = it.next();
+        if (result.done) {
+          if (isPushData(code) && tmpData.length < dataLen) TxScriptError.throwMalformedPush(dataLen, tmpData.length);
+
+          break;
+        }
+        tmpData.push(result.value);
+
+        if (tmpData.length === dataLen) break;
+      }
+      return new OpCode(code, Uint8Array.from(tmpData));
+    } catch (e: any) {
+      return e;
     }
-    return new OpCode(code, Uint8Array.from(tmpData));
   }
 }
 
