@@ -382,7 +382,7 @@ class OpCode {
         const [value] = vm.dstack.popItems(1);
         const result = value.value + 1n;
         if (result > i64Max) {
-          throw new Error(`TxScriptError: Result of addition exceeds 64-bit signed integer range`);
+          TxScriptError.throwNumberTooBig('Result of addition exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
@@ -418,7 +418,7 @@ class OpCode {
         const [value] = vm.dstack.popItems(1);
         const result = value.value < 0n ? -value.value : value.value;
         if (result > i64Max) {
-          throw new Error('TxScriptError: Absolute value exceeds 64-bit signed integer range');
+          TxScriptError.throwNumberTooBig('Absolute value exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
