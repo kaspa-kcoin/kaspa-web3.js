@@ -223,7 +223,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     let isP2shVal = false;
 
     switch (this.scriptSource.type) {
-      case 'TxInput':
+      case 'TxInput': {
         const { input, utxoEntry, isP2sh } = this.scriptSource;
         if (utxoEntry.scriptPublicKey.version > MAX_SCRIPT_PUBLIC_KEY_VERSION) {
           return;
@@ -231,7 +231,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
         scripts = [input.signatureScript, utxoEntry.scriptPublicKey.script];
         isP2shVal = isP2sh;
         break;
-
+      }
       case 'StandAloneScripts':
         scripts = this.scriptSource.scripts;
         isP2shVal = false;
