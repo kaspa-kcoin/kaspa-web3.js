@@ -9,7 +9,7 @@ class TxScriptError extends Error {
     this.name = 'TxScriptError';
   }
 
-  static throwMalformedPushError(code: OpCodes | OpCode, length: number) {
+  static throwMalformedPush(code: OpCodes | OpCode, length: number) {
     throw new TxScriptError(`opcode requires ${getCodeValue(code)} bytes, but script only has ${length} remaining`);
   }
 
@@ -56,12 +56,17 @@ class TxScriptError extends Error {
   static throwPubKeyFormat() {
     throw new TxScriptError('unsupported public key type');
   }
+
+  static throwInvalidPubKeyCount(detail: string) {
+    throw new TxScriptError(`invalid pubkey count: ${detail}`);
+  }
+
   static throwInvalidStackOperation(dataLength: number, stackLength: number) {
     throw new TxScriptError(`opcode requires at least ${dataLength} but stack has only ${stackLength}`);
   }
 
-  static throwNumberTooBig(num: number | bigint) {
-    throw new TxScriptError(`Number too big: ${num}`);
+  static throwNumberTooBig(detail: string) {
+    throw new TxScriptError(`Number too big: ${detail}`);
   }
 
   static throwEarlyReturn() {
@@ -74,6 +79,42 @@ class TxScriptError extends Error {
 
   static throwInvalidOutputIndex(idx: number, length: number) {
     throw new TxScriptError(`transaction output ${idx} is out of bounds, should be non-negative below ${length}`);
+  }
+
+  static throwNotMinimalData(detail: string) {
+    throw new TxScriptError(`push encoding is not minimal: ${detail}`);
+  }
+
+  static throwMalformedPushSize(bytes: Uint8Array) {
+    throw new TxScriptError(`invalid opcode length: ${Buffer.from(bytes).toString('hex')}`);
+  }
+
+  static throwTooManyOperations(opCount: number) {
+    throw new TxScriptError(`exceeded max operation limit of ${opCount}`);
+  }
+
+  static throwStackSizeExceeded(size: number, maxSize: number) {
+    throw new TxScriptError(`combined stack size ${size} > max allowed ${maxSize}`);
+  }
+
+  static throwScriptSize(size: number, maxSize: number) {
+    throw new TxScriptError(`script of size ${size} exceeded maximum allowed size of ${maxSize}`);
+  }
+
+  static throwInvalidSignatureCount(detail: string) {
+    throw new TxScriptError(`invalid signature count: ${detail}`);
+  }
+
+  static throwSigLength(sigLen: number) {
+    throw new TxScriptError(`invalid signature length ${sigLen}`);
+  }
+
+  static throwSignatureScriptNotPushOnly() {
+    throw new TxScriptError('signature script is not push only');
+  }
+
+  static throwUnsatisfiedLockTime(detail: string) {
+    throw new TxScriptError(`Unsatisfied lock time: ${detail}`);
   }
 }
 

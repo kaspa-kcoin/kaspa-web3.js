@@ -1,3 +1,5 @@
+import { TxScriptError } from '../error.ts';
+
 /**
  * Class representing a sized encoded integer.
  */
@@ -46,10 +48,8 @@ class SizedEncodeInt {
    */
   static deserialize(data: Uint8Array): SizedEncodeInt {
     if (data.length > 8) {
-      throw new Error(
-        `numeric value encoded as ${Array.from(data)
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join('')} is longer than 8 bytes`
+      TxScriptError.throwNumberTooBig(
+        `numeric value encoded as ${Buffer.from(data).toString('hex')} is ${data.length} bytes which exceeds the max allowed of 8`
       );
     }
 
@@ -113,10 +113,9 @@ class SizedEncodeInt {
       // is +-255, which encode to 0xff00 and 0xff80 respectively.
       // (big-endian).
       if (data.length === 1 || (data[data.length - 2] & 0x80) === 0) {
-        throw new Error(
-          `numeric value encoded as ${Array.from(data)
-            .map((b) => b.toString(16).padStart(2, '0'))
-            .join('')} is not minimally encoded`
+        // numeric value encoded as {v:x?} is not minimally encoded
+        TxScriptError.throwNotMinimalData(
+          `numeric value encoded as ${Buffer.from(data).toString('hex')} is not minimally encoded`
         );
       }
     }

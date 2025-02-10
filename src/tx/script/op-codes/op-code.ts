@@ -29,9 +29,11 @@ class OpCode {
     const dataLength = getDataLengthOfCode(code);
 
     if (code === OpCodes.OpPushData1 || code === OpCodes.OpPushData2 || code === OpCodes.OpPushData4) {
-      if (data.length > dataLength) TxScriptError.throwMalformedPushError(code, dataLength);
+      if (data.length > dataLength) TxScriptError.throwMalformedPush(code, dataLength);
     } else {
-      if (data.length !== dataLength) TxScriptError.throwMalformedPushError(code, dataLength);
+      if (data.length !== dataLength) {
+        TxScriptError.throwMalformedPush(code, data.length);
+      }
     }
 
     this.code = code;
@@ -221,11 +223,7 @@ class OpCode {
         break;
 
       case OpCodes.OpToAltStack: {
-        const item = vm.dstack.pop();
-        if (!item) {
-          TxScriptError.throwEmptyStackError();
-          break;
-        }
+        const [item] = vm.dstack.popRaw(1);
         vm.astack.push(item);
         break;
       }
@@ -345,7 +343,7 @@ class OpCode {
 
         const size = last.length;
         if (size > i64Max) {
-          TxScriptError.throwNumberTooBig(size);
+          TxScriptError.throwNumberTooBig(`size of data exceeds 64-bit signed integer range`);
         }
         vm.dstack.pushItem(new SizedEncodeInt(BigInt(size)));
 
@@ -394,7 +392,7 @@ class OpCode {
         const [value] = vm.dstack.popItems(1);
         const result = value.value - 1n;
         if (result < -i64Max) {
-          throw new Error('TxScriptError: Result of subtraction exceeds 64-bit signed integer range');
+          TxScriptError.throwNumberTooBig('Result of subtraction exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
@@ -410,7 +408,7 @@ class OpCode {
         const [value] = vm.dstack.popItems(1);
         const result = -value.value;
         if (result < -i64Max || result > i64Max) {
-          throw new Error('TxScriptError: Negation result exceeds 64-bit signed integer range');
+          TxScriptError.throwNumberTooBig('Negation result exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
@@ -442,7 +440,7 @@ class OpCode {
         const [a, b] = vm.dstack.popItems(2);
         const result = a.value + b.value;
         if (result > i64Max || result < -i64Max) {
-          throw new Error('TxScriptError: Sum exceeds 64-bit signed integer range');
+          TxScriptError.throwNumberTooBig('Sum exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
@@ -452,7 +450,7 @@ class OpCode {
         const [a, b] = vm.dstack.popItems(2);
         const result = a.value - b.value;
         if (result > i64Max || result < -i64Max) {
-          throw new Error('TxScriptError: Difference exceeds 64-bit signed integer range');
+          TxScriptError.throwNumberTooBig('Sum exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
@@ -632,7 +630,7 @@ class OpCode {
 
       case OpCodes.OpCheckLockTimeVerify: {
         if (vm.scriptSource.type !== 'TxInput') {
-          TxScriptError.throwInvalidSourceError('OpCheckLockTimeVerify');
+          TxScriptError.throwInvalidSourceError('LockTimeVerify only applies to transaction inputs');
           break;
         }
 
@@ -644,8 +642,8 @@ class OpCode {
         // If more - return ErrNumberTooBig
         // If less - pad with 0's
         if (lockTimeBytes.length > 8) {
-          throw new Error(
-            `TxScriptError: lockTime value represented as ${Buffer.from(lockTimeBytes).toString('hex')} is longer than 8 bytes`
+          TxScriptError.throwNumberTooBig(
+            `locktime value represented as ${Buffer.from(lockTimeBytes).toString('hex')} is longer than 8 bytes`
           );
         }
 
@@ -668,14 +666,14 @@ class OpCode {
             (tx.tx().lockTime >= LOCK_TIME_THRESHOLD && stackLockTime >= LOCK_TIME_THRESHOLD)
           )
         ) {
-          throw new Error(
-            `TxScriptError: mismatched locktime types -- tx locktime ${tx.tx().lockTime}, stack locktime ${stackLockTime}`
+          TxScriptError.throwUnsatisfiedLockTime(
+            `mismatched locktime types -- tx locktime ${tx.tx().lockTime}, stack locktime ${stackLockTime}`
           );
         }
 
         if (stackLockTime > tx.tx().lockTime) {
-          throw new Error(
-            `TxScriptError: locktime requirement not satisfied -- locktime is greater than the transaction locktime: ${stackLockTime} > ${tx.tx().lockTime}`
+          TxScriptError.throwUnsatisfiedLockTime(
+            `locktime requirement not satisfied -- locktime is greater than the transaction locktime: ${stackLockTime} > ${tx.tx().lockTime}`
           );
         }
 
@@ -694,7 +692,7 @@ class OpCode {
         // another input being unlocked, the opcode execution will still fail when the
         // input being used by the opcode is locked.
         if (input.sequence === MAX_TX_IN_SEQUENCE_NUM) {
-          throw new Error('TxScriptError： transaction input is finalized');
+          TxScriptError.throwUnsatisfiedLockTime(`transaction input is finalized`);
         }
 
         break;
@@ -702,7 +700,7 @@ class OpCode {
 
       case OpCodes.OpCheckSequenceVerify: {
         if (vm.scriptSource.type !== 'TxInput') {
-          TxScriptError.throwInvalidSourceError('OpCheckSequenceVerify');
+          TxScriptError.throwInvalidSourceError('LockTimeVerify only applies to transaction inputs');
           break;
         }
 
@@ -714,8 +712,8 @@ class OpCode {
         // If more - return ErrNumberTooBig
         // If less - pad with 0's
         if (sequenceBytes.length > 8) {
-          throw new Error(
-            `TxScriptError: sequence value represented as ${Buffer.from(sequenceBytes).toString('hex')} is longer than 8 bytes`
+          TxScriptError.throwNumberTooBig(
+            `sequence value represented as ${Buffer.from(sequenceBytes).toString('hex')} is longer than 8 bytes`
           );
         }
 
@@ -726,7 +724,7 @@ class OpCode {
           sequenceBytes.buffer,
           sequenceBytes.byteOffset,
           sequenceBytes.byteLength
-        ).getBigInt64(0, true);
+        ).getBigUint64(0, true);
 
         // To provide for future soft-fork extensibility, if the
         // operand has the disabled lock-time flag set,
@@ -739,16 +737,17 @@ class OpCode {
         // consensus constrained. Testing that the transaction's sequence
         // number does not have this bit set prevents using this property
         // to get around a CHECKSEQUENCEVERIFY check.
+
         if ((input.sequence & SEQUENCE_LOCK_TIME_DISABLED) != 0n) {
-          throw new Error(
-            `TxScriptError: transaction sequence has sequence locktime disabled bit set ${input.sequence.toString(16)}`
+          TxScriptError.throwUnsatisfiedLockTime(
+            `transaction sequence has sequence locktime disabled bit set ${input.sequence.toString(16)}`
           );
         }
 
         // Mask off non-consensus bits before doing comparisons.
         if ((stackSequence & SEQUENCE_LOCK_TIME_MASK) > (input.sequence & SEQUENCE_LOCK_TIME_MASK)) {
-          throw new Error(
-            `TxScriptError: locktime requirement not satisfied -- locktime is greater than the transaction locktime: ${(stackSequence & SEQUENCE_LOCK_TIME_MASK).toString()} > ${(input.sequence & SEQUENCE_LOCK_TIME_MASK).toString()}`
+          TxScriptError.throwUnsatisfiedLockTime(
+            `locktime requirement not satisfied -- locktime is greater than the transaction locktime: ${(stackSequence & SEQUENCE_LOCK_TIME_MASK).toString()} > ${(input.sequence & SEQUENCE_LOCK_TIME_MASK).toString()}`
           );
         }
 
@@ -825,7 +824,7 @@ class OpCode {
           TxScriptError.throwInvalidInputIndex(idx, tx.inputs().length);
           break;
         }
-        if (utxo.amount > i64Max) TxScriptError.throwNumberTooBig(utxo.amount);
+        if (utxo.amount > i64Max) TxScriptError.throwNumberTooBig(`utxo amount exceeds 64-bit signed integer range`);
 
         pushNumber(Number(utxo.amount), vm);
         break;
@@ -868,7 +867,7 @@ class OpCode {
           TxScriptError.throwInvalidOutputIndex(idx, tx.outputs().length);
           break;
         }
-        if (output.value > i64Max) TxScriptError.throwNumberTooBig(output.value);
+        if (output.value > i64Max) TxScriptError.throwNumberTooBig(`output value exceeds 64-bit signed integer range`);
         pushNumber(Number(output.value), vm);
         break;
       }
@@ -956,6 +955,7 @@ class OpCode {
         throw new Error(`TxScriptError: Unknown opcode: ${this.code}`);
     }
   }
+
   value(): number {
     return this.code;
   }
@@ -1002,34 +1002,38 @@ class OpCode {
 
     if (dataLen === 0) {
       if (opcode !== OpCodes.OpFalse) {
-        throw new Error(`TxScriptError: Zero length data push is encoded with opcode ${this} instead of OpFalse`);
+        TxScriptError.throwNotMinimalData(
+          `zero length data push is encoded with opcode ${this.value()} instead of OpFalse`
+        );
       }
     } else if (dataLen === 1 && this.data[0] >= OP_SMALL_INT_MIN_VAL && this.data[0] <= OP_SMALL_INT_MAX_VAL) {
       if (opcode !== OpCodes.OpTrue + this.data[0] - 1) {
-        throw new Error(
-          `TxScriptError: Data push of the value ${this.data[0]} encoded with opcode ${this} instead of Op_${this.data[0]}`
+        TxScriptError.throwNotMinimalData(
+          `zero length data push is encoded with opcode ${this.value()} instead of Op_${this.data[0]}`
         );
       }
     } else if (dataLen === 1 && this.data[0] === OP_1_NEGATE_VAL) {
       if (opcode !== OpCodes.Op1Negate) {
-        throw new Error(`TxScriptError: Data push of the value -1 encoded with opcode ${this} instead of Op1Negate`);
+        TxScriptError.throwNotMinimalData(
+          `data push of the value -1 encoded with opcode ${this.value()} instead of OP_1NEGATE`
+        );
       }
     } else if (dataLen <= OP_DATA_MAX_VAL) {
       if (opcode !== dataLen) {
-        throw new Error(
-          `TxScriptError: Data push of ${dataLen} bytes encoded with opcode ${this} instead of OpData${dataLen}`
+        TxScriptError.throwNotMinimalData(
+          `data push of ${dataLen} bytes encoded with opcode ${this.value()} instead of OpData${dataLen}`
         );
       }
     } else if (dataLen <= 255) {
       if (opcode !== OpCodes.OpPushData1) {
-        throw new Error(
-          `TxScriptError: Data push of ${dataLen} bytes encoded with opcode ${this} instead of OpPushData1`
+        TxScriptError.throwNotMinimalData(
+          `data push of ${dataLen} bytes encoded with opcode ${this.value()} instead of OpPushData1`
         );
       }
     } else if (dataLen <= 65535) {
       if (opcode !== OpCodes.OpPushData2) {
-        throw new Error(
-          `TxScriptError: Data push of ${dataLen} bytes encoded with opcode ${this} instead of OpPushData2`
+        TxScriptError.throwNotMinimalData(
+          `data push of ${dataLen} bytes encoded with opcode ${this.value()} instead of OpPushData2`
         );
       }
     }
@@ -1044,8 +1048,7 @@ class OpCode {
   }
 
   serialize(): Uint8Array {
-    if (this.code === OpCodes.OpPushData1 || this.code === OpCodes.OpPushData2 || this.code === OpCodes.OpPushData4)
-      return new Uint8Array([this.value(), this.len(), ...this.data]);
+    if (isPushData(this.code)) return new Uint8Array([this.value(), this.len(), ...this.data]);
 
     return new Uint8Array([this.value(), ...this.data]);
   }
@@ -1056,29 +1059,58 @@ class OpCode {
 
     const code = result.value;
     validateOpcodeRange(code);
+
     let dataLen = getDataLengthOfCode(code);
+
+    let lenBytesLength = 0;
 
     switch (code) {
       case OpCodes.OpPushData1:
-        dataLen = it.next().value as number;
+        lenBytesLength = 1;
         break;
       case OpCodes.OpPushData2:
-        const bytesOfOpPushData2 = new Uint8Array([it.next().value, it.next().value]);
-        dataLen = new DataView(new Uint8Array(bytesOfOpPushData2).buffer).getUint16(0, true);
+        lenBytesLength = 2;
         break;
       case OpCodes.OpPushData4:
-        const bytesOfOpPushData4 = new Uint8Array([it.next().value, it.next().value, it.next().value, it.next().value]);
-        dataLen = new DataView(new Uint8Array(bytesOfOpPushData4).buffer).getUint32(0, true);
-        break;
-      default:
+        lenBytesLength = 4;
         break;
     }
 
-    const data = new Uint8Array(dataLen);
-    for (let i = 0; i < dataLen; i++) {
-      data[i] = it.next().value;
+    if (lenBytesLength > 0) {
+      const lenBytes = new Uint8Array(lenBytesLength);
+      for (let i = 0; i < lenBytesLength; i++) {
+        const result = it.next();
+        if (result.done) {
+          TxScriptError.throwMalformedPushSize(lenBytes);
+        }
+        lenBytes[i] = result.value;
+      }
+      switch (code) {
+        case OpCodes.OpPushData1:
+          dataLen = lenBytes[0];
+          break;
+        case OpCodes.OpPushData2:
+          dataLen = new DataView(lenBytes.buffer).getUint16(0, true);
+          break;
+        case OpCodes.OpPushData4:
+          dataLen = new DataView(lenBytes.buffer).getUint32(0, true);
+          break;
+      }
     }
-    return new OpCode(code, data);
+
+    const tmpData = [];
+    for (let i = 0; i < dataLen; i++) {
+      const result = it.next();
+      if (result.done) {
+        if (isPushData(code) && tmpData.length < dataLen) TxScriptError.throwMalformedPush(dataLen, tmpData.length);
+
+        break;
+      }
+      tmpData.push(result.value);
+
+      if (tmpData.length === dataLen) break;
+    }
+    return new OpCode(code, Uint8Array.from(tmpData));
   }
 }
 
@@ -1130,6 +1162,10 @@ function toSmallInt(opcode: OpCode): number {
   }
 
   return value - (OpCodes.OpTrue - 1);
+}
+
+function isPushData(code: OpCodes) {
+  return code >= OpCodes.OpPushData1 && code <= OpCodes.OpPushData4;
 }
 
 export { OpCode, validateOpcodeRange, toSmallInt };

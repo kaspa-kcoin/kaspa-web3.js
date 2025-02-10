@@ -151,7 +151,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     if (!opcode.isPushOpcode()) {
       this.numOps += 1;
       if (this.numOps > 201) {
-        throw new Error('TxScriptError: Too many operations');
+        TxScriptError.throwTooManyOperations(this.numOps);
       }
     } else if (opcode.len() > 520) {
       throw new Error(
@@ -184,14 +184,14 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
       }
 
       if (verifyOnlyPush && !opcode.isPushOpcode()) {
-        throw new Error('TxScriptError: Signature script not push only');
+        TxScriptError.throwSignatureScriptNotPushOnly();
       }
 
       this.executeOpcode(opcode);
 
       const combinedSize = this.astack.length + this.dstack.length;
       if (combinedSize > 244) {
-        throw new Error('TxScriptError: Stack size exceeded');
+        TxScriptError.throwStackSizeExceeded(combinedSize, 244);
       }
     }
 
@@ -235,12 +235,12 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     }
 
     if (scripts.every((e) => e.length === 0)) {
-      throw new Error('TxScriptError: false stack entry at end of script execution');
+      TxScriptError.throwEvalFalseError();
     }
 
     const overLimitOp = scripts.find((s) => s.length > MAX_SCRIPTS_SIZE);
     if (overLimitOp) {
-      throw new Error(`script of size ${overLimitOp.length} exceeded maximum allowed size of ${MAX_SCRIPTS_SIZE}`);
+      TxScriptError.throwScriptSize(overLimitOp.length, MAX_SCRIPTS_SIZE);
     }
 
     let savedStack: Uint8Array[] | undefined;
@@ -317,15 +317,15 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
   opCheckMultisigSchnorrOrEcdsa(ecdsa: boolean) {
     const [numKeys] = this.dstack.popItems(1);
     if (numKeys.value < 0n) {
-      throw new Error(`TxScriptError: InvalidPubKeyCount: number of pubkeys ${numKeys} is negative`);
+      TxScriptError.throwInvalidPubKeyCount(`number of pubkeys ${numKeys.value} is negative`);
     } else if (numKeys.value > MAX_PUB_KEYS_PER_MUTLTISIG) {
-      throw new Error(`TxScriptError: InvalidPubKeyCount: too many pubkeys ${numKeys} > ${MAX_PUB_KEYS_PER_MUTLTISIG}`);
+      TxScriptError.throwInvalidPubKeyCount(`too many pubkeys ${numKeys.value} > ${MAX_PUB_KEYS_PER_MUTLTISIG}`);
     }
     const numKeysValue = Number(numKeys.value);
 
     this.numOps += numKeysValue;
     if (this.numOps > MAX_OPS_PER_SCRIPT) {
-      throw new Error(`TxScriptError: TooManyOperations: exceeded max operation limit of ${MAX_OPS_PER_SCRIPT}`);
+      TxScriptError.throwTooManyOperations(MAX_OPS_PER_SCRIPT);
     }
 
     if (this.dstack.length < numKeysValue) TxScriptError.throwInvalidStackOperation(numKeysValue, this.dstack.length);
@@ -333,16 +333,16 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     const pubKeys = this.dstack.splice(this.dstack.length - numKeysValue, numKeysValue);
 
     const [numSigs] = this.dstack.popItems(1);
+    const numSigsValue = Number(numSigs.value);
     if (numSigs.value < 0) {
-      throw new Error(`TxScriptError: InvalidSignatureCount: number of signatures ${numSigs} is negative`);
-    } else if (numSigs > numKeys) {
-      throw new Error(`TxScriptError: InvalidSignatureCount: more signatures than pubkeys ${numSigs} > ${numKeys}`);
+      TxScriptError.throwInvalidSignatureCount(`number of signatures ${numSigs.value} is negative`);
+    } else if (numSigsValue > numKeysValue) {
+      TxScriptError.throwInvalidSignatureCount(`more signatures than pubkeys ${numSigs} > ${numKeys}`);
     }
-    const numSigsUsize = Number(numSigs.value);
 
-    if (this.dstack.length < numSigsUsize) TxScriptError.throwInvalidStackOperation(numSigsUsize, this.dstack.length);
+    if (this.dstack.length < numSigsValue) TxScriptError.throwInvalidStackOperation(numSigsValue, this.dstack.length);
 
-    const signatures = this.dstack.splice(this.dstack.length - numSigsUsize, numSigsUsize);
+    const signatures = this.dstack.splice(this.dstack.length - numSigsValue, numSigsValue);
 
     let failed = false;
     const pubKeyIter = pubKeys[Symbol.iterator]();
@@ -360,7 +360,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
       }
 
       while (true) {
-        if (pubKeys.length < numSigsUsize - sigIdx) {
+        if (pubKeys.length < numSigsValue - sigIdx) {
           failed = true;
           break outer;
         }
@@ -419,7 +419,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
     }
 
     if (ecdsaSig.length !== 64) {
-      throw new Error(`TxScriptError: invalid signature length ${ecdsaSig.length}`);
+      TxScriptError.throwSigLength(ecdsaSig.length);
     }
 
     TxScriptEngine.checkPubKeyEncodingEcdsa(key);

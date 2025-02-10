@@ -95,7 +95,7 @@ class ScriptBuilder {
     // script that is not canonical.
     if (data.length > C.MAX_SCRIPT_ELEMENT_SIZE) {
       throw new ScriptBuilderError(
-        `Adding a data element of ${data.length} bytes exceeds the maximum allowed script element size of ${C.MAX_SCRIPT_ELEMENT_SIZE}`
+        `Adding a data element of ${data.length} bytes exceed the maximum allowed script element size of ${C.MAX_SCRIPT_ELEMENT_SIZE}`
       );
     }
 
