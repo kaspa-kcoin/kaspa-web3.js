@@ -122,7 +122,10 @@ function getCodeValue(code: OpCode | OpCodes): number {
   if (code instanceof OpCode) {
     return code.value();
   }
-  return code.valueOf();
+  if (typeof code === 'number') {
+    return code;
+  }
+  throw new TxScriptError('Invalid opcode type');
 }
 
 /**
