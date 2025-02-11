@@ -66,7 +66,7 @@ describe('TxScriptEngine Tests', () => {
       const populatedTx = new PopulatedTransaction(tx, [utxoEntry]);
       const vm = TxScriptEngine.fromTransactionInput(populatedTx, input, 0, utxoEntry, sigCache, true);
 
-      if (test.errorMsg) expect(() => vm.execute()).toThrow(new Error(test.errorMsg));
+      if (test.errorMsg) expect(() => vm.execute()).toThrowError(test.errorMsg);
       else expect(() => vm.execute()).not.toThrow();
     }
   }
@@ -245,7 +245,7 @@ describe('TxScriptEngine Tests', () => {
       if (test.isValid) {
         expect(() => TxScriptEngine.checkPubKeyEncoding(test.key)).not.toThrow();
       } else {
-        expect(() => TxScriptEngine.checkPubKeyEncoding(test.key)).toThrow(new Error('unsupported public key type'));
+        expect(() => TxScriptEngine.checkPubKeyEncoding(test.key)).toThrowError('unsupported public key type');
       }
     }
   });
