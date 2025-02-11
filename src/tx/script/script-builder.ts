@@ -1,9 +1,9 @@
-import { ScriptBuilderError } from './error';
-import { SizedEncodeInt } from './dataStack/sized-encode-int';
-import { checkOpcodeRange, OpCodes } from './op-codes';
-import * as C from './constants';
+import { ScriptBuilderError } from './error.ts';
+import { SizedEncodeInt } from './dataStack/sized-encode-int.ts';
+import { validateOpcodeRange, OpCodes } from './op-codes';
+import * as C from '../constants';
 import { payToScriptHashScript, payToScriptHashSignatureScript } from './standard';
-import { ScriptPublicKey } from '../consensus';
+import { ScriptPublicKey } from '../../consensus';
 import { Buffer } from 'buffer';
 
 /**
@@ -44,7 +44,7 @@ class ScriptBuilder {
    * @throws ScriptBuilderError - Thrown when adding the opcode would exceed the maximum allowed script length.
    */
   addOp(opcode: number): ScriptBuilder {
-    checkOpcodeRange(opcode);
+    validateOpcodeRange(opcode);
     if (this._script.length >= C.MAX_SCRIPTS_SIZE) {
       throw new ScriptBuilderError(
         `Adding opcode ${opcode} would exceed the maximum allowed script length of ${C.MAX_SCRIPTS_SIZE}`
@@ -62,7 +62,7 @@ class ScriptBuilder {
    * @throws ScriptBuilderError - Thrown when adding the opcodes would exceed the maximum allowed script length.
    */
   addOps(opcodes: number[]): ScriptBuilder {
-    opcodes.forEach((opcode) => checkOpcodeRange(opcode));
+    opcodes.forEach((opcode) => validateOpcodeRange(opcode));
 
     if (this._script.length + opcodes.length > C.MAX_SCRIPTS_SIZE) {
       throw new ScriptBuilderError(
@@ -95,7 +95,7 @@ class ScriptBuilder {
     // script that is not canonical.
     if (data.length > C.MAX_SCRIPT_ELEMENT_SIZE) {
       throw new ScriptBuilderError(
-        `Adding a data element of ${data.length} bytes exceeds the maximum allowed script element size of ${C.MAX_SCRIPT_ELEMENT_SIZE}`
+        `Adding a data element of ${data.length} bytes exceed the maximum allowed script element size of ${C.MAX_SCRIPT_ELEMENT_SIZE}`
       );
     }
 
@@ -141,6 +141,12 @@ class ScriptBuilder {
     }
 
     const bytes = new SizedEncodeInt(BigInt(val)).serialize();
+    this.addData(bytes);
+    return this;
+  }
+
+  addI64Min(): ScriptBuilder {
+    const bytes = new SizedEncodeInt(-9223372036854775808n).serialize();
     this.addData(bytes);
     return this;
   }
@@ -257,6 +263,14 @@ class ScriptBuilder {
     }
 
     this._script.push(...Array.from(data).map((b) => new Uint8Array([b])));
+  }
+
+  /**
+   * Only used for testing.
+   * @param data - The data to extend the script with.
+   */
+  extend(data: Uint8Array): void {
+    this._script.push(...Array.from(data).map((op) => new Uint8Array([op])));
   }
 
   /**

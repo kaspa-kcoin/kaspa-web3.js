@@ -21,7 +21,7 @@ class SigHashType {
     return (this.value & SIG_HASH_ANY_ONE_CAN_PAY.value) === SIG_HASH_ANY_ONE_CAN_PAY.value;
   }
 
-  static fromU8(val: number): SigHashType | Error {
+  static fromU8(val: number): SigHashType {
     if (!ALLOWED_SIG_HASH_TYPES_VALUES.includes(val)) {
       throw new Error('invalid sighash type');
     }
@@ -41,9 +41,9 @@ const SIG_HASH_ANY_ONE_CAN_PAY = new SigHashType(0b10000000);
 const SIG_HASH_MASK = 0b00000111;
 
 const ALLOWED_SIG_HASH_TYPES_VALUES = [
-  SIG_HASH_ALL,
-  SIG_HASH_NONE,
-  SIG_HASH_SINGLE,
+  SIG_HASH_ALL.value,
+  SIG_HASH_NONE.value,
+  SIG_HASH_SINGLE.value,
   SIG_HASH_ALL.value | SIG_HASH_ANY_ONE_CAN_PAY.value,
   SIG_HASH_NONE.value | SIG_HASH_ANY_ONE_CAN_PAY.value,
   SIG_HASH_SINGLE.value | SIG_HASH_ANY_ONE_CAN_PAY.value

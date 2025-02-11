@@ -1,3 +1,5 @@
+import { maxValueOfU } from './utils.ts';
+
 /**
  * Validates if a number is an 8-bit unsigned integer.
  * @param {number | bigint} value - The number to validate.
@@ -70,20 +72,4 @@ function validateU256(value: bigint, variableName: string): void {
   }
 }
 
-/**
- * Calculates the maximum value of an unsigned integer with the given number of bits.
- * @param {number} numberOfBits - The number of bits.
- * @returns {bigint} The maximum value of the unsigned integer.
- * @throws Will throw an error if the number of bits is not a positive multiple of 8 or exceeds 256.
- */
-function maxValueOfU(numberOfBits: number): bigint {
-  if (numberOfBits <= 0 || numberOfBits % 8 !== 0) {
-    throw new Error('numberOfBits must be a positive multiple of 8');
-  }
-  if (numberOfBits > 256) {
-    throw new Error('numberOfBits must not exceed 256');
-  }
-  return (1n << BigInt(numberOfBits)) - 1n;
-}
-
-export { validateU8, validateU16, validateU32, validateU64, validateU128, validateU256, maxValueOfU };
+export { validateU8, validateU16, validateU32, validateU64, validateU128, validateU256 };

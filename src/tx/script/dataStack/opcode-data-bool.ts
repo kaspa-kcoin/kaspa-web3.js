@@ -8,7 +8,7 @@ class OpcodeDataBool {
    * @param {Uint8Array} data - The data to deserialize.
    * @returns {boolean} - The deserialized boolean value.
    */
-  deserialize(data: Uint8Array): boolean {
+  static deserialize(data: Uint8Array): boolean {
     if (data.length === 0) {
       return false;
     }
@@ -22,7 +22,7 @@ class OpcodeDataBool {
    * @param {boolean} data - The boolean to serialize.
    * @returns {Uint8Array} - The serialized data.
    */
-  serialize(data: boolean): Uint8Array {
+  static serialize(data: boolean): Uint8Array {
     return data ? new Uint8Array([1]) : new Uint8Array();
   }
 }

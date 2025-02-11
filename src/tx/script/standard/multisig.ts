@@ -1,5 +1,5 @@
 import { OpCodes } from '../op-codes';
-import { ScriptBuilder, MultisigCreateError } from '../index';
+import { ScriptBuilder, MultisigCreateError } from '../index.ts';
 
 /**
  * Generates a multisig redeem script.
