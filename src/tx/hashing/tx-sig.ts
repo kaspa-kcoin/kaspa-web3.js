@@ -1,8 +1,7 @@
 import { Hash, ZERO_HASH } from './hash';
 import { Blake2bHashKey, Sha256HashKey } from './hash-key';
 import { SigHashType } from './sig-hash-type';
-import { Transaction } from '../tx';
-import { SignableTransaction } from '../generator/model';
+import { IVerifiableTransaction, Transaction } from '../tx';
 import { DataWriter } from './data-writer';
 import { Buffer } from 'buffer';
 import { blake2b } from '@noble/hashes/blake2b';
@@ -120,14 +119,18 @@ class TransactionSigningHashing {
 
   /**
    * Calculates the Schnorr signature hash for a transaction.
-   * @param {SignableTransaction} signableTx - The signable transaction object.
+   * @param {IVerifiableTransaction} verifiableTx - The verifiable transaction object.
    * @param {number} inputIndex - The index of the input.
    * @param {SigHashType} hashType - The signature hash type.
    * @returns {Hash} - The calculated hash.
    */
-  static calcSchnorrSignatureHash(signableTx: SignableTransaction, inputIndex: number, hashType: SigHashType): Hash {
-    const [input, utxo] = signableTx.populatedInput(inputIndex);
-    const tx = signableTx.tx;
+  static calcSchnorrSignatureHash(
+    verifiableTx: IVerifiableTransaction,
+    inputIndex: number,
+    hashType: SigHashType
+  ): Hash {
+    const [input, utxo] = verifiableTx.populatedInput(inputIndex);
+    const tx = verifiableTx.tx();
     const writer = new DataWriter();
     writer
       .writeUint16(tx.version)
@@ -151,12 +154,12 @@ class TransactionSigningHashing {
 
   /**
    * Calculates the ECDSA signature hash for a transaction.
-   * @param {SignableTransaction} tx - The signable transaction object.
+   * @param {IVerifiableTransaction} tx - The verifiable transaction object.
    * @param {number} inputIndex - The index of the input.
    * @param {SigHashType} hashType - The signature hash type.
    * @returns {Hash} - The calculated hash.
    */
-  static calcEcdsaSignatureHash(tx: SignableTransaction, inputIndex: number, hashType: SigHashType): Hash {
+  static calcEcdsaSignatureHash(tx: IVerifiableTransaction, inputIndex: number, hashType: SigHashType): Hash {
     const hash = this.calcSchnorrSignatureHash(tx, inputIndex, hashType);
     const bytes = Buffer.concat([Sha256HashKey.TransactionSigningHashECDSA, hash.toBytes()]);
     return new Hash(sha256(bytes));

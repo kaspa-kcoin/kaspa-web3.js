@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Constants as C, ScriptBuilder, OpCodes, ScriptBuilderError } from '../src';
+import { Constants as C, ScriptBuilder, OpCodes, ScriptBuilderError } from '../../../src';
 
 describe('ScriptBuilder', () => {
   it.each([

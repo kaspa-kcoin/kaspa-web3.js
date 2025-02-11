@@ -114,6 +114,15 @@ class Keypair {
     return schnorr.sign(data, this.privateKey, undefined);
   }
 
+  public signEcdsa(data: Uint8Array): Uint8Array {
+    if (!this.privateKey) {
+      throw new Error('Secret key is not available for signing');
+    }
+
+    if (data.length !== 32) throw new Error('Invalid data length');
+    return secp256k1.sign(data, this.privateKey, undefined).toCompactRawBytes();
+  }
+
   /**
    * Signs a message with auxiliary data using the private key.
    * @param message - The message to sign.
