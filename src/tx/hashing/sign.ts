@@ -4,17 +4,18 @@ import { Keypair } from '../../keypair';
 import { SIG_HASH_ALL, SigHashType } from './sig-hash-type';
 import { TransactionSigningHashing } from './tx-sig';
 import { Buffer } from 'buffer';
+import { IVerifiableTransaction } from '../tx.ts';
 
 /**
  * Sign a transaction input with a sighash_type using Schnorr.
- * @param {SignableTransaction} tx - The transaction to be signed.
+ * @param {IVerifiableTransaction} tx - The transaction to be signed.
  * @param {number} inputIndex - The index of the input to sign.
  * @param {string} privateKeyHex - The private key to sign the transaction with.
  * @param {number} hashType - The sighash typeL.
  * @returns {Uint8Array} The signed input.
  */
 function signInput(
-  tx: SignableTransaction,
+  tx: IVerifiableTransaction,
   inputIndex: number,
   privateKeyHex: string,
   hashType: SigHashType
@@ -48,7 +49,7 @@ function signWithMultipleV2(signableTx: SignableTransaction, privHexKeys: string
     const script = signableTx.entries[i].scriptPublicKey.script;
     const schnorrKey = map.get(script.toString());
     if (schnorrKey) {
-      const sigHash = TransactionSigningHashing.calcSchnorrSignatureHash(signableTx, i, SIG_HASH_ALL);
+      const sigHash = TransactionSigningHashing.calcSchnorrSignatureHash(signableTx.asVerifiable(), i, SIG_HASH_ALL);
       const sig = schnorrKey.sign(sigHash.toBytes());
       signableTx.tx.inputs[i].signatureScript = new Uint8Array([65, ...sig, SIG_HASH_ALL.value]);
     } else {

@@ -5,7 +5,6 @@ import {
   MAX_SCRIPTS_SIZE,
   OpCodes,
   SigHashType,
-  SignableTransaction,
   toSmallInt,
   TransactionInput,
   TxScriptError,
@@ -186,7 +185,7 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
       }
       const opcode = scriptResult.value;
 
-      if (opcode instanceof TxScriptError || opcode instanceof Error) {
+      if (!(opcode instanceof OpCode)) {
         throw opcode;
       }
 
@@ -409,8 +408,11 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
 
     TxScriptEngine.checkPubKeyEncoding(pk);
 
-    const signableTx = new SignableTransaction(this.scriptSource.tx.tx(), []);
-    const sigHash = TransactionSigningHashing.calcSchnorrSignatureHash(signableTx, this.scriptSource.idx, hashType);
+    const sigHash = TransactionSigningHashing.calcSchnorrSignatureHash(
+      this.scriptSource.tx,
+      this.scriptSource.idx,
+      hashType
+    );
     const msg = sigHash.toBytes();
     const sigCacheKey = new SigCacheKey(
       { type: 'Secp256k1', signature: schnorrSig },
@@ -439,8 +441,11 @@ class TxScriptEngine<T extends IVerifiableTransaction> {
 
     TxScriptEngine.checkPubKeyEncodingEcdsa(key);
 
-    const signableTx = new SignableTransaction(this.scriptSource.tx.tx(), []);
-    const sigHash = TransactionSigningHashing.calcEcdsaSignatureHash(signableTx, this.scriptSource.idx, hashType);
+    const sigHash = TransactionSigningHashing.calcEcdsaSignatureHash(
+      this.scriptSource.tx,
+      this.scriptSource.idx,
+      hashType
+    );
     const msg = sigHash.toBytes();
     const sigCacheKey = new SigCacheKey({ type: 'Ecdsa', signature: ecdsaSig }, { type: 'Ecdsa', key }, msg);
 

@@ -53,7 +53,7 @@ describe('Generator kas tx', () => {
       commitTxs.some(
         (tx) =>
           !tx.entries.some(
-            (e) => e.outpoint.transactionId === o.outpoint.transactionId && e.outpoint.index === o.outpoint.index
+            (e: any) => e.outpoint.transactionId === o.outpoint.transactionId && e.outpoint.index === o.outpoint.index
           )
       )
     );

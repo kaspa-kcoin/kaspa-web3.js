@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Constants, ScriptClass, ScriptClassHelper, ScriptPublicKey } from '../src';
+import { Constants, ScriptClass, ScriptClassHelper, ScriptPublicKey } from '../../../src';
 
 describe('ScriptClassTests', () => {
   const testCases = [

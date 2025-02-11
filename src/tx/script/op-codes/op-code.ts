@@ -20,6 +20,7 @@ import { OpCond } from './op-cond.ts';
 import { OpcodeDataBool } from '../dataStack';
 import { sha256 } from '@noble/hashes/sha2';
 import { blake2b } from '@noble/hashes/blake2b';
+import { Buffer } from 'buffer';
 
 class OpCode {
   private readonly code: OpCodes;
@@ -149,7 +150,7 @@ class OpCode {
       case OpCodes.Op14:
       case OpCodes.Op15:
       case OpCodes.Op16:
-        pushNumber(this.code - OpCodes.Op1Negate - 1, vm);
+        pushNumber(BigInt(this.code - OpCodes.Op1Negate - 1), vm);
         break;
 
       case OpCodes.OpNop:
@@ -271,7 +272,7 @@ class OpCode {
       }
 
       case OpCodes.OpDepth:
-        pushNumber(vm.dstack.length, vm);
+        pushNumber(BigInt(vm.dstack.length), vm);
         break;
 
       case OpCodes.OpDrop:
@@ -450,7 +451,7 @@ class OpCode {
         const [a, b] = vm.dstack.popItems(2);
         const result = a.value - b.value;
         if (result > i64Max || result < -i64Max) {
-          TxScriptError.throwNumberTooBig('Sum exceeds 64-bit signed integer range');
+          TxScriptError.throwNumberTooBig('Difference exceeds 64-bit signed integer range');
         }
         vm.dstack.pushItem(SizedEncodeInt.from(result));
         break;
@@ -768,7 +769,7 @@ class OpCode {
         }
 
         const { tx } = vm.scriptSource;
-        pushNumber(tx.tx().inputs.length, vm);
+        pushNumber(BigInt(tx.tx().inputs.length), vm);
         break;
       }
 
@@ -779,7 +780,7 @@ class OpCode {
         }
 
         const { tx } = vm.scriptSource;
-        pushNumber(tx.tx().outputs.length, vm);
+        pushNumber(BigInt(tx.tx().outputs.length), vm);
         break;
       }
 
@@ -798,7 +799,7 @@ class OpCode {
         }
 
         const { idx } = vm.scriptSource;
-        pushNumber(idx, vm);
+        pushNumber(BigInt(idx), vm);
 
         break;
       }
@@ -826,7 +827,7 @@ class OpCode {
         }
         if (utxo.amount > i64Max) TxScriptError.throwNumberTooBig(`utxo amount exceeds 64-bit signed integer range`);
 
-        pushNumber(Number(utxo.amount), vm);
+        pushNumber(utxo.amount, vm);
         break;
       }
 
@@ -868,7 +869,7 @@ class OpCode {
           break;
         }
         if (output.value > i64Max) TxScriptError.throwNumberTooBig(`output value exceeds 64-bit signed integer range`);
-        pushNumber(Number(output.value), vm);
+        pushNumber(output.value, vm);
         break;
       }
 
@@ -1138,8 +1139,8 @@ function pushData<T extends IVerifiableTransaction>(data: Uint8Array, vm: TxScri
   vm.dstack.push(data);
 }
 
-function pushNumber<T extends IVerifiableTransaction>(number: number, vm: TxScriptEngine<T>) {
-  const sizeEncodeInt = SizedEncodeInt.from(BigInt(number));
+function pushNumber<T extends IVerifiableTransaction>(number: bigint, vm: TxScriptEngine<T>) {
+  const sizeEncodeInt = SizedEncodeInt.from(number);
   vm.dstack.pushItem(sizeEncodeInt);
 }
 
