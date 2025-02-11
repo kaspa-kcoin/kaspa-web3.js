@@ -33,7 +33,7 @@ describe('Generator kas tx', () => {
   );
   const utxos = parseUtxosFromFile(path.resolve(__dirname, './data/utxos.json'));
 
-  it(`should generate send krc20 transactions should success`, () => {
+  it(`should successfully generate send krc20 transactions`, () => {
     const generatorCommit = new Generator(sentKrc20CommitTx.toCommitTxGeneratorSettings(utxos));
     const commitTxs = new Array<SignableTransaction>();
 

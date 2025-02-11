@@ -102,7 +102,7 @@ export type GetKrc20ListingListResponse = {
 
 export function makeQueryString(params: Record<string, string | number | boolean | undefined>): string {
   return Object.keys(params)
-    .filter(key => params[key] !== undefined)
-    .map((key) => `${key}=${encodeURIComponent(params[key].toString())}`)
+    .filter((key) => params[key] !== undefined)
+    .map((key) => `${key}=${encodeURIComponent(params[key]!.toString())}`)
     .join('&');
 }

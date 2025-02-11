@@ -1,9 +1,9 @@
-import { ScriptBuilder, TxScriptError, OpCodes, ScriptClass, ScriptClassHelper } from '../index';
-import { Address, AddressPrefix, AddressVersion } from '../../address';
-import { ScriptPublicKey } from '../../consensus';
+import { ScriptBuilder, TxScriptError, OpCodes, ScriptClass, ScriptClassHelper } from '../index.ts';
+import { Address, AddressPrefix, AddressVersion } from '../../../address';
+import { ScriptPublicKey } from '../../../consensus';
 import { blake2b } from '@noble/hashes/blake2b';
 
-export { multisigRedeemScriptSchnorr, multisigRedeemScriptECDSA } from './multisig';
+export { multisigRedeemScriptSchnorr, multisigRedeemScriptECDSA } from './multisig.ts';
 
 /**
  * Creates a new script to pay a transaction output to a 32-byte pubkey.

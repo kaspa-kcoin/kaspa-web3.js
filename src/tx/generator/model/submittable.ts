@@ -11,7 +11,7 @@ export interface ISubmittableJsonTransaction {
   subnetworkId: string; // SubnetworkId
   payload: string; // Hex-encoded string
   mass: number; // u64
-  verb;
+  verb: any;
 }
 
 /**

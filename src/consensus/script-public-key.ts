@@ -46,14 +46,17 @@ class ScriptPublicKey {
     return new ScriptPublicKey(version, script);
   }
 
+  toBytes(): Uint8Array {
+    const versionBytes = new Uint8Array([this.version & 0xff, (this.version >> 8) & 0xff]);
+    return new Uint8Array([...versionBytes, ...this.script]);
+  }
+
   /**
    * Convert the ScriptPublicKey to a hex string.
    * @returns {string} The hex string representation.
    */
   toHex(): string {
-    const versionBytes = new Uint8Array([this.version & 0xff, (this.version >> 8) & 0xff]);
-    const combined = new Uint8Array([...versionBytes, ...this.script]);
-    return Buffer.from(combined).toString('hex');
+    return Buffer.from(this.toBytes()).toString('hex');
   }
 
   /**

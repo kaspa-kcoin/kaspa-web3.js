@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractScriptPubKeyAddress, payToAddressScript } from '../src/tx-script/standard';
+import { extractScriptPubKeyAddress, payToAddressScript } from '../src/tx/script/standard';
 import {
   ScriptPublicKey,
   Address,
