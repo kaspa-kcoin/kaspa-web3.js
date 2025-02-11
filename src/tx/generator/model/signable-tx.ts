@@ -1,5 +1,5 @@
-import { TransactionId, TransactionInput, UtxoEntry, UtxoEntryReference } from '../../model';
-import { Transaction } from '../../tx';
+import { TransactionId, TransactionInput, UtxoEntry } from '../../model';
+import { PopulatedTransaction, Transaction } from '../../tx';
 import { ISubmittableJsonTransaction } from './submittable';
 import { SignedTransaction, SignedType } from './signed-tx';
 import { SIG_HASH_ALL, SigHashType } from '../../hashing';
@@ -13,7 +13,7 @@ import { DataKind } from './data-kind';
 class SignableTransaction {
   id: TransactionId;
   tx: Transaction;
-  entries: UtxoEntryReference[];
+  entries: UtxoEntry[];
   paymentAmount: bigint;
   changeAmount: bigint;
   aggregateInputAmount: bigint;
@@ -38,7 +38,7 @@ class SignableTransaction {
    */
   constructor(
     tx: Transaction,
-    entries: UtxoEntryReference[],
+    entries: UtxoEntry[],
     paymentAmount: bigint = 0n,
     changeAmount: bigint = 0n,
     aggregateInputAmount: bigint = 0n,
@@ -98,7 +98,7 @@ class SignableTransaction {
    * @returns {Uint8Array} The generated signature.
    */
   createInputSignature(inputIndex: number, privateKeyHex: string, hashType = SIG_HASH_ALL): Uint8Array {
-    return signInput(this, inputIndex, privateKeyHex, hashType);
+    return signInput(this.asVerifiable(), inputIndex, privateKeyHex, hashType);
   }
 
   /**
@@ -117,7 +117,11 @@ class SignableTransaction {
    * @param {SigHashType} [hashType=SIG_HASH_ALL] - The type of hash to use for signing.
    */
   signInput(inputIndex: number, privateKeyHex: string, hashType: SigHashType = SIG_HASH_ALL) {
-    this.tx.inputs[inputIndex].signatureScript = signInput(this, inputIndex, privateKeyHex, hashType);
+    this.tx.inputs[inputIndex].signatureScript = signInput(this.asVerifiable(), inputIndex, privateKeyHex, hashType);
+  }
+
+  asVerifiable(): PopulatedTransaction {
+    return new PopulatedTransaction(this.tx, this.entries);
   }
 
   /**

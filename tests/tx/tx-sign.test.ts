@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   Hash,
+  PopulatedTransaction,
   ScriptPublicKey,
   SIG_HASH_ALL,
   SIG_HASH_ANY_ONE_CAN_PAY,
@@ -79,7 +80,7 @@ describe('TransactionSigningHashing', () => {
         break;
     }
 
-    const populatedTx = new SignableTransaction(tx, entries);
+    const populatedTx = new PopulatedTransaction(tx, entries);
     expect(
       TransactionSigningHashing.calcSchnorrSignatureHash(populatedTx, test.inputIndex, test.hashType).toString()
     ).toBe(test.expectedHash);

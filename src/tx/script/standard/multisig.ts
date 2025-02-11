@@ -6,10 +6,11 @@ import { ScriptBuilder, MultisigCreateError } from '../index.ts';
  *
  * @param {Iterable<Uint8Array>} pubKeys - The public keys for the multisig.
  * @param {number} required - The number of required signatures.
+ * @param {boolean} isEcdsa - Whether the multisig is for ECDSA signatures.
  * @returns {Uint8Array} The generated redeem script.
  * @throws {MultisigCreateError} If the number of required signatures is invalid.
  */
-function multisigRedeemScriptInternal(pubKeys: Iterable<Uint8Array>, required: number): Uint8Array {
+function multisigRedeemScriptInternal(pubKeys: Iterable<Uint8Array>, required: number, isEcdsa: boolean): Uint8Array {
   const pubKeysArray = Array.from(pubKeys);
   if (pubKeysArray.length < required) {
     throw new MultisigCreateError('Too many required signatures');
@@ -32,7 +33,7 @@ function multisigRedeemScriptInternal(pubKeys: Iterable<Uint8Array>, required: n
   }
 
   builder.addI64(BigInt(count));
-  builder.addOp(OpCodes.OpCheckMultiSig);
+  builder.addOp(isEcdsa ? OpCodes.OpCheckMultiSigECDSA : OpCodes.OpCheckMultiSig);
 
   return builder.script;
 }
@@ -45,7 +46,7 @@ function multisigRedeemScriptInternal(pubKeys: Iterable<Uint8Array>, required: n
  * @returns {Uint8Array} The generated redeem script.
  * @throws {MultisigCreateError} If a public key has an invalid length.
  */
-function multisigRedeemScriptSchnorr(pubKeys: Iterable<Uint8Array>, required: number): Uint8Array {
+function multisigRedeemScript(pubKeys: Iterable<Uint8Array>, required: number): Uint8Array {
   // check pubKey's byte length is 32
   for (const pubKey of pubKeys) {
     if (pubKey.length !== 32) {
@@ -53,7 +54,7 @@ function multisigRedeemScriptSchnorr(pubKeys: Iterable<Uint8Array>, required: nu
     }
   }
 
-  return multisigRedeemScriptInternal(pubKeys, required);
+  return multisigRedeemScriptInternal(pubKeys, required, false);
 }
 
 /**
@@ -64,7 +65,7 @@ function multisigRedeemScriptSchnorr(pubKeys: Iterable<Uint8Array>, required: nu
  * @returns {Uint8Array} The generated redeem script.
  * @throws {MultisigCreateError} If a public key has an invalid length.
  */
-function multisigRedeemScriptECDSA(pubKeys: Iterable<Uint8Array>, required: number): Uint8Array {
+function multisigRedeemScriptEcdsa(pubKeys: Iterable<Uint8Array>, required: number): Uint8Array {
   // check pubKey's byte length is 33
   for (const pubKey of pubKeys) {
     if (pubKey.length !== 33) {
@@ -72,7 +73,7 @@ function multisigRedeemScriptECDSA(pubKeys: Iterable<Uint8Array>, required: numb
     }
   }
 
-  return multisigRedeemScriptInternal(pubKeys, required);
+  return multisigRedeemScriptInternal(pubKeys, required, true);
 }
 
-export { multisigRedeemScriptSchnorr, multisigRedeemScriptECDSA };
+export { multisigRedeemScript, multisigRedeemScriptEcdsa };
