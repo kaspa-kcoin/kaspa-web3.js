@@ -1,6 +1,4 @@
-import { TxScriptError } from "../tx-script";
-
- 
+import { TxScriptError } from '../tx-script';
 
 /**
  * Constructor error types
@@ -36,9 +34,9 @@ export class ConversionError extends Error {
  */
 export class PSKTError extends Error {
   constructor(
-    public readonly type: 
+    public readonly type:
       | 'Custom'
-      | 'ConstructorError' 
+      | 'ConstructorError'
       | 'OutOfBounds'
       | 'MissingUtxoEntry'
       | 'MissingRedeemScript'
@@ -84,11 +82,8 @@ export class PSKTError extends Error {
 }
 
 // Type guards
-export const isConstructorError = (error: Error): error is ConstructorError => 
-  error instanceof ConstructorError;
+export const isConstructorError = (error: Error): error is ConstructorError => error instanceof ConstructorError;
 
-export const isPSKTError = (error: Error): error is PSKTError =>
-  error instanceof PSKTError;
+export const isPSKTError = (error: Error): error is PSKTError => error instanceof PSKTError;
 
-export const isConversionError = (error: Error): error is ConversionError =>
-  error instanceof ConversionError;
+export const isConversionError = (error: Error): error is ConversionError => error instanceof ConversionError;

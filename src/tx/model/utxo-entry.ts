@@ -49,10 +49,12 @@ class UtxoEntry {
   }
 
   equals(other: UtxoEntry): boolean {
-    return this.amount === other.amount &&
+    return (
+      this.amount === other.amount &&
       this.scriptPublicKey.equals(other.scriptPublicKey) &&
       this.blockDaaScore === other.blockDaaScore &&
-      this.isCoinbase === other.isCoinbase;
+      this.isCoinbase === other.isCoinbase
+    );
   }
 }
 

@@ -18,10 +18,7 @@ export class CombineError<K, V> extends Error {
  * @param rhs Right hand side map
  * @returns Combined map if no conflicts, otherwise throws CombineError
  */
-export function combineIfNoConflicts<K, V>(
-  lhs: Map<K, V>,
-  rhs: Map<K, V>
-): Map<K, V> {
+export function combineIfNoConflicts<K, V>(lhs: Map<K, V>, rhs: Map<K, V>): Map<K, V> {
   // Optimize by using the larger map as base
   if (lhs.size < rhs.size) {
     return combineIfNoConflicts(rhs, lhs);
@@ -56,5 +53,5 @@ function isEqual(a: any, b: any): boolean {
 
   if (keysA.length !== keysB.length) return false;
 
-  return keysA.every(key => isEqual(a[key], b[key]));
+  return keysA.every((key) => isEqual(a[key], b[key]));
 }
