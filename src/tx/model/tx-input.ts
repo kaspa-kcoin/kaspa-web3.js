@@ -4,7 +4,7 @@
 import { TransactionOutpoint } from './tx-outpoint';
 import { validateU64, validateU8 } from '../../validator';
 
-export class sTransactionInput {
+export class TransactionInput {
   /**
    * The previous transaction outpoint.
    */

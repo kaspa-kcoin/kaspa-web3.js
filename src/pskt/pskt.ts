@@ -1,17 +1,20 @@
 import { SUBNETWORK_ID_NATIVE } from '../consensus';
 import {
+  PopulatedTransaction,
+  SigCacheKey,
   SigHashType,
   SignableTransaction,
   Transaction,
   TransactionId,
-  TransactionInput,
-  TransactionOutput, UtxoEntry
+  TransactionOutput,
+  TxScriptEngine,
+  UtxoEntry
 } from '../tx';
 import { combineGlobals, Global, KeySource } from './';
 import { inputFromTransactionInput, outputFromTransactionOutput, transactionToPSKT } from './convert';
 import { combineInputs, Input } from './input';
 import { combineOutputs, Output } from './output';
-import { maxValueOfU } from '../validator.ts';
+import { maxValueOfU } from '../utils.ts';
 
 export type Role = 'Init' | 'Creator' | 'Constructor' | 'Updater' | 'Signer' | 'Combiner' | 'Finalizer' | 'Extractor';
 /**
@@ -293,7 +296,7 @@ export class PSKT {
     mutableTx.inputs.forEach((dest, idx) => {
       const src = this.state!.inputs[idx];
       if (!src.finalScriptSig) {
-        throw new Error("Tx not finalized");
+        throw new Error('Tx not finalized');
       }
       dest.signatureScript = src.finalScriptSig;
     });
@@ -304,20 +307,29 @@ export class PSKT {
     };
   }
 
-  public extractTx(): (mass: number) => [Transaction, Array<UtxoEntry | undefined>] {
+  public extractTx(): (mass: bigint) => [Transaction, Array<UtxoEntry | undefined>] {
     const [tx, entries] = this.extractTxUnchecked()(0n);
+    const verifiableTx = new PopulatedTransaction(
+      tx,
+      entries.filter((e) => e !== undefined)
+    );
 
-
-
-    tx.populatedInputs().forEach(([input, entry], idx) => {
-      const engine = TxScriptEngine.fromTransactionInput(verifiableTx, input, idx, entry, reusedValues, cache, false);
+    verifiableTx.populatedInputs().forEach(([input, entry], idx) => {
+      const engine = TxScriptEngine.fromTransactionInput(
+        verifiableTx,
+        input,
+        idx,
+        entry,
+        new Map<SigCacheKey, boolean>(),
+        false
+      );
       engine.execute();
     });
 
-    const finalEntries = mutableTx.entries;
-    const finalTx = mutableTx.tx;
+    const finalEntries = verifiableTx.entries();
+    const finalTx = verifiableTx.tx();
 
-    return (mass: number) => {
+    return (mass: bigint) => {
       finalTx.setMass(mass);
       return [finalTx, finalEntries];
     };
