@@ -20,4 +20,11 @@ export class KeySource {
     this.keyFingerprint = keyFingerprint;
     this.derivationPath = derivationPath;
   }
+
+  equals(other: KeySource): boolean {
+    for (let i = 0; i < this.keyFingerprint.length; i++) {
+      if (this.keyFingerprint[i] !== other.keyFingerprint[i]) return false;
+    }
+    return this.derivationPath === other.derivationPath;
+  }
 }

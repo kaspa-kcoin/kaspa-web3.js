@@ -50,9 +50,9 @@ class UtxoEntry {
 
   equals(other: UtxoEntry): boolean {
     return (
-      this.amount === other.amount &&
+      this.amount == other.amount &&
       this.scriptPublicKey.equals(other.scriptPublicKey) &&
-      this.blockDaaScore === other.blockDaaScore &&
+      this.blockDaaScore == other.blockDaaScore &&
       this.isCoinbase === other.isCoinbase
     );
   }

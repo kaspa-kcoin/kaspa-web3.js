@@ -1,11 +1,13 @@
 import { SUBNETWORK_ID_NATIVE } from '../consensus';
 import {
+  Hash,
   PopulatedTransaction,
   SigCacheKey,
   SigHashType,
   SignableTransaction,
   Transaction,
   TransactionId,
+  TransactionInput,
   TransactionOutput,
   TxScriptEngine,
   UtxoEntry
@@ -15,6 +17,8 @@ import { inputFromTransactionInput, outputFromTransactionOutput, transactionToPS
 import { combineInputs, Input } from './input';
 import { combineOutputs, Output } from './output';
 import { maxValueOfU } from '../utils.ts';
+import { isEqual, isHexString, isInputEqual, isOutputEqual } from './utils.ts';
+import { Buffer } from 'buffer';
 
 export type Role = 'Init' | 'Creator' | 'Constructor' | 'Updater' | 'Signer' | 'Combiner' | 'Finalizer' | 'Extractor';
 /**
@@ -47,10 +51,38 @@ export class Signature {
 }
 export type PartialSigs = Map<string, Signature>;
 
-export interface PSKTState {
+export class PSKTState {
   global: Global;
   inputs: Input[];
   outputs: Output[];
+
+  constructor() {
+    this.global = new Global();
+    this.inputs = [];
+    this.outputs = [];
+  }
+
+  equals(rhs: PSKTState) {
+    if (!this.global.equals(rhs.global)) {
+      return false;
+    }
+
+    for (let index = 0; index < this.inputs.length; index++) {
+      const input = this.inputs[index];
+      const isInput = input instanceof Input;
+      if (!input.equals(rhs.inputs[index])) {
+        return false;
+      }
+    }
+
+    for (let index = 0; index < this.outputs.length; index++) {
+      if (!isOutputEqual(this.outputs[index], rhs.outputs[index])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
 
 /**
@@ -60,7 +92,12 @@ export class PSKT {
   public state?: PSKTState;
   public role: Role;
 
-  constructor(payload: PSKT | Transaction | string | undefined) {
+  constructor(payload?: PSKT | Transaction | string) {
+    if (!payload) {
+      this.role = 'Init';
+      return;
+    }
+
     let pskt: PSKT;
     if (payload instanceof PSKT) {
       pskt = payload;
@@ -68,10 +105,9 @@ export class PSKT {
       pskt = transactionToPSKT(payload);
     } else if (typeof payload === 'string') {
       pskt = PSKT.fromHex(payload);
-    } else {
-      throw new Error('Invalid payload');
     }
-    this.state = pskt.state;
+
+    this.state = pskt!.state;
     this.role = 'Init';
   }
 
@@ -80,14 +116,14 @@ export class PSKT {
   }
 
   toCreator = (): PSKT => {
-    if (this.role === 'Init' && this.state) {
+    if (this.role === 'Init') {
       if (this.state) throw new Error('Create state is not allowed for PSKT initialized from transaction or a payload');
-      this.state = { global: new Global(), inputs: [], outputs: [] };
+      this.state = new PSKTState();
       this.role = 'Creator';
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   };
 
   toConstructor(): PSKT {
@@ -98,7 +134,7 @@ export class PSKT {
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   }
 
   toUpdater(): PSKT {
@@ -109,7 +145,7 @@ export class PSKT {
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   }
 
   toSigner(): PSKT {
@@ -120,7 +156,7 @@ export class PSKT {
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   }
 
   toCombiner(): PSKT {
@@ -131,7 +167,7 @@ export class PSKT {
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   }
 
   toFinalizer(): PSKT {
@@ -142,7 +178,7 @@ export class PSKT {
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   }
 
   toExtractor(): PSKT {
@@ -153,7 +189,7 @@ export class PSKT {
       return this;
     }
 
-    throw new Error(`Unexpected state: ${JSON.stringify(this.state, replacer)}`);
+    throw new Error(`Unexpected state: ${JSON.stringify(this.state, PSKT.replacer)}`);
   }
 
   fallbackLockTime(lockTime: bigint): PSKT {
@@ -191,10 +227,16 @@ export class PSKT {
     return this;
   }
 
-  input(input: TransactionInput): PSKT {
+  addTxInput(input: TransactionInput): PSKT {
     this.ensureRole('Constructor');
 
-    this.state!.inputs.push(inputFromTransactionInput(input));
+    return this.addInput(inputFromTransactionInput(input));
+  }
+
+  addInput(input: Input): PSKT {
+    this.ensureRole('Constructor');
+
+    this.state!.inputs.push(input);
     this.state!.global.inputCount += 1;
     return this;
   }
@@ -374,9 +416,16 @@ export class PSKT {
   }
 
   public toHex(): string {
-    const jsonStr = JSON.stringify(this.state, replacer);
+    const jsonStr = this.toJSON();
     const hex = Buffer.from(jsonStr).toString('hex');
     return `PSKT${hex}`;
+  }
+
+  public equals(rhs: PSKT): boolean {
+    if (!rhs.state.equals(this.state)) {
+      return false;
+    }
+    return ths.role === rhs.role;
   }
 
   public static fromHex(hex: string, role?: Role): PSKT {
@@ -386,9 +435,45 @@ export class PSKT {
 
     const hexData = hex.slice(4); // Remove PSKT prefix
     const jsonStr = Buffer.from(hexData, 'hex').toString();
-    const { global, inputs, outputs } = JSON.parse(jsonStr, reviver);
+    const { global, inputs, outputs } = JSON.parse(jsonStr, PSKT.reviver);
     return { state: { global, inputs, outputs }, role } as PSKT;
   }
+
+  public toJSON(): string {
+    return JSON.stringify(this.state, PSKT.replacer);
+  }
+
+  public static fromJSON(json: string, role?: Role): PSKT {
+    const { global, inputs, outputs } = JSON.parse(json, PSKT.reviver);
+    const pskt = new PSKT();
+    pskt.state = new PSKTState();
+    pskt.state.global = Global.fromJson(JSON.stringify(global, PSKT.replacer));
+    for (const item of inputs) {
+      let input = Input.fromJson(JSON.stringify(item, PSKT.replacer));
+      pskt.state.inputs.push(input);
+    }
+    pskt.state.outputs = outputs as Output[];
+    if (role) pskt.role = role;
+
+    return pskt;
+  }
+
+  static replacer = (_key: string, value: any) => {
+    if (typeof value === 'bigint') return value.toString() + 'n';
+    if (value instanceof Hash) return value.toString();
+    return value;
+  };
+
+  static reviver = (_key: string, value: any) => {
+    if (typeof value === 'string' && /^\d+n$/.test(value)) return BigInt(value.slice(0, -1));
+    if (typeof value === 'string' && isHexString(value)) {
+      if (value.length === 64) {
+        return Hash.fromHex(value);
+      }
+      return Uint8Array.from(Buffer.from(value, 'hex'));
+    }
+    return value;
+  };
 
   private ensureInitialized(): void {
     if (!this.state && (this.role === 'Init' || this.role === 'Creator')) {
@@ -402,14 +487,6 @@ export class PSKT {
     }
   }
 }
-
-const replacer = (_key: string, value: any) => {
-  return typeof value === 'bigint' ? value.toString() + 'n' : value;
-};
-
-const reviver = (_key: string, value: any) => {
-  return typeof value === 'string' && /^\d+n$/.test(value) ? BigInt(value.slice(0, -1)) : value;
-};
 
 export interface SignInputOk {
   signature: Signature;

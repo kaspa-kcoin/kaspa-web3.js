@@ -3,8 +3,6 @@ import { Address, AddressPrefix, AddressVersion } from '../../../address';
 import { ScriptPublicKey } from '../../../consensus';
 import { blake2b } from '@noble/hashes/blake2b';
 
-export { multisigRedeemScript, multisigRedeemScriptEcdsa } from './multisig.ts';
-
 /**
  * Creates a new script to pay a transaction output to a 32-byte pubkey.
  *
@@ -136,3 +134,4 @@ function extractScriptPubKeyAddress(scriptPublicKey: ScriptPublicKey, prefix: Ad
 }
 
 export { payToAddressScript, payToScriptHashScript, payToScriptHashSignatureScript, extractScriptPubKeyAddress };
+export * from './multisig.ts';

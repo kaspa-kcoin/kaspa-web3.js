@@ -75,8 +75,11 @@ class ScriptPublicKey {
     return JSON.stringify(this);
   }
 
-  equals(other: ScriptPublicKey): boolean {
-    return this.version === other.version && Buffer.compare(this.script, other.script) === 0;
+  equals(other: ScriptPublicKey | Uint8Array): boolean {
+    if (other instanceof ScriptPublicKey) {
+      return this.version === other.version && Buffer.compare(this.script, other.script) === 0;
+    }
+    return Buffer.compare(this.toBytes(), other) === 0;
   }
 
   /**

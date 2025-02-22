@@ -1,12 +1,13 @@
 import { Version } from './version';
 import { KeySource } from './key-source';
-import { TransactionId, TX_VERSION } from '../tx';
+import { Hash, TransactionId, TX_VERSION } from '../tx';
+import { isEqual } from './utils';
 
 /**
  * Global PSKT data
  */
 export class Global {
-  version: Version;
+  version: number;
   txVersion: number;
   fallbackLockTime?: bigint;
   inputsModifiable: boolean;
@@ -16,7 +17,6 @@ export class Global {
   xpubs: Map<string, KeySource>;
   id?: TransactionId;
   proprietaries: Map<string, any>;
-  unknowns: Map<string, any>;
 
   constructor() {
     this.version = Version.Zero;
@@ -27,7 +27,45 @@ export class Global {
     this.outputCount = 0;
     this.xpubs = new Map();
     this.proprietaries = new Map();
-    this.unknowns = new Map();
+  }
+
+  static fromJson(json: string): Global {
+    const obj = JSON.parse(json);
+    if (!obj || typeof obj.version !== 'number' || typeof obj.txVersion !== 'number') {
+      throw new Error('Failed to deserialize Global');
+    }
+    const result = new Global();
+    result.version = obj.version;
+    result.txVersion = obj.txVersion;
+    result.fallbackLockTime = obj.fallbackLockTime;
+    result.inputsModifiable = obj.inputsModifiable;
+    result.outputsModifiable = obj.outputsModifiable;
+    result.inputCount = obj.inputCount;
+    result.outputCount = obj.outputCount;
+    result.xpubs = new Map(Object.entries(obj.xpubs));
+    result.id = obj.id ? Hash.fromHex(obj.id) : undefined;
+    result.proprietaries = new Map(Object.entries(obj.proprietaries));
+    return result;
+  }
+
+  equals(other: Global): boolean {
+    if (this.version !== other.version) return false;
+    if (this.txVersion !== other.txVersion) return false;
+    if (this.fallbackLockTime !== other.fallbackLockTime) return false;
+    if (this.inputsModifiable !== other.inputsModifiable) return false;
+    if (this.outputsModifiable !== other.outputsModifiable) return false;
+    if (this.inputCount !== other.inputCount) return false;
+    if (this.outputCount !== other.outputCount) return false;
+    for (const [key, value] of this.xpubs) {
+      if (!other.xpubs.has(key)) return false;
+      if (!value.equals(other.xpubs.get(key)!)) return false;
+    }
+    if (this.id && other.id && !this.id.equals(other.id)) return false;
+    for (const [key, value] of this.proprietaries) {
+      if (!other.proprietaries.has(key)) return false;
+      if (!isEqual(value, other.proprietaries.get(key)!)) return false;
+    }
+    return true;
   }
 }
 
@@ -63,7 +101,8 @@ export function combineGlobals(lhs: Global, rhs: Global): Global {
     inputsModifiable: lhs.inputsModifiable && rhs.inputsModifiable,
     outputsModifiable: lhs.outputsModifiable && rhs.outputsModifiable,
     inputCount: Math.max(lhs.inputCount, rhs.inputCount),
-    outputCount: Math.max(lhs.outputCount, rhs.outputCount)
+    outputCount: Math.max(lhs.outputCount, rhs.outputCount),
+    equals: lhs.equals
   };
 
   // Handle fallback lock time

@@ -27,13 +27,19 @@ export function transactionToPSKT(tx: Transaction): PSKT {
 export function inputFromTransactionInput(input: TransactionInput): Input {
   const builder = new InputBuilder().setPreviousOutpoint(input.previousOutpoint).setSigOpCount(input.sigOpCount);
 
-  // TODO: Add UtxoEntry to Input
-  // if (input.utxo) {
-  //   builder.setUtxoEntry(input.utxo);
-  // } else {
-  //   throw new Error('MissingUtxoEntry');
-  // }
+  if (input.utxo) {
+    builder.setUtxoEntry(input.utxo);
+  } else {
+    throw new Error('MissingUtxoEntry');
+  }
 
+  return builder.build();
+}
+
+export function inputFromTransactionInputWithUtxo(input: TransactionInput, utxo: UtxoEntry): Input {
+  const builder = new InputBuilder().setPreviousOutpoint(input.previousOutpoint).setSigOpCount(input.sigOpCount);
+
+  builder.setUtxoEntry(utxo);
   return builder.build();
 }
 

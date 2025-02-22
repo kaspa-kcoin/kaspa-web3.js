@@ -1,3 +1,6 @@
+import { Input } from './input';
+import { Output } from './output.ts';
+
 /**
  * Error type for conflicting values in maps
  */
@@ -42,7 +45,7 @@ export function combineIfNoConflicts<K, V>(lhs: Map<K, V>, rhs: Map<K, V>): Map<
 /**
  * Deep equality check for values
  */
-function isEqual(a: any, b: any): boolean {
+export function isEqual(a: any, b: any): boolean {
   if (a === b) return true;
   if (typeof a !== typeof b) return false;
   if (typeof a !== 'object') return false;
@@ -54,4 +57,36 @@ function isEqual(a: any, b: any): boolean {
   if (keysA.length !== keysB.length) return false;
 
   return keysA.every((key) => isEqual(a[key], b[key]));
+}
+
+export function isOutputEqual(a: Output, b: Output): boolean {
+  if (a.amount !== b.amount) return false;
+  if (a.scriptPublicKey.equals(b.scriptPublicKey)) return false;
+  if (a.redeemScript && b.redeemScript && !Buffer.from(a.redeemScript).equals(Buffer.from(b.redeemScript)))
+    return false;
+  if (a.bip32Derivations.size !== b.bip32Derivations.size) return false;
+  for (const [key, value] of a.bip32Derivations) {
+    if (!b.bip32Derivations.has(key)) return false;
+    const bValue = b.bip32Derivations.get(key);
+    if (value === undefined && bValue === undefined) return true;
+    if (value !== undefined && bValue === undefined) return false;
+    if (value === undefined && bValue !== undefined) return false;
+    if (value?.equals(bValue!)) return true;
+  }
+  if (a.proprietaries.size !== b.proprietaries.size) return false;
+  for (const [key, value] of a.proprietaries) {
+    if (!b.proprietaries.has(key)) return false;
+    if (!isEqual(value, b.proprietaries.get(key)!)) return false;
+  }
+  if (a.unknowns.size !== b.unknowns.size) return false;
+  for (const [key, value] of a.unknowns) {
+    if (!b.unknowns.has(key)) return false;
+    if (!isEqual(value, b.unknowns.get(key)!)) return false;
+  }
+  return true;
+}
+
+export function isHexString(str: string): boolean {
+  const hexRegExp = /^[0-9a-fA-F]+$/;
+  return hexRegExp.test(str);
 }
