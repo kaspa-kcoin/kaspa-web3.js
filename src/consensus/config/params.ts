@@ -428,8 +428,8 @@ const TESTNET11_PARAMS: Params = {
   storageMassActivation: ForkActivation.always(),
 
   // Roughly at Dec 3, 2024 1800 UTC
-  kip10Activation: new ForkActivation(287238000),
-  payloadActivation: new ForkActivation(287238000),
+  kip10Activation: new ForkActivation(287238000n),
+  payloadActivation: new ForkActivation(287238000n),
 
   skipProofOfWork: false,
   maxBlockLevel: 250

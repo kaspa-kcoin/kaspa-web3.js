@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { Fees, Generator, SignableTransaction } from '../../src/tx';
-import { kaspaToSompi, NetworkId, NetworkType, Krc20TransferParams } from '../../src';
+import {
+  Fees,
+  Generator,
+  SignableTransaction,
+  kaspaToSompi,
+  NetworkId,
+  NetworkType,
+  Krc20TransferParams,
+  SignedType
+} from '../../src';
 import { parseTxsFromFile, parseUtxosFromFile } from './test-helper';
-import { SignedType } from '../../src/tx/generator/model/signed-tx';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { RpcUtxosByAddressesEntry } from '../../src/rpc/types';
 
 const SENDDER_PK = '5cd51b74226a845b8c757494136659997db1aaedf34c528e297f849f0fe87faf';

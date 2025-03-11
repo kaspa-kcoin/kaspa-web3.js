@@ -7,7 +7,7 @@ import {
   TransactionOutpoint,
   TransactionOutput,
   UtxoEntryReference
-} from '../../src/tx';
+} from '../../src';
 import { Address, ScriptPublicKey, SubnetworkId } from '../../src';
 import * as fs from 'node:fs';
 
@@ -46,7 +46,7 @@ function parseTxsFromFile(file: string): SignableTransaction[] {
       new Uint8Array(Buffer.from(tx.transaction.payload, 'hex'))
     );
 
-    const mass = BigInt(tx.mass | 0n);
+    const mass = tx.mass | 0n;
     transaction.setMass(mass);
 
     const entries = tx.transaction.inputs.map((input: any) => {

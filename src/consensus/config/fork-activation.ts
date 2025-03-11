@@ -1,5 +1,3 @@
-import { validateU64 } from '../../validator';
-
 /**
  * Class representing a fork activation.
  */
@@ -10,25 +8,8 @@ class ForkActivation {
    * Constructs a new `ForkActivation` instance.
    * @param daaScore - The DAA score.
    */
-  private constructor(daaScore: bigint) {
+  constructor(daaScore: bigint) {
     this.daaScore = daaScore;
-  }
-
-  /**
-   * Creates a new `ForkActivation` instance with the given DAA score.
-   * @param daaScore - The DAA score.
-   * @returns A new `ForkActivation` instance.
-   * @remarks The `daaScore` must be a valid 64-bit unsigned integer.
-   */
-  /**
-   * Creates a new `ForkActivation` instance with the given DAA score.
-   * @param daaScore - The DAA score.
-   * @returns A new `ForkActivation` instance.
-   * @remarks The `daaScore` must be a valid 64-bit unsigned integer.
-   */
-  static new(daaScore: bigint): ForkActivation {
-    validateU64(daaScore, 'daaScore');
-    return new ForkActivation(daaScore);
   }
 
   /**
