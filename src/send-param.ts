@@ -11,6 +11,7 @@ class SendKasParams {
   amount: bigint;
   receiver: Address;
   networkId: NetworkId;
+  payload?: Uint8Array;
   priorityFee?: Fees;
 
   /**
@@ -20,18 +21,21 @@ class SendKasParams {
    * @param receiver - The receiver's address.
    * @param networkId - The network ID.
    * @param priorityFee - The optional priority fee.
+   * @param payload - The optional payload.
    */
   constructor(
     sender: Address | string,
     amount: bigint,
     receiver: Address | string,
     networkId: NetworkId,
-    priorityFee?: Fees
+    priorityFee?: Fees,
+    payload?: Uint8Array
   ) {
     this.sender = sender instanceof Address ? sender : Address.fromString(sender);
     this.amount = amount;
     this.receiver = receiver instanceof Address ? receiver : Address.fromString(receiver);
     this.networkId = networkId;
+    this.payload = payload;
     this.priorityFee = priorityFee;
   }
 
@@ -42,7 +46,17 @@ class SendKasParams {
    */
   toGeneratorSettings(uxtos: UtxoEntryReference[] | RpcUtxosByAddressesEntry[] = []): GeneratorSettings {
     const output = new PaymentOutput(this.receiver, this.amount);
-    return new GeneratorSettings(output, this.sender, uxtos, this.networkId, this.priorityFee);
+    return new GeneratorSettings(
+      output,
+      this.sender,
+      uxtos,
+      this.networkId,
+      this.priorityFee,
+      undefined,
+      undefined,
+      undefined,
+      this.payload
+    );
   }
 }
 
