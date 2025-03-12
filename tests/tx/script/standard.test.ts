@@ -6,9 +6,6 @@ import {
   Address,
   AddressPrefix,
   AddressVersion,
-  TxScriptError,
-  ScriptClassHelper,
-  ScriptClass,
   Keypair,
   Hash,
   Transaction,
@@ -18,13 +15,18 @@ import {
   UtxoEntry,
   SigCacheKey,
   SIG_HASH_ALL,
-  OpCodes,
-  ScriptBuilder,
-  TxScriptEngine,
   PopulatedTransaction
 } from '../../../src';
 import { Buffer } from 'buffer';
 import { TransactionSigningHashing } from '../../../src/tx/hashing/tx-sig';
+import {
+  TxScriptEngine,
+  ScriptClass,
+  OpCodes,
+  ScriptBuilder,
+  ScriptClassHelper,
+  TxScriptError
+} from '../../../src/tx/script';
 
 interface Test {
   name: string;

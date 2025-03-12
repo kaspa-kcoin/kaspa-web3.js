@@ -3,6 +3,7 @@
  */
 import { TransactionOutpoint } from './tx-outpoint';
 import { validateU64, validateU8 } from '../../validator';
+import { UtxoEntry } from './utxo-entry';
 
 export class TransactionInput {
   /**
@@ -28,6 +29,8 @@ export class TransactionInput {
   // TODO: Since this field is used for calculating mass context free, and we already commit to the mass in a dedicated field (on the tx level), it follows that this field is no longer needed, and can be removed if we ever implement a v2 transaction.
   sigOpCount: number;
 
+  utxo?: UtxoEntry;
+
   /**
    * Creates an instance of TransactionInput.
    * @param previousOutpoint - The previous transaction outpoint.
@@ -39,7 +42,8 @@ export class TransactionInput {
     previousOutpoint: TransactionOutpoint,
     signatureScript: Uint8Array,
     sequence: bigint,
-    sigOpCount: number
+    sigOpCount: number,
+    utxo: UtxoEntry | undefined = undefined
   ) {
     validateU64(sequence, 'sequence');
     validateU8(sigOpCount, 'sigOpCount');
@@ -48,5 +52,6 @@ export class TransactionInput {
     this.signatureScript = signatureScript;
     this.sequence = sequence;
     this.sigOpCount = sigOpCount;
+    this.utxo = utxo;
   }
 }
