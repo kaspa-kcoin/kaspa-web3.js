@@ -10,6 +10,7 @@ import {
 } from '../../src';
 import { Address, ScriptPublicKey, SubnetworkId } from '../../src';
 import * as fs from 'node:fs';
+import { RpcOutpoint, RpcUtxoEntry, RpcUtxosByAddressesEntry } from '../../src/rpc/types';
 
 function parseTxsFromFile(file: string): SignableTransaction[] {
   const fileContent = fs.readFileSync(file, 'utf8');
@@ -104,6 +105,19 @@ function parseUtxosFromFile(file: string): UtxoEntryReference[] {
   });
 }
 
+function parseRpcUtxosFromFile(file: string): RpcUtxosByAddressesEntry[] {
+  const fileContent = fs.readFileSync(file, 'utf8');
+  const utxos = parseWithBigInt(fileContent);
+
+  return utxos.map((utxo: any) => {
+    return {
+      address: utxo.address,
+      outpoint: utxo.outpoint as RpcOutpoint,
+      utxoEntry: utxo.utxoEntry as RpcUtxoEntry
+    };
+  });
+}
+
 function parseWithBigInt(jsonString: string) {
   return JSON.parse(jsonString, (_, value) => {
     if (typeof value === 'string' && value.endsWith('n')) {
@@ -113,4 +127,4 @@ function parseWithBigInt(jsonString: string) {
   });
 }
 
-export { parseTxsFromFile, parseUtxosFromFile };
+export { parseTxsFromFile, parseUtxosFromFile, parseRpcUtxosFromFile };
