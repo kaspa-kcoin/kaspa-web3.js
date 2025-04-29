@@ -1,11 +1,14 @@
 import { RpcClient, NetworkId, kaspaToSompi, Resolver, SendKasParams, Fees, Generator } from '../src';
 
 async function transferKas() {
-  const privateKey = 'your-private-key-hex';
+  // Load private key from environment variable to avoid hardcoding secrets
+  const privateKey = process.env.KASPA_PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error('KASPA_PRIVATE_KEY environment variable is required');
+  }
   const networkId = NetworkId.Testnet10;
   const rpcClient = new RpcClient({ resolver: new Resolver(), networkId });
   const PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
-
   // Define the receiver's address and transfer details
   const senderAddress = 'kaspatest:qrcln7p9ggre8wdmcvm85pqp083sqlrqwpayzrl4xwn4k42lcxlhx6e89pls9';
   const receiverAddress = 'kaspatest:qptse3wdeeygc960dy84y45xr3y8nuggs8fq500tc2gq243lts6ckk3slrdzf';
