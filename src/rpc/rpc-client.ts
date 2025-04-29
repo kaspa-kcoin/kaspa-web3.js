@@ -1234,7 +1234,8 @@ export class RpcClient implements RpcEventObservable {
             : 'unsubscribe'
     };
     if (event) {
-      request[event] = params;
+      request.params = {};
+      if (params) request.params[event] = params;
     } else {
       request.params = params;
     }
