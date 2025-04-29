@@ -21,17 +21,23 @@ async function transferKas() {
   const generator = new Generator(sentKasParams.toGeneratorSettings(utxos));
 
   while (true) {
-    const transaction = generator.generateTransaction();
-    if (transaction === undefined) {
-      break;
-    }
+    try {
+      const transaction = generator.generateTransaction();
+      if (transaction === undefined) {
+        console.log('No more transactions to generate');
+        break;
+      }
 
-    const signedTx = await transaction.sign([privateKey]);
-    await rpcClient!.submitTransaction({
-      transaction: signedTx.toSubmittableJsonTx(),
-      allowOrphan: false
-    });
-    console.log(`Transaction ${signedTx.transaction.id} sent successfully!`);
+      const signedTx = await transaction.sign([privateKey]);
+      const result = await rpcClient.submitTransaction({
+        transaction: signedTx.toSubmittableJsonTx(),
+        allowOrphan: false
+      });
+      console.log(`Transaction ${signedTx.transaction.id} sent successfully!`);
+    } catch (error) {
+      console.error('Error generating or submitting transaction:', error);
+      throw error; // Rethrow to stop the process or handle as needed
+    }
   }
 }
 
