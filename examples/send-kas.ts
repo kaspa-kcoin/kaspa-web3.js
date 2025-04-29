@@ -1,0 +1,35 @@
+import { RpcClient, NetworkId, kaspaToSompi, Resolver, SendKasParams, Fees, Generator } from '../src';
+
+async function transferKas() {
+  const privateKey = 'your-private-key-hex';
+  const networkId = NetworkId.Testnet10;
+  const rpcClient = new RpcClient({ resolver: new Resolver(), networkId });
+  const PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
+
+  // Define the receiver's address and transfer details
+  const senderAddress = 'kaspatest:qrcln7p9ggre8wdmcvm85pqp083sqlrqwpayzrl4xwn4k42lcxlhx6e89pls9';
+  const receiverAddress = 'kaspatest:qptse3wdeeygc960dy84y45xr3y8nuggs8fq500tc2gq243lts6ckk3slrdzf';
+  const amount = kaspaToSompi(10);
+  console.log(`Sending ${amount} KAS from ${senderAddress} to ${receiverAddress}`);
+  const sentKasParams = new SendKasParams(receiverAddress, amount, receiverAddress, NetworkId.Testnet10, PRIORITY_FEES);
+
+  const { entries: utxos } = await rpcClient.getUtxosByAddresses([senderAddress]);
+  const generator = new Generator(sentKasParams.toGeneratorSettings(utxos));
+
+  while (true) {
+    const transaction = generator.generateTransaction();
+    if (transaction === undefined) {
+      break;
+    }
+
+    const signedTx = await transaction.sign([privateKey]);
+    await rpcClient!.submitTransaction({
+      transaction: signedTx.toSubmittableJsonTx(),
+      allowOrphan: false
+    });
+    console.log(`Transaction ${signedTx.transaction.id} sent successfully!`);
+  }
+}
+
+// bun run examples/sendKas.ts
+transferKas();
