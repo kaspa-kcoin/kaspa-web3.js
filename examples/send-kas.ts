@@ -10,12 +10,13 @@ async function transferKas() {
   const rpcClient = new RpcClient({ resolver: new Resolver(), networkId });
   const PRIORITY_FEES = new Fees(kaspaToSompi(0.02));
   // Define the receiver's address and transfer details
-  const senderAddress = 'kaspatest:qrcln7p9ggre8wdmcvm85pqp083sqlrqwpayzrl4xwn4k42lcxlhx6e89pls9';
-  const receiverAddress = 'kaspatest:qptse3wdeeygc960dy84y45xr3y8nuggs8fq500tc2gq243lts6ckk3slrdzf';
+  // Replace with your own addresses or load from environment variables
+  const senderAddress = process.env.KASPA_SENDER_ADDRESS || 'kaspatest:qrcln7p9ggre8wdmcvm85pqp083sqlrqwpayzrl4xwn4k42lcxlhx6e89pls9';
+  const receiverAddress = process.env.KASPA_RECEIVER_ADDRESS || 'kaspatest:qptse3wdeeygc960dy84y45xr3y8nuggs8fq500tc2gq243lts6ckk3slrdzf';
+  
   const amount = kaspaToSompi(10);
   console.log(`Sending ${amount} KAS from ${senderAddress} to ${receiverAddress}`);
   const sentKasParams = new SendKasParams(receiverAddress, amount, receiverAddress, NetworkId.Testnet10, PRIORITY_FEES);
-
   const { entries: utxos } = await rpcClient.getUtxosByAddresses([senderAddress]);
   const generator = new Generator(sentKasParams.toGeneratorSettings(utxos));
 
