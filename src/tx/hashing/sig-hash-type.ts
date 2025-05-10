@@ -21,6 +21,18 @@ class SigHashType {
     return (this.value & SIG_HASH_ANY_ONE_CAN_PAY.value) === SIG_HASH_ANY_ONE_CAN_PAY.value;
   }
 
+  equals(other: SigHashType): boolean {
+    if (other instanceof SigHashType) {
+      return this.value === other.value;
+    }
+
+    if (typeof other === 'number') {
+      return this.value === other;
+    }
+
+    return false;
+  }
+
   static fromU8(val: number): SigHashType {
     if (!ALLOWED_SIG_HASH_TYPES_VALUES.includes(val)) {
       throw new Error('invalid sighash type');
