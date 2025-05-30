@@ -50,16 +50,15 @@ class Resolver extends BaseResolver {
     const endpoints = await super.getAllNodeEndpoints(networkId);
     const jsonEndpoints = endpoints.map((url) => url.replace('borsh', 'json'));
     const allEndpoints = [...jsonEndpoints, ...this.extendEndpoints];
-    const reachableEndpoints: string[] = [];
 
     const promises = allEndpoints.map((endpoint) =>
       this.testConnection(endpoint)
-        .then((reachableEndpoint) => reachableEndpoints.push(reachableEndpoint))
-        .catch(() => null)
     );
 
-    await Promise.allSettled(promises);
-    return reachableEndpoints;
+    const results = await Promise.allSettled(promises);
+    return results
+      .filter((result): result is PromiseFulfilledResult<string> => result.status === 'fulfilled')
+      .map(result => result.value);
   }
 
   private testConnection = (endpoint: string): Promise<string> => {
