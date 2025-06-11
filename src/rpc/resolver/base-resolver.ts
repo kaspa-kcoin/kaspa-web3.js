@@ -95,7 +95,7 @@ abstract class BaseResolver {
     const fullUrl = this.makeUrl(url, networkId);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 50000);
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     let response: Response;
 
     try {
