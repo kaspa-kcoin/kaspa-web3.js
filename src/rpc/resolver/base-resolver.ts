@@ -60,7 +60,9 @@ abstract class BaseResolver {
    */
   protected async getAllNodeEndpoints(networkId: NetworkId): Promise<string[]> {
     const nodes = await this.fetchAll(networkId);
-    return nodes.map((node) => node.url);
+    const urls = nodes.map((node) => node.url);
+    // Remove duplicate URLs
+    return [...new Set(urls)];
   }
 
   /**
@@ -134,15 +136,14 @@ abstract class BaseResolver {
    * @returns {Promise<INodeDescriptor[]>} A promise that resolves to an array of node descriptors.
    */
   private async fetchAll(networkId: NetworkId): Promise<INodeDescriptor[]> {
-    const results: INodeDescriptor[] = [];
     const fetchPromises = this.seedAddresses.map((seed) =>
       this.fetchNodeInfo(seed, networkId)
-        .then((node) => results.push(node))
-        .catch(() => null)
     );
 
-    await Promise.allSettled(fetchPromises);
-    return results;
+    const results = await Promise.allSettled(fetchPromises);
+    return results
+      .filter((result): result is PromiseFulfilledResult<INodeDescriptor> => result.status === 'fulfilled')
+      .map(result => result.value);
   }
 }
 
