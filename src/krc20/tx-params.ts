@@ -278,8 +278,15 @@ class Krc20TransferParams extends Krc20TxParams {
    * @returns The script builder.
    */
   get script(): ScriptBuilder {
-    const { tick, to, amount } = this.options as Krc20TransferOptions;
-    const data = { p: 'krc-20', op: 'transfer', tick, amt: amount.toString(), to } as any;
+    const { tick, ca, to, amount } = this.options as Krc20TransferOptions;
+    const data = {
+      p: 'krc-20',
+      op: 'transfer',
+      ...(tick && { tick }),
+      ...(ca && { ca }),
+      amt: amount.toString(),
+      to
+    } as any;
     return this.getScriptBuilder(data);
   }
 }
