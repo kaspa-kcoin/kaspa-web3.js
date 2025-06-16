@@ -157,5 +157,27 @@ describe('Krc20TxParams', () => {
         'Invalid ca format'
       );
     });
+
+    it('should throw an error when both tick and ca are provided', () => {
+      const options = {
+        tick: 'TEST',
+        ca: '1234567890123456789012345678901234567890123456789012345678901234',
+        to: 'kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls',
+        amount: 100n
+      };
+      expect(() => new Krc20TransferParams(senderAddress, networkId, priorityFee, options)).toThrow(
+        'Cannot specify both tick and ca'
+      );
+    });
+
+    it('should throw an error when neither tick nor ca is provided', () => {
+      const options = {
+        to: 'kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls',
+        amount: 100n
+      } as any;
+      expect(() => new Krc20TransferParams(senderAddress, networkId, priorityFee, options)).toThrow(
+        'Must specify either tick or ca'
+      );
+    });
   });
 });

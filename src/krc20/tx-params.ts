@@ -30,6 +30,7 @@ interface Krc20MintOptions {
 
 /**
  * Options for transferring a KRC-20 token.
+ * Either tick or ca must be provided, but not both.
  */
 interface Krc20TransferOptions {
   tick?: string;
@@ -75,11 +76,15 @@ abstract class Krc20TxParams {
       const isValidCa = options.ca.match(/^[a-zA-Z0-9]{64}$/);
 
       if (!isValidCa) throw new Error('Invalid ca format');
-    } else if ('tick' in options && options.tick !== undefined) {
+    }
+
+    if ('tick' in options && options.tick !== undefined) {
       const isValidTick = options.tick.match(/^[a-zA-Z]{4,6}$/);
 
       if (!isValidTick) throw new Error('Invalid tick');
-    } else {
+    }
+
+    if (!('ca' in options && options.ca !== undefined) && !('tick' in options && options.tick !== undefined)) {
       throw new Error('Missing ca or tick');
     }
 
@@ -269,6 +274,8 @@ class Krc20TransferParams extends Krc20TxParams {
   ) {
     if (options.amount <= 0n) throw new Error('amount must be greater than 0');
     if (!Address.validate(options.to)) throw new Error('Invalid address format');
+    if (options.tick !== undefined && options.ca !== undefined) throw new Error('Cannot specify both tick and ca');
+    if (options.tick === undefined && options.ca === undefined) throw new Error('Must specify either tick or ca');
 
     super(sender, networkId, revealTxPriorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
   }
