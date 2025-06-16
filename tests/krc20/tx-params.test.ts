@@ -93,6 +93,18 @@ describe('Krc20TxParams', () => {
       expect(params.options.tick).toBe('TEST');
     });
 
+    it('should create a valid Krc20TransferParams instance with ca field', () => {
+      const options = {
+        ca: '1234567890123456789012345678901234567890123456789012345678901234', // 64 chars
+        to: 'kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls',
+        amount: 100n
+      };
+      const params = new Krc20TransferParams(senderAddress, networkId, priorityFee, options);
+      expect(params).toBeInstanceOf(Krc20TransferParams);
+      expect('ca' in params.options).toBeTruthy();
+      expect((params.options as any).ca).toBe('1234567890123456789012345678901234567890123456789012345678901234');
+    });
+
     it('should throw an error for amount less than or equal to zero', () => {
       const options = {
         tick: 'TEST',
@@ -112,6 +124,37 @@ describe('Krc20TxParams', () => {
       };
       expect(() => new Krc20TransferParams(senderAddress, networkId, priorityFee, options)).toThrow(
         'Invalid address format'
+      );
+    });
+
+    it('should throw an error for ca with invalid length', () => {
+      const options = {
+        ca: '123456789012345678901234567890123456789012345678901234567890123', // 63 chars (too short)
+        to: 'kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls',
+        amount: 100n
+      };
+      expect(() => new Krc20TransferParams(senderAddress, networkId, priorityFee, options)).toThrow(
+        'Invalid ca format'
+      );
+
+      const options2 = {
+        ca: '12345678901234567890123456789012345678901234567890123456789012345', // 65 chars (too long)
+        to: 'kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls',
+        amount: 100n
+      };
+      expect(() => new Krc20TransferParams(senderAddress, networkId, priorityFee, options2)).toThrow(
+        'Invalid ca format'
+      );
+    });
+
+    it('should throw an error for ca with invalid characters', () => {
+      const options = {
+        ca: '12345678901234567890123456789012345678901234567890123456789012!', // contains special character
+        to: 'kaspatest:qp3leh6s6t85put26yfy7c50ragzk266s700wtxvyrmjzznnlglg2qs70c3ls',
+        amount: 100n
+      };
+      expect(() => new Krc20TransferParams(senderAddress, networkId, priorityFee, options)).toThrow(
+        'Invalid ca format'
       );
     });
   });
