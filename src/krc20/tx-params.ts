@@ -72,20 +72,24 @@ abstract class Krc20TxParams {
     commitTxPriorityFee: Fees = Fees.from(0n),
     commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
   ) {
-    if ('ca' in options && options.ca !== undefined) {
-      const isValidCa = options.ca.match(/^[a-zA-Z0-9]{64}$/);
+    const hasCa = 'ca' in options && typeof options.ca === 'string' && options.ca.length > 0;
+    const hasTick = typeof options.tick === 'string' && options.tick.length > 0;
 
-      if (!isValidCa) throw new Error('Invalid ca format');
+    if (hasCa && hasTick) {
+      throw new Error('Cannot specify both tick and ca');
     }
-
-    if ('tick' in options && options.tick !== undefined) {
-      const isValidTick = options.tick.match(/^[a-zA-Z]{4,6}$/);
-
-      if (!isValidTick) throw new Error('Invalid tick');
+    if (!hasCa && !hasTick) {
+      throw new Error('Must specify either tick or ca');
     }
-
-    if (!('ca' in options && options.ca !== undefined) && !('tick' in options && options.tick !== undefined)) {
-      throw new Error('Missing ca or tick');
+    if (hasCa) {
+      if (!/^[a-zA-Z0-9]{64}$/.test(options.ca!)) {
+        throw new Error('Invalid ca format');
+      }
+    }
+    if (hasTick) {
+      if (!/^[a-zA-Z]{4,6}$/.test(options.tick!)) {
+        throw new Error('Invalid tick');
+      }
     }
 
     this.sender = typeof sender === 'string' ? Address.fromString(sender) : sender;
