@@ -293,8 +293,7 @@ class Krc20TransferParams extends Krc20TxParams {
     const data = {
       p: 'krc-20',
       op: 'transfer',
-      ...(tick && { tick }),
-      ...(ca && { ca }),
+      ...(tick ? { tick } : { ca }),
       amt: amount.toString(),
       to
     } as any;
