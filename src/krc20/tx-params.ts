@@ -1,8 +1,8 @@
 import { Address } from '../address';
 import { NetworkId } from '../consensus';
 import { RpcUtxosByAddressesEntry } from '../rpc/types';
-import { Fees, UtxoEntryReference, GeneratorSettings, PaymentOutput, TransactionId, TransactionOutpoint } from '../tx';
-import { ScriptBuilder, OpCodes } from '../tx/script';
+import { Fees, GeneratorSettings, PaymentOutput, TransactionId, TransactionOutpoint, UtxoEntryReference } from '../tx';
+import { OpCodes, ScriptBuilder } from '../tx/script';
 import { addressFromScriptPublicKey, kaspaToSompi } from '../utils';
 import { validateU64, validateU8 } from '../validator.ts';
 
@@ -30,9 +30,11 @@ interface Krc20MintOptions {
 
 /**
  * Options for transferring a KRC-20 token.
+ * Either tick or ca must be provided, but not both.
  */
 interface Krc20TransferOptions {
-  tick: string;
+  tick?: string;
+  ca?: string;
   to: string;
   amount: bigint;
 }
@@ -70,9 +72,26 @@ abstract class Krc20TxParams {
     commitTxPriorityFee: Fees = Fees.from(0n),
     commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
   ) {
-    if (options.tick.length < 4 || options.tick.length > 6 || !options.tick.match(/^[a-zA-Z]+$/)) {
-      throw new Error('Invalid tick');
+    const hasCa = 'ca' in options && typeof options.ca === 'string' && options.ca.length > 0;
+    const hasTick = typeof options.tick === 'string' && options.tick.length > 0;
+
+    if (hasCa && hasTick) {
+      throw new Error('Cannot specify both tick and ca');
     }
+    if (!hasCa && !hasTick) {
+      throw new Error('Must specify either tick or ca');
+    }
+    if (hasCa) {
+      if (!/^[a-zA-Z0-9]{64}$/.test(options.ca!)) {
+        throw new Error('Invalid ca format');
+      }
+    }
+    if (hasTick) {
+      if (!/^[a-zA-Z]{4,6}$/.test(options.tick!)) {
+        throw new Error('Invalid tick');
+      }
+    }
+
     this.sender = typeof sender === 'string' ? Address.fromString(sender) : sender;
     this.networkId = networkId;
     this.outputAmount = commitTxOutputAmount;
@@ -259,6 +278,8 @@ class Krc20TransferParams extends Krc20TxParams {
   ) {
     if (options.amount <= 0n) throw new Error('amount must be greater than 0');
     if (!Address.validate(options.to)) throw new Error('Invalid address format');
+    if (options.tick !== undefined && options.ca !== undefined) throw new Error('Cannot specify both tick and ca');
+    if (options.tick === undefined && options.ca === undefined) throw new Error('Must specify either tick or ca');
 
     super(sender, networkId, revealTxPriorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
   }
@@ -268,8 +289,14 @@ class Krc20TransferParams extends Krc20TxParams {
    * @returns The script builder.
    */
   get script(): ScriptBuilder {
-    const { tick, to, amount } = this.options as Krc20TransferOptions;
-    const data = { p: 'krc-20', op: 'transfer', tick, amt: amount.toString(), to } as any;
+    const { tick, ca, to, amount } = this.options as Krc20TransferOptions;
+    const data = {
+      p: 'krc-20',
+      op: 'transfer',
+      ...(tick ? { tick } : { ca }),
+      amt: amount.toString(),
+      to
+    } as any;
     return this.getScriptBuilder(data);
   }
 }
