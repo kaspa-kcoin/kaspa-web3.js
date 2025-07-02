@@ -1,0 +1,20 @@
+{
+  "message": "OK",
+  "result": {
+    "deployer": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4",
+    "buri": "ipfs://QmYourBaseURI/",
+    "max": "10000",
+    "daaMintStart": "0",
+    "premint": "10",
+    "tick": "APES",
+    "txIdRev": "0x9876543210fedcba",
+    "mtsAdd": "1722000000",
+    "minted": "42",
+    "opScoreMod": "12345",
+    "state": "active",
+    "mtsMod": "1722111111",
+    "opScoreAdd": "67890",
+    "royaltyTo": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4",
+    "royaltyFee": "0.05"
+  }
+}

@@ -6,7 +6,7 @@
 
 ## Overview
 
-The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides utilities and functions to facilitate blockchain operations, including sending KAS and KRC20 tokens.
+The Kaspa Web3.js SDK is a JavaScript/TypeScript library for interacting with the Kaspa blockchain. It provides utilities and functions to facilitate blockchain operations, including sending KAS, KRC-20 tokens, and KRC-721 NFT tokens.
 
 **Note:** The `RpcClient` in this SDK only supports WebSocket JSON-RPC requests.
 
@@ -137,6 +137,43 @@ bun run examples/krc20/<script-name>.ts
 
 Replace `<script-name>` with the name of the script you want to execute (e.g., `deploy`, `mint`, or `transfer`).
 
+### KRC-721 Token Operations
+
+This section provides examples of how to interact with KRC-721 tokens (Non-Fungible Tokens) using the `Krc721RpcClient` class.
+
+#### Prerequisites
+
+- Ensure you have a valid private key for the operations.
+- Set up your environment with the necessary dependencies and configurations.
+
+#### Example Scripts
+
+- **Deploy a KRC-721 Collection**: [deploy.ts](examples/krc721/deploy.ts)
+
+  - Demonstrates how to deploy a new NFT collection with specified parameters.
+
+- **Mint KRC-721 Tokens**: [mint.ts](examples/krc721/mint.ts)
+
+  - Shows how to mint a new NFT to a specified address.
+
+- **Transfer KRC-721 Tokens**: [transfer.ts](examples/krc721/transfer.ts)
+
+  - Illustrates transferring an NFT from one address to another.
+
+- **Set Discount for KRC-721 Minting**: [discount.ts](examples/krc721/discount.ts)
+
+  - Shows how to set a discount for minting operations.
+
+#### Running the Scripts
+
+To run any of the scripts, use the following command:
+
+```bash
+bun run examples/krc721/<script-name>.ts
+```
+
+Replace `<script-name>` with the name of the script you want to execute (e.g., `deploy`, `mint`, `transfer`, or `discount`).
+
 ### Event Subscriptions
 
 You can subscribe to various events using the `RpcClient`.
@@ -182,6 +219,7 @@ Kaspa Web3.js implements transaction construction, signing, and related hashing.
 - `Generator`: A class for generating transactions, including inputs, outputs, and fees.
 - `Resolver`: A utility for resolving network endpoints and selecting the fastest one.
 - `Krc20RpcClient`: A specialized RPC client for interacting with KRC-20 tokens on the Kaspa blockchain.
+- `Krc721RpcClient`: A specialized RPC client for interacting with KRC-721 NFT tokens on the Kaspa blockchain.
 
 </details>
 

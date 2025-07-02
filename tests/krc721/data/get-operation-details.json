@@ -1,0 +1,18 @@
+{
+  "message": "OK",
+  "result": {
+    "p": "krc721",
+    "deployer": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4",
+    "op": "transfer",
+    "tick": "APES",
+    "opData": {
+      "tokenId": "11",
+      "from": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4"
+    },
+    "opScore": "12345",
+    "txIdRev": "0x1234567890abcdef",
+    "mtsAdd": "1722222222",
+    "feeRev": "10000000",
+    "to": "kaspa:qzzzvv57j68mcv3rsd2reshhtv4rcw4xc8snhenp2k4wu4l30jfjxlgfr8qcz"
+  }
+}
