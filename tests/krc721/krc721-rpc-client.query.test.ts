@@ -75,7 +75,7 @@ describe('Krc721RpcClient', () => {
       json: async () => response
     });
 
-    const result = await client.getTokenOwners(tick,);
+    const result = await client.getTokenOwners(tick);
     expect(result).toEqual(response);
   });
 
