@@ -252,10 +252,10 @@ class Krc721DeployParams extends Krc721TxParams {
    */
   get script(): ScriptBuilder {
     const options = this.options as Krc721DeployOptions;
-    const data: Record<string, any> = { 
-      p: 'krc-721', 
-      op: 'deploy', 
-      tick: options.tick, 
+    const data: Record<string, any> = {
+      p: 'krc-721',
+      op: 'deploy',
+      tick: options.tick,
       max: options.max
     };
 
@@ -337,7 +337,11 @@ class Krc721TransferParams extends Krc721TxParams {
     commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
   ) {
     // Validate token ID
-    if (!options.tokenId || isNaN(Number(options.tokenId))) {
+    if (!options.tokenId) {
+      throw new Error('Token ID is required');
+    }
+    const tokenIdNum = Number(options.tokenId);
+    if (!Number.isInteger(tokenIdNum) || tokenIdNum < 0) {
       throw new Error('Invalid token ID');
     }
 
@@ -406,9 +410,9 @@ class Krc721DiscountParams extends Krc721TxParams {
 }
 
 export { Krc721DeployParams, Krc721MintParams, Krc721TransferParams, Krc721DiscountParams, Krc721TxParams };
-export type { 
-  Krc721DeployOptions, 
-  Krc721MintOptions, 
+export type {
+  Krc721DeployOptions,
+  Krc721MintOptions,
   Krc721TransferOptions,
   Krc721DiscountOptions,
   Krc721OperationOptions
