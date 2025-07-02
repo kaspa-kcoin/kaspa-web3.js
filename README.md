@@ -127,6 +127,20 @@ This section provides examples of how to deploy, mint, and transfer KRC-20 token
 - **Transfer KRC-20 Tokens**: [transfer.ts](examples/krc20/transfer.ts)
   - Illustrates transferring tokens from one address to another.
 
+### KNS Domain Operations
+
+This section provides examples of how to perform operations on Kaspa Name Service (KNS) domains using the `KnsRpcClient` class.
+
+#### Prerequisites
+
+- Ensure you have a valid private key for the operations.
+- Set up your environment with the necessary dependencies and configurations.
+
+#### Example Scripts
+
+- **Transfer a KNS Domain**: [transfer.ts](examples/kns/transfer.ts)
+  - Demonstrates how to transfer ownership of a KNS domain to another address.
+
 #### Running the Scripts
 
 To run any of the scripts, use the following command:
