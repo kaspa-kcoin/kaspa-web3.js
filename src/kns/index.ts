@@ -1,2 +1,2 @@
-export * from './rpc-client.ts';
-export * from './tx-params.ts';
+export * from './rpc-client';
+export * from './tx-params';
