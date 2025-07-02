@@ -1,7 +1,7 @@
 export interface Krc721PagerRequest {
   offset?: string;
   limit?: string;
-  direction?: 'forward' | 'backward' | 'back';
+  direction?: 'forward' | 'backward';
 }
 
 interface BaseResponse {
