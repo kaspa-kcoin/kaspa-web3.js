@@ -1,0 +1,33 @@
+{
+  "global": {
+    "version": 0,
+    "txVersion": 0,
+    "inputsModifiable": true,
+    "outputsModifiable": true,
+    "inputCount": 1,
+    "outputCount": 0,
+    "xpubs": {},
+    "proprietaries": {}
+  },
+  "inputs": [
+    {
+      "utxoEntry": {
+        "amount": "12793000000000n",
+        "scriptPublicKey": "0000aa202a9a019a46df485e30a855a24d33d24562b0a2bd50329123b15e2e806e4d7be387",
+        "blockDaaScore": "36151168n",
+        "isCoinbase": false
+      },
+      "previousOutpoint": {
+        "transactionId": "63020db736215f8b1105a9281f7bcbb6473d965ecc45bb2fb5da59bd35e6ff84",
+        "index": 0
+      },
+      "partialSigs": {},
+      "sighashType": 1,
+      "redeemScript": "52204c888b364f2de3e57de09a267c0dbb4f8095392e20d160ac388b99fa35ac03fb207603e51c655e6458bfa51f2c82623e4fd699dfc0b2c05e11069bea8dd62e153752ae",
+      "sigOpCount": 2,
+      "bip32Derivations": {},
+      "proprietaries": {}
+    }
+  ],
+  "outputs": []
+}

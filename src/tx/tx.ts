@@ -212,6 +212,10 @@ class PopulatedTransaction implements IVerifiableTransaction {
   utxo(index: number): UtxoEntry | undefined {
     return this._utxos[index];
   }
+
+  entries(): UtxoEntry[] {
+    return this._utxos;
+  }
 }
 
 /**
