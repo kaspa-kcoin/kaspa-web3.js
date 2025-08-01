@@ -1,0 +1,22 @@
+{
+  "message": "OK",
+  "result": [
+    {
+      "tick": "APES",
+      "tokenId": "1",
+      "buri": "ipfs://QmYourBaseURI/1.json"
+    },
+    {
+      "tick": "APES",
+      "tokenId": "2",
+      "buri": "ipfs://QmYourBaseURI/2.json"
+    },
+    {
+      "tick": "CATS",
+      "tokenId": "5",
+      "buri": "ipfs://QmAnotherBaseURI/5.json"
+    }
+  ],
+  "prev": null,
+  "next": "next-page-token"
+}

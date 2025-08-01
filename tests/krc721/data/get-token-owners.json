@@ -1,0 +1,11 @@
+{
+  "message": "OK",
+  "result": [
+    {
+      "tick": "APES",
+      "tokenId": "1",
+      "owner": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4",
+      "opScoreMod": "12345"
+    }
+  ]
+}

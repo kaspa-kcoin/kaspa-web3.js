@@ -1,0 +1,11 @@
+{
+  "message": "OK",
+  "result": {
+    "blockCount": 1234567,
+    "lastBlockDag": "0x1234567890abcdef",
+    "lastBlockTime": 1722222222,
+    "totalCollections": 158,
+    "totalTokens": 24689,
+    "totalOperations": 56789
+  }
+}
