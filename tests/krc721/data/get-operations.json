@@ -1,0 +1,39 @@
+{
+  "message": "OK",
+  "result": [
+    {
+      "p": "krc721",
+      "deployer": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4",
+      "op": "deploy",
+      "tick": "APES",
+      "opData": {
+        "max": "10000",
+        "daaMintStart": "0",
+        "premint": "10",
+        "buri": "ipfs://QmYourBaseURI/"
+      },
+      "opScore": "67890",
+      "txIdRev": "0x9876543210fedcba",
+      "mtsAdd": "1722000000",
+      "feeRev": "1000000000",
+      "royaltyTo": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4"
+    },
+    {
+      "p": "krc721",
+      "deployer": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4",
+      "op": "mint",
+      "tick": "APES",
+      "opData": {
+        "tokenId": "11",
+        "buri": "ipfs://QmYourBaseURI/11.json"
+      },
+      "opScore": "12345",
+      "txIdRev": "0xabcdef1234567890",
+      "mtsAdd": "1722111111",
+      "feeRev": "1000000",
+      "to": "kaspa:qpauqvj203fx0s5v7qjxwx9p5qe05uy6me6v5jc6vuqjr8dy5xkzc8qvrxrr4"
+    }
+  ],
+  "prev": null,
+  "next": "next-page-token"
+}
