@@ -3,7 +3,7 @@ import { NetworkId } from '../consensus';
 import { Fees, Generator } from '../tx';
 import { Keypair } from '../keypair';
 import { Address } from '..';
-import { KnsTransferParams, KnsTxParams, KnsTransferOptions } from './tx-params';
+import { KnsTransferParams, KnsTxParams, KnsTransferOptions, KnsCreateParams, KnsCreateOptions } from './tx-params';
 import { RpcUtxosByAddressesEntry } from '../rpc/types';
 
 interface KnsRpcClientOptions {
@@ -147,5 +147,20 @@ export class KnsRpcClient {
     const transferParams = new KnsTransferParams(senderAddress, this.networkId, Fees.from(priorityFee), options);
 
     return await this.handleKnsTransaction(transferParams, privateKey);
+  }
+
+  /**
+   * Creates a new KNS domain.
+   * @param options - The create options containing the domain name.
+   * @param priorityFee - The priority fee to set for the reveal transaction, in sompi.
+   * @param privateKey - The private key of the sender's address, hex format.
+   * @returns A promise that resolves to the reveal transaction id.
+   */
+  async create(options: KnsCreateOptions, priorityFee: bigint, privateKey: string): Promise<string> {
+    const senderKey = Keypair.fromPrivateKeyHex(privateKey);
+    const senderAddress = senderKey.toAddress(this.networkId.networkType);
+    const createParams = new KnsCreateParams(senderAddress, this.networkId, Fees.from(priorityFee), options);
+
+    return await this.handleKnsTransaction(createParams, privateKey);
   }
 }

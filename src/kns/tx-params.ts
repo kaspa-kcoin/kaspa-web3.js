@@ -1,11 +1,16 @@
 import { Address } from '../address';
-import { NetworkId } from '../consensus';
+import { NetworkId, NetworkType } from '../consensus';
 import { RpcUtxosByAddressesEntry } from '../rpc/types';
 import { Fees, GeneratorSettings, PaymentOutput, TransactionId, TransactionOutpoint, UtxoEntryReference } from '../tx';
 import { OpCodes, ScriptBuilder } from '../tx/script';
 import { addressFromScriptPublicKey, kaspaToSompi } from '../utils';
+import GraphemeSplitter from 'grapheme-splitter';
 
 const COMMIT_TX_OUTPUT_AMOUNT = kaspaToSompi(0.3);
+const KNS_PAYOUT_ADDRESS = {
+  [NetworkType.Mainnet]: 'kaspa:qyp4nvaq3pdq7609z09fvdgwtc9c7rg07fuw5zgeee7xpr085de59eseqfcmynn',
+  [NetworkType.Testnet]: 'kaspatest:qq9h47etjv6x8jgcla0ecnp8mgrkfxm70ch3k60es5a50ypsf4h6sak3g0lru'
+};
 
 /**
  * Options for transferring a KNS domain.
@@ -16,9 +21,21 @@ interface KnsTransferOptions {
 }
 
 /**
+ * Options for creating a KNS domain.
+ * The fee is automatically calculated based on the domain length:
+ * - 1-2 characters: 420,000,000,000 sompi
+ * - 3 characters: 210,000,000,000 sompi
+ * - 4 characters: 52,500,000,000 sompi
+ * - 5+ characters: 3,500,000,000 sompi
+ */
+interface KnsCreateOptions {
+  domain: string;
+}
+
+/**
  * Union type for KNS operation parameters.
  */
-type KnsOperationOptions = KnsTransferOptions;
+type KnsOperationOptions = KnsTransferOptions | KnsCreateOptions;
 
 /**
  * Abstract class representing KNS transaction parameters.
@@ -28,6 +45,7 @@ abstract class KnsTxParams {
   outputAmount: bigint;
   commitTxPriorityFee?: Fees;
   revealPriorityFee?: Fees;
+  revealOutputs?: PaymentOutput[];
   networkId: NetworkId;
   options: KnsOperationOptions;
 
@@ -109,7 +127,14 @@ abstract class KnsTxParams {
         false
       )
     ];
-    return new GeneratorSettings([], this.sender, uxtos, this.networkId, this.revealPriorityFee, priorityEntries);
+    return new GeneratorSettings(
+      this.revealOutputs ?? [],
+      this.sender,
+      uxtos,
+      this.networkId,
+      this.revealPriorityFee,
+      priorityEntries
+    );
   }
 }
 
@@ -160,5 +185,87 @@ class KnsTransferParams extends KnsTxParams {
   }
 }
 
-export { KnsTransferParams, KnsTxParams };
-export type { KnsTransferOptions };
+/**
+ * Class representing the parameters for creating a KNS domain.
+ */
+class KnsCreateParams extends KnsTxParams {
+  /**
+   * Constructs a new KnsCreateParams instance.
+   * @param sender - The sender's address.
+   * @param networkId - The network ID.
+   * @param revealTxPriorityFee - The priority fee for the reveal transaction.
+   * @param options - The create-specific parameters.
+   * @param commitTxPriorityFee - The priority fee for the commit transaction. Defaults to 0 KAS.
+   * @param commitTxOutputAmount - The output amount for the commit transaction. Defaults to 0.3 KAS.
+   */
+  constructor(
+    sender: Address | string,
+    networkId: NetworkId,
+    revealTxPriorityFee: Fees,
+    options: KnsCreateOptions,
+    commitTxPriorityFee: Fees = Fees.from(0n),
+    commitTxOutputAmount: bigint = COMMIT_TX_OUTPUT_AMOUNT
+  ) {
+    super(sender, networkId, revealTxPriorityFee, options, commitTxPriorityFee, commitTxOutputAmount);
+
+    // Calculate the priority fee based on domain length
+    const splitter = new GraphemeSplitter();
+    const domainLength = splitter.countGraphemes(options.domain);
+    const payoutAddress = networkId.isMainnet()
+      ? KNS_PAYOUT_ADDRESS[NetworkType.Mainnet]
+      : KNS_PAYOUT_ADDRESS[NetworkType.Testnet];
+
+    if (domainLength <= 2) {
+      this.revealOutputs = [
+        {
+          amount: 420000000000n,
+          address: Address.fromString(payoutAddress)
+        }
+      ];
+    } else if (domainLength === 3) {
+      this.revealOutputs = [
+        {
+          amount: 210000000000n,
+          address: Address.fromString(payoutAddress)
+        }
+      ];
+    } else if (domainLength === 4) {
+      this.revealOutputs = [
+        {
+          amount: 52500000000n,
+          address: Address.fromString(payoutAddress)
+        }
+      ];
+    } else {
+      this.revealOutputs = [
+        {
+          amount: 3500000000n,
+          address: Address.fromString(payoutAddress)
+        }
+      ];
+    }
+  }
+
+  /**
+   * Gets the script builder for the domain creation transaction.
+   * @returns The script builder.
+   */
+  get script(): ScriptBuilder {
+    const { domain } = this.options as KnsCreateOptions;
+    const data = JSON.stringify({ op: 'create', p: 'domain', v: domain }, null, 0);
+    const buf = Buffer.from(data);
+
+    return new ScriptBuilder()
+      .addData(this.sender.payload)
+      .addOp(OpCodes.OpCheckSig)
+      .addOp(OpCodes.OpFalse)
+      .addOp(OpCodes.OpIf)
+      .addData(Buffer.from('kns'))
+      .addI64(0n)
+      .addData(buf)
+      .addOp(OpCodes.OpEndIf);
+  }
+}
+
+export { KnsTransferParams, KnsTxParams, KnsCreateParams };
+export type { KnsTransferOptions, KnsCreateOptions };
