@@ -257,7 +257,6 @@ RpcClient only supports WebSocket with JSON serialization. It includes the full 
 
 - `@noble/curves`: ^1.7.0
 - `@noble/hashes`: ^1.6.1
-- `@noble/secp256k1`: ^2.2.1
 - `buffer`: ^6.0.3
 - `toml`: ^3.0.0
 - `websocket-heartbeat-js`: ^1.1.3
