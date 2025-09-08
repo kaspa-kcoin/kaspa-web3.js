@@ -75,6 +75,13 @@ class ScriptPublicKey {
     return JSON.stringify(this);
   }
 
+  equals(other: ScriptPublicKey | Uint8Array): boolean {
+    if (other instanceof ScriptPublicKey) {
+      return this.version === other.version && Buffer.compare(this.script, other.script) === 0;
+    }
+    return Buffer.compare(this.toBytes(), other) === 0;
+  }
+
   /**
    * Create a ScriptPublicKey from a JSON string.
    * @param {string} json - The JSON string.

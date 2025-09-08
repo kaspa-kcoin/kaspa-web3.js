@@ -28,6 +28,21 @@ class TransactionOutpoint {
     this.index = index;
   }
 
+  static fromJson(json: string): TransactionOutpoint {
+    const obj = JSON.parse(json);
+    if (
+      !obj ||
+      (typeof obj.transactionId !== 'string' && !(obj.transactionId instanceof Hash)) ||
+      typeof obj.index !== 'number'
+    ) {
+      throw new Error('Failed to deserialize TransactionOutpoint');
+    }
+    return new TransactionOutpoint(
+      typeof obj.transactionId === 'string' ? Hash.fromHex(obj.transactionId) : obj.transactionId,
+      obj.index
+    );
+  }
+
   /**
    * Checks if this transaction outpoint is equal to another transaction outpoint.
    * @param other - The other transaction outpoint to compare with.

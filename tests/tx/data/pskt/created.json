@@ -1,0 +1,14 @@
+{
+  "global": {
+    "version": 0,
+    "txVersion": 0,
+    "inputsModifiable": true,
+    "outputsModifiable": true,
+    "inputCount": 0,
+    "outputCount": 0,
+    "xpubs": {},
+    "proprietaries": {}
+  },
+  "inputs": [],
+  "outputs": []
+}
